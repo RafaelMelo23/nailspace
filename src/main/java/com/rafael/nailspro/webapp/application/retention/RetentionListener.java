@@ -2,7 +2,7 @@ package com.rafael.nailspro.webapp.application.retention;
 
 import com.rafael.nailspro.webapp.domain.model.Appointment;
 import com.rafael.nailspro.webapp.domain.repository.AppointmentRepository;
-import com.rafael.nailspro.webapp.infrastructure.dto.appointment.event.AppointmentFinishedEvent;
+import com.rafael.nailspro.webapp.infrastructure.dto.appointment.booking.event.AppointmentFinishedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;

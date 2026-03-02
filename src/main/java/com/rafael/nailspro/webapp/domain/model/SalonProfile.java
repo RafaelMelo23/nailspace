@@ -97,6 +97,9 @@ public class SalonProfile extends BaseEntity {
     @Column(name = "tenant_status")
     private TenantStatus tenantStatus;
 
+    @Column(name = "auto_confirmation_appointment", nullable = false)
+    private boolean autoConfirmationAppointment;
+
     @Override
     public void prePersist() {
         super.prePersist();

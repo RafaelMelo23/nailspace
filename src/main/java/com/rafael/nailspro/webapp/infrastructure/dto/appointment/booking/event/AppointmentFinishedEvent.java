@@ -1,4 +1,4 @@
-package com.rafael.nailspro.webapp.infrastructure.dto.appointment.event;
+package com.rafael.nailspro.webapp.infrastructure.dto.appointment.booking.event;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;

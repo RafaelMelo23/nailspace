@@ -1,6 +1,6 @@
 package com.rafael.nailspro.webapp.application.appointment.message;
 
-import com.rafael.nailspro.webapp.infrastructure.dto.appointment.booking.AppointmentBookedEvent;
+import com.rafael.nailspro.webapp.infrastructure.dto.appointment.booking.event.AppointmentConfirmedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -15,10 +15,10 @@ public class AppointmentEventListener {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleBookedAppointment(AppointmentBookedEvent appointmentBookedEvent) {
+    public void handleConfirmedAppointment(AppointmentConfirmedEvent appointmentConfirmedEvent) {
 
         messagingUseCase.sendAppointmentConfirmationMessageAsync(
-                appointmentBookedEvent.appointmentId()
+                appointmentConfirmedEvent.appointmentId()
         );
     }
 }

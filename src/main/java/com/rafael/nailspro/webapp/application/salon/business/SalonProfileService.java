@@ -18,10 +18,15 @@ public class SalonProfileService {
 
     private final SalonProfileRepository repository;
 
-    public SalonProfile getSalonProfileByTenantId(String tenantId) {
+    public SalonProfile getByTenantId(String tenantId) {
 
         return repository.findByTenantId(tenantId)
                 .orElseThrow(() -> new BusinessException("Salão não encontrado"));
+    }
+
+    public boolean isAutoConfirmationEnabled(String tenantId) {
+
+        return repository.isAutoConfirmationEnabledForTenant(tenantId);
     }
 
     public TenantStatus getStatusByTenantId(String tenantId) {

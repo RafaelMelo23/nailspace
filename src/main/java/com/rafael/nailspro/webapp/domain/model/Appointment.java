@@ -2,19 +2,20 @@ package com.rafael.nailspro.webapp.domain.model;
 
 import com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentStatus;
 import com.rafael.nailspro.webapp.infrastructure.dto.appointment.AppointmentCreateDTO;
+import com.rafael.nailspro.webapp.infrastructure.dto.appointment.booking.event.AppointmentConfirmedEvent;
 import com.rafael.nailspro.webapp.infrastructure.dto.appointment.date.TimeInterval;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.domain.AfterDomainEventPublication;
+import org.springframework.data.domain.DomainEvents;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Getter @Setter
@@ -47,6 +48,7 @@ public class Appointment extends BaseEntity {
     @Column(name = "observations", length = 120)
     private String observations;
 
+    @Setter(AccessLevel.PACKAGE)
     @Enumerated(EnumType.STRING)
     @Column(name = "appointment_status")
     private AppointmentStatus appointmentStatus;
@@ -70,6 +72,23 @@ public class Appointment extends BaseEntity {
     @OneToMany(mappedBy = "appointment", orphanRemoval = true)
     private List<AppointmentNotification> appointmentNotifications = new ArrayList<>();
 
+    @Transient
+    private final List<Object> domainEvents = new ArrayList<>();
+
+    private void registerEvent(Object event) {
+        this.domainEvents.add(event);
+    }
+
+    @DomainEvents
+    public Collection<Object> domainEvents() {
+        return domainEvents;
+    }
+
+    @AfterDomainEventPublication
+    public void clearEvents() {
+        domainEvents.clear();
+    }
+
     public void miss() {
         this.setAppointmentStatus(AppointmentStatus.MISSED);
     }
@@ -78,12 +97,17 @@ public class Appointment extends BaseEntity {
         this.setAppointmentStatus(AppointmentStatus.CANCELLED);
     }
 
-    public void confirm() {
-        this.setAppointmentStatus(AppointmentStatus.CONFIRMED);
-    }
-
     public void finish() {
         this.setAppointmentStatus(AppointmentStatus.FINISHED);
+    }
+
+    public void confirm() {
+        if (this.appointmentStatus == AppointmentStatus.CONFIRMED) {
+            return;
+        }
+
+        this.appointmentStatus = AppointmentStatus.CONFIRMED;
+        registerEvent(new AppointmentConfirmedEvent(this.id));
     }
 
     public BigDecimal calculateTotalValue() {
@@ -122,6 +146,10 @@ public class Appointment extends BaseEntity {
                 .build();
 
         appointment.setTotalValue(appointment.calculateTotalValue());
+
+        if (salonProfile.isAutoConfirmationAppointment()) {
+            appointment.confirm();
+        }
 
         return appointment;
     }

@@ -45,36 +45,36 @@ public class ProfessionalAppointmentManagementController {
     @PatchMapping("/{appointmentId}/confirm")
     public ResponseEntity<Void> confirmAppointment(
             @PathVariable @Positive(message = "O identificador do agendamento deve ser positivo") Long appointmentId,
-            @RequestParam @Positive(message = "O identificador do cliente deve ser positivo") Long clientId
+            @AuthenticationPrincipal UserPrincipal principal
     ) {
-        professionalAppointmentStatusUseCase.confirm(appointmentId, clientId);
+        professionalAppointmentStatusUseCase.confirm(appointmentId, principal.getUserId());
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{appointmentId}/finish")
     public ResponseEntity<Void> finishAppointment(
             @PathVariable @Positive(message = "O identificador do agendamento deve ser positivo") Long appointmentId,
-            @RequestParam @Positive(message = "O identificador do cliente deve ser positivo") Long clientId
+            @AuthenticationPrincipal UserPrincipal principal
     ) {
-        professionalAppointmentStatusUseCase.finish(appointmentId, clientId);
+        professionalAppointmentStatusUseCase.finish(appointmentId, principal.getUserId());
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{appointmentId}/cancel")
     public ResponseEntity<Void> cancelAppointment(
             @PathVariable @Positive(message = "O identificador do agendamento deve ser positivo") Long appointmentId,
-            @RequestParam @Positive(message = "O identificador do cliente deve ser positivo") Long clientId
+            @AuthenticationPrincipal UserPrincipal principal
     ) {
-        professionalAppointmentStatusUseCase.cancel(appointmentId, clientId);
+        professionalAppointmentStatusUseCase.cancel(appointmentId, principal.getUserId());
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{appointmentId}/miss")
     public ResponseEntity<Void> missedAppointment(
             @PathVariable @Positive(message = "O identificador do agendamento deve ser positivo") Long appointmentId,
-            @RequestParam @Positive(message = "O identificador do cliente deve ser positivo") Long clientId
+            @AuthenticationPrincipal UserPrincipal principal
     ) {
-        professionalAppointmentStatusUseCase.miss(appointmentId, clientId);
+        professionalAppointmentStatusUseCase.miss(appointmentId, principal.getUserId());
         return ResponseEntity.noContent().build();
     }
 }

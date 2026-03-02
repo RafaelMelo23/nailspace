@@ -1,6 +1,5 @@
 package com.rafael.nailspro.webapp.application.appointment.booking;
 
-import com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentStatus;
 import com.rafael.nailspro.webapp.domain.model.Appointment;
 import com.rafael.nailspro.webapp.domain.repository.AppointmentRepository;
 import com.rafael.nailspro.webapp.domain.repository.ClientRepository;
@@ -27,7 +26,7 @@ public class CancelAppointmentUseCase {
 
         Appointment appointment = appointmentRepository.findAndValidateClientOwnership(appointmentId, clientId)
                 .orElseThrow(() -> new BusinessException("Esse agendamento não pertence ao usuário"));
-        appointment.setAppointmentStatus(AppointmentStatus.CANCELLED);
+        appointment.cancel();
 
         Instant twoDaysFromNow = Instant.now().plus(2, ChronoUnit.DAYS);
 

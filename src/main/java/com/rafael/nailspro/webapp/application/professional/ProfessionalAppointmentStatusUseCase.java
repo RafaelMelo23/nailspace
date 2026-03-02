@@ -2,9 +2,9 @@ package com.rafael.nailspro.webapp.application.professional;
 
 import com.rafael.nailspro.webapp.domain.model.Appointment;
 import com.rafael.nailspro.webapp.domain.repository.AppointmentRepository;
-import com.rafael.nailspro.webapp.infrastructure.dto.appointment.event.AppointmentCancelledEvent;
-import com.rafael.nailspro.webapp.infrastructure.dto.appointment.event.AppointmentFinishedEvent;
-import com.rafael.nailspro.webapp.infrastructure.dto.appointment.event.AppointmentMissedEvent;
+import com.rafael.nailspro.webapp.infrastructure.dto.appointment.booking.event.AppointmentCancelledEvent;
+import com.rafael.nailspro.webapp.infrastructure.dto.appointment.booking.event.AppointmentFinishedEvent;
+import com.rafael.nailspro.webapp.infrastructure.dto.appointment.booking.event.AppointmentMissedEvent;
 import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -20,13 +20,13 @@ public class ProfessionalAppointmentStatusUseCase {
 
     @Transactional
     public void confirm(Long appointmentId, Long professionalId) {
-        Appointment appointment = getAppointment(appointmentId, professionalId);
+        Appointment appointment = getAppointmentAndProfessionalOwnership(appointmentId, professionalId);
         appointment.confirm();
     }
 
     @Transactional
     public void finish(Long appointmentId, Long professionalId) {
-        Appointment appointment = getAppointment(appointmentId, professionalId);
+        Appointment appointment = getAppointmentAndProfessionalOwnership(appointmentId, professionalId);
 
         appointment.finish();
 
@@ -43,7 +43,7 @@ public class ProfessionalAppointmentStatusUseCase {
 
     @Transactional
     public void cancel(Long appointmentId, Long professionalId) {
-        Appointment appointment = getAppointment(appointmentId, professionalId);
+        Appointment appointment = getAppointmentAndProfessionalOwnership(appointmentId, professionalId);
 
         appointment.cancel();
 
@@ -58,7 +58,7 @@ public class ProfessionalAppointmentStatusUseCase {
 
     @Transactional
     public void miss(Long appointmentId, Long professionalId) {
-        Appointment appointment = getAppointment(appointmentId, professionalId);
+        Appointment appointment = getAppointmentAndProfessionalOwnership(appointmentId, professionalId);
 
         appointment.miss();
 
@@ -71,7 +71,7 @@ public class ProfessionalAppointmentStatusUseCase {
         );
     }
 
-    private Appointment getAppointment(Long appointmentId, Long professionalId) {
+    private Appointment getAppointmentAndProfessionalOwnership(Long appointmentId, Long professionalId) {
         return appointmentRepository
                 .findAndValidateProfessionalOwnership(appointmentId, professionalId)
                 .orElseThrow(() ->

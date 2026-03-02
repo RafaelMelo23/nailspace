@@ -10,11 +10,9 @@ import com.rafael.nailspro.webapp.domain.repository.AppointmentRepository;
 import com.rafael.nailspro.webapp.domain.repository.ClientRepository;
 import com.rafael.nailspro.webapp.domain.repository.ProfessionalRepository;
 import com.rafael.nailspro.webapp.infrastructure.dto.appointment.AppointmentCreateDTO;
-import com.rafael.nailspro.webapp.infrastructure.dto.appointment.booking.AppointmentBookedEvent;
 import com.rafael.nailspro.webapp.infrastructure.dto.appointment.date.TimeInterval;
 import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +29,6 @@ public class BookingAppointmentUseCase {
     private final AvailabilityDomainService availabilityDomainService;
     private final SalonProfileService salonProfileService;
     private final BookingPolicyService bookingPolicyManager;
-    private final ApplicationEventPublisher eventPublisher;
     private final ProfessionalRepository professionalRepository;
     private final SalonServiceService salonService;
 
@@ -58,11 +55,11 @@ public class BookingAppointmentUseCase {
         SalonProfile salonProfile =
                 salonProfileService.getByTenantId(principal.getTenantId());
 
-        long duration =
-                Appointment.calculateDurationInSeconds(mainService, addOns);
-
         TimeInterval interval =
-                Appointment.calculateIntervalAndBuffer(dto, duration, salonProfile);
+                Appointment.calculateIntervalAndBuffer(
+                        dto,
+                        Appointment.calculateDurationInSeconds(mainService, addOns),
+                        salonProfile);
 
         workScheduleService.checkProfessionalAvailability(professionalId, interval);
 
@@ -84,10 +81,6 @@ public class BookingAppointmentUseCase {
                         interval
                 );
 
-        Appointment saved = repository.save(appointment);
-
-        eventPublisher.publishEvent(
-                new AppointmentBookedEvent(saved.getId())
-        );
+        repository.save(appointment);
     }
 }

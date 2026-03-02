@@ -1,4 +1,4 @@
-package com.rafael.nailspro.webapp.infrastructure.controller.api.evolution.webhook;
+package com.rafael.nailspro.webapp.infrastructure.controller.api.evolution;
 
 import com.rafael.nailspro.webapp.application.whatsapp.ManageWhatsappConnectionUseCase;
 import com.rafael.nailspro.webapp.domain.enums.evolution.WhatsappConnectionMethod;

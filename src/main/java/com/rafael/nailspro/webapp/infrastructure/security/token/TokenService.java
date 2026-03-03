@@ -11,6 +11,7 @@ import com.rafael.nailspro.webapp.domain.enums.security.TokenPurpose;
 import com.rafael.nailspro.webapp.domain.model.User;
 import com.rafael.nailspro.webapp.infrastructure.dto.auth.ResetPasswordDTO;
 import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
+import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -46,16 +47,18 @@ public class TokenService {
         }
     }
 
-    public DecodedJWT recoverAndValidate(HttpServletRequest request) {
+    public DecodedJWT recoverAndValidate(ServletRequest servletRequest) {
 
-        return validateAndDecode(recover(request));
+        return validateAndDecode(recover(servletRequest));
     }
 
-    public String recover(HttpServletRequest request) {
-        String authorizationHeader = request.getHeader("Authorization");
+    public String recover(ServletRequest servletRequest) {
 
-        if (authorizationHeader != null) {
-            if (authorizationHeader.startsWith("Bearer ")) {
+        if (servletRequest instanceof HttpServletRequest request) {
+
+            String authorizationHeader = request.getHeader("Authorization");
+
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
                 return authorizationHeader.substring(7);
             }
         }

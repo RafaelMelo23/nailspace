@@ -16,16 +16,9 @@ import org.hibernate.annotations.ParamDef;
 @SuperBuilder
 @Getter @Setter
 @MappedSuperclass
-@FilterDef(
-        name = "tenantFilter",
-        parameters = @ParamDef(name = "tenantId", type = String.class)
-)
-@Filter(name = "tenantFilter",
-        condition = "tenant_Id = :tenantId"
-)
 public class BaseEntity {
 
-    @Column(name = "tenant_Id", nullable = false, updatable = false)
+    @Column(name = "tenant_id", nullable = false, updatable = false)
     private String tenantId;
 
     @PrePersist

@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Filter;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -19,6 +20,9 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "retention_forecast")
+@Filter(name = "tenantFilter",
+        condition = "tenant_id = :tenantId"
+)
 public class RetentionForecast extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

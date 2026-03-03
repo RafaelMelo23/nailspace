@@ -4,6 +4,7 @@ import com.rafael.nailspro.webapp.application.appointment.message.AppointmentMes
 import com.rafael.nailspro.webapp.domain.model.AppointmentNotification;
 import com.rafael.nailspro.webapp.domain.repository.AppointmentNotificationRepository;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,20 +24,22 @@ public class AppointmentConfirmationMessageScheduler {
 
     private final AppointmentMessagingUseCase messagingUseCase;
     private final AppointmentNotificationRepository notificationRepository;
-    private final EntityManager entityManager;
+    private final EntityManagerFactory entityManagerFactory;
 
     @Scheduled(cron = "0 */5 * * * *")
     public void retryFailedConfirmationMessages() {
         final int MAX_RETRIES = 3;
 
-        Session session = entityManager.unwrap(Session.class);
-        session.disableFilter("tenantFilter");
+        try (EntityManager entityManager = entityManagerFactory.createEntityManager()) {
+            Session session = entityManager.unwrap(Session.class);
+            session.disableFilter("tenantFilter");
 
-        List<AppointmentNotification> notifications =
-                notificationRepository.findRetriableMessages(MAX_RETRIES, FAILED, CONFIRMATION);
+            List<AppointmentNotification> notifications =
+                    notificationRepository.findRetriableMessages(MAX_RETRIES, FAILED, CONFIRMATION);
 
-        notifications.forEach(no ->
-                messagingUseCase.processNotification(no.getAppointment().getId(), CONFIRMATION));
+            notifications.forEach(no ->
+                    messagingUseCase.processNotification(no.getAppointment().getId(), CONFIRMATION));
+        }
     }
 
     @Scheduled(cron = "0 0 0 * * *")

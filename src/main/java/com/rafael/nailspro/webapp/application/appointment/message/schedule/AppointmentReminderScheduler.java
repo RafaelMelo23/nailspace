@@ -4,6 +4,7 @@ import com.rafael.nailspro.webapp.application.appointment.message.AppointmentMes
 import com.rafael.nailspro.webapp.domain.model.Appointment;
 import com.rafael.nailspro.webapp.domain.repository.AppointmentRepository;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.Session;
@@ -21,17 +22,22 @@ public class AppointmentReminderScheduler {
 
     private final AppointmentRepository appointmentRepository;
     private final AppointmentMessagingUseCase messagingUseCase;
-    private final EntityManager entityManager;
+    private final EntityManagerFactory entityManagerFactory;
 
     @Scheduled(cron = "0 0/15 * * * *")
     public void scheduleReminders() {
         log.info("Initiating search for appointment reminders");
-        Session session = entityManager.unwrap(Session.class);
-        session.disableFilter("tenantFilter");
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            Session session = em.unwrap(Session.class);
+            session.disableFilter("tenantFilter");
 
+            sendReminders();
+        }
+    }
+
+    private void sendReminders() {
         Instant windowStart = Instant.now();
         Instant nowPlusFiveHours = windowStart.plus(5, ChronoUnit.HOURS);
-
         List<Appointment> upcomingAppointments =
                 appointmentRepository.findAppointmentsNeedingReminder(windowStart, nowPlusFiveHours);
 

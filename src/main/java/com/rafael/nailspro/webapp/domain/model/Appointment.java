@@ -7,6 +7,7 @@ import com.rafael.nailspro.webapp.infrastructure.dto.appointment.date.TimeInterv
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Filter;
 import org.springframework.data.domain.AfterDomainEventPublication;
 import org.springframework.data.domain.DomainEvents;
 
@@ -24,6 +25,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "appointment")
+@Filter(name = "tenantFilter",
+        condition = "tenant_id = :tenantId"
+)
 public class Appointment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

@@ -15,7 +15,11 @@ import com.rafael.nailspro.webapp.infrastructure.exception.TokenRefreshException
 import com.rafael.nailspro.webapp.infrastructure.exception.UserAlreadyExistsException;
 import com.rafael.nailspro.webapp.infrastructure.security.token.TokenService;
 import com.rafael.nailspro.webapp.infrastructure.security.token.refresh.RefreshTokenService;
+import com.rafael.nailspro.webapp.shared.tenant.TenantContext;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Session;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +37,10 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
     private final RefreshTokenService refreshTokenService;
+    @PersistenceContext
+    private EntityManager entityManager;
 
+    @Transactional
     public void register(RegisterDTO registerDTO) {
         checkIfUserAlreadyExists(registerDTO);
 
@@ -63,7 +70,11 @@ public class AuthenticationService {
                 });
     }
 
+    @Transactional
     public AuthResultDTO login(LoginDTO loginDTO) {
+        Session session = entityManager.unwrap(Session.class);
+        session.disableFilter("tenantFilter");
+
         Optional<User> userOptional = userRepository.findByEmailIgnoreCase(loginDTO.email());
         User user;
 
@@ -71,6 +82,11 @@ public class AuthenticationService {
             user = userOptional.get();
             if (!passwordEncoder.matches(loginDTO.password(), user.getPassword())) {
                 throw new BusinessException("Os dados informados são inválidos");
+            }
+
+            String requestTenant = TenantContext.getTenant();
+            if (!user.getTenantId().equals(requestTenant)) {
+                throw new BusinessException("Acesso negado para este estabelecimento.");
             }
         } else {
             passwordEncoder.matches(loginDTO.password(), "$2a$12$p1DeDmHwMBRxNGAJ7II9JefEvHnrPDxCw72YF0nh1Modhwv67y1hK");

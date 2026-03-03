@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.util.LinkedHashSet;
@@ -30,6 +31,9 @@ import java.util.Set;
                         columnNames = {"tenant_Id", "description"}
                 )
         })
+@Filter(name = "tenantFilter",
+        condition = "tenant_id = :tenantId"
+)
 public class SalonService extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

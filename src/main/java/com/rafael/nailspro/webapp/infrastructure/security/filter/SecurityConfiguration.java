@@ -1,6 +1,7 @@
 package com.rafael.nailspro.webapp.infrastructure.security.filter;
 
-import lombok.RequiredArgsConstructor;
+import com.rafael.nailspro.webapp.application.salon.business.SalonProfileService;
+import com.rafael.nailspro.webapp.infrastructure.security.token.TokenService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,13 +16,7 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfiguration {
-
-    private final SecurityFilter securityFilter;
-    private final TenantIdFilter tenantIdFilter;
-    private final TenantStatusFilter tenantStatusFilter;
-    private final SalonMaintenanceFilter salonMaintenanceFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -35,7 +30,19 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilter securityFilter(TokenService tokenService) {
+        return new SecurityFilter(tokenService);
+    }
+
+    // @Bean
+    // public TenantStatusFilter tenantStatusFilter(SalonProfileService salonProfileService) {
+    //     return new TenantStatusFilter(salonProfileService);
+    // }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   SecurityFilter securityFilter
+                                                   ) throws Exception {
 
         http
                 .csrf(csrf -> csrf
@@ -60,11 +67,8 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/v1/booking/**").authenticated()
 
                         .anyRequest().authenticated())
-                .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(tenantIdFilter, securityFilter.getClass())
-                .addFilterAfter(salonMaintenanceFilter, tenantIdFilter.getClass())
-                .addFilterAfter(tenantStatusFilter, tenantIdFilter.getClass()
-                );
+                .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
+             // .addFilterAfter(tenantStatusFilter, SecurityFilter.class);
 
         return http.build();
     }

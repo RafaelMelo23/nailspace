@@ -4,6 +4,7 @@ import com.rafael.nailspro.webapp.domain.enums.user.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Filter;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ import java.util.List;
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "uk_phone_per_tenant",
-                        columnNames = {"tenantId", "phoneNumber"})
+                        columnNames = {"tenant_id", "phone_number"})
         })
 public class Client extends User {
 

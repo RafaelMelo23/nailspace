@@ -26,7 +26,7 @@ public class AppointmentNotification extends BaseEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "appointment_external_id")
+    @JoinColumn(name = "appointment_id")
     private Appointment appointment;
 
     @Enumerated(EnumType.STRING)

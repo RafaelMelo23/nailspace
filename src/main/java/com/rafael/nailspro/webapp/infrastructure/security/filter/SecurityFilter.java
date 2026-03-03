@@ -9,6 +9,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -18,7 +20,6 @@ import java.io.IOException;
 
 import static com.rafael.nailspro.webapp.domain.enums.security.TokenPurpose.AUTHENTICATION;
 
-@Component
 @RequiredArgsConstructor
 public class SecurityFilter extends OncePerRequestFilter {
 

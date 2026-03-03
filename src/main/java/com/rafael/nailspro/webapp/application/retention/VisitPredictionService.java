@@ -61,6 +61,7 @@ public class VisitPredictionService {
         forecast.setStatus(CONVERTED);
     }
 
+    //todo: review + add deletion for converted or expireds
     @Async("messagingExecutor")
     public void sendMaintenanceMessage(Long retentionForecastId) {
         RetentionForecast retentionForecast = repository.findById(retentionForecastId)

@@ -23,7 +23,7 @@ services:
       - OTEL_TRACES_EXPORTER=none
       - OTEL_LOGS_EXPORTER=none
 
-      - LOG_LEVEL=${LOG_LEVEL}
+      - LOG_LEVEL=INFO
 
       # --- DATABASE CONNECTION ---
       - DB_URL=jdbc:postgresql://db:5432/${POSTGRES_DB_APP}
@@ -37,8 +37,7 @@ services:
       - MAIL_PASSWORD=${RESEND_API_KEY}
 
       # --- INTEGRATIONS & SECURITY ---
-      - DOMAIN_URL=${DOMAIN_URL}
-      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - DOMAIN_URL=todecide.com
 
       # --- FLYWAY ---
       - SPRING_FLYWAY_ENABLED=true

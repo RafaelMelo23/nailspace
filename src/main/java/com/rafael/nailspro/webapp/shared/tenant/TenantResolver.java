@@ -1,8 +1,8 @@
 package com.rafael.nailspro.webapp.shared.tenant;
 
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletRequest;
 
 public interface TenantResolver {
 
-    String resolve(HttpServletRequest request);
+    String resolve(ServletRequest servletRequest);
 }

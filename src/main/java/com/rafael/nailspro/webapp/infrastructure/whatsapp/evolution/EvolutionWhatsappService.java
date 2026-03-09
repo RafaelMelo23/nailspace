@@ -1,7 +1,7 @@
 package com.rafael.nailspro.webapp.infrastructure.whatsapp.evolution;
 
-import com.rafael.nailspro.webapp.application.whatsapp.WhatsappProvider;
-import com.rafael.nailspro.webapp.application.whatsapp.response.SentMessageResult;
+import com.rafael.nailspro.webapp.domain.whatsapp.WhatsappProvider;
+import com.rafael.nailspro.webapp.domain.whatsapp.SentMessageResult;
 import com.rafael.nailspro.webapp.domain.enums.evolution.EvolutionWebhookEvent;
 import com.rafael.nailspro.webapp.infrastructure.dto.whatsapp.evolution.instance.CreateInstanceRequestDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.whatsapp.evolution.instance.WebhookDTO;

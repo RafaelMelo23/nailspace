@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentNotificationStatus;
 import com.rafael.nailspro.webapp.domain.enums.evolution.EvolutionWebhookEvent;
 import com.rafael.nailspro.webapp.domain.repository.AppointmentNotificationRepository;
+import com.rafael.nailspro.webapp.domain.webhook.WebhookStrategy;
 import com.rafael.nailspro.webapp.infrastructure.dto.whatsapp.evolution.webhook.EvolutionWebhookResponseDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.whatsapp.evolution.webhook.message.update.MessageUpdateData;
 import lombok.RequiredArgsConstructor;
@@ -65,7 +66,7 @@ public class MessageUpdatedUseCase implements WebhookStrategy {
     }
 
     @Override
-    public EvolutionWebhookEvent getSupportedTypeEvent() {
-        return EvolutionWebhookEvent.MESSAGE_UPDATE;
+    public String getSupportedTypeEvent() {
+        return EvolutionWebhookEvent.MESSAGE_UPDATE.toString();
     }
 }

@@ -1,6 +1,4 @@
-package com.rafael.nailspro.webapp.application.whatsapp;
-
-import com.rafael.nailspro.webapp.application.whatsapp.response.SentMessageResult;
+package com.rafael.nailspro.webapp.domain.whatsapp;
 
 public interface WhatsappProvider {
 

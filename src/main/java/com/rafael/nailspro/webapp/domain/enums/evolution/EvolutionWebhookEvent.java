@@ -13,5 +13,5 @@ public enum EvolutionWebhookEvent {
     SEND_MESSAGE,
 
     @JsonProperty("messages.update")
-    MESSAGE_UPDATE
+    MESSAGE_UPDATE;
 }

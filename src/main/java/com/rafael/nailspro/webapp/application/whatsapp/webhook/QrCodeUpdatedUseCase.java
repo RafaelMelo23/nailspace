@@ -5,6 +5,7 @@ import com.rafael.nailspro.webapp.application.professional.ProfessionalQueryServ
 import com.rafael.nailspro.webapp.application.sse.EvolutionConnectionNotificationService;
 import com.rafael.nailspro.webapp.domain.enums.evolution.EvolutionWebhookEvent;
 import com.rafael.nailspro.webapp.domain.model.Professional;
+import com.rafael.nailspro.webapp.domain.webhook.WebhookStrategy;
 import com.rafael.nailspro.webapp.infrastructure.dto.whatsapp.evolution.webhook.EvolutionWebhookResponseDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.whatsapp.evolution.webhook.connection.update.QrCodeDataDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.whatsapp.evolution.webhook.connection.update.QrCodeDetailsDTO;
@@ -45,7 +46,7 @@ public class QrCodeUpdatedUseCase implements WebhookStrategy {
     }
 
     @Override
-    public EvolutionWebhookEvent getSupportedTypeEvent() {
-        return EvolutionWebhookEvent.QRCODE_UPDATED;
+    public String getSupportedTypeEvent() {
+        return EvolutionWebhookEvent.QRCODE_UPDATED.toString();
     }
 }

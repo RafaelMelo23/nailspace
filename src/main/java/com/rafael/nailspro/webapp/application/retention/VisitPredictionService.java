@@ -1,7 +1,7 @@
 package com.rafael.nailspro.webapp.application.retention;
 
 import com.rafael.nailspro.webapp.application.messages.RetentionMessageBuilder;
-import com.rafael.nailspro.webapp.application.whatsapp.WhatsappProvider;
+import com.rafael.nailspro.webapp.domain.whatsapp.WhatsappProvider;
 import com.rafael.nailspro.webapp.domain.model.Appointment;
 import com.rafael.nailspro.webapp.domain.model.AppointmentAddOn;
 import com.rafael.nailspro.webapp.domain.model.RetentionForecast;

@@ -3,13 +3,13 @@ package com.rafael.nailspro.webapp.application.whatsapp;
 import com.rafael.nailspro.webapp.application.salon.business.SalonProfileService;
 import com.rafael.nailspro.webapp.domain.enums.evolution.WhatsappConnectionMethod;
 import com.rafael.nailspro.webapp.domain.model.SalonProfile;
+import com.rafael.nailspro.webapp.domain.whatsapp.WhatsappProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Slf4j
 @Service

@@ -34,4 +34,7 @@ public interface SalonProfileRepository extends JpaRepository<SalonProfile, Long
 
     @Query("SELECT sp.autoConfirmationAppointment FROM SalonProfile sp WHERE sp.tenantId = :tenantId")
     boolean isAutoConfirmationEnabledForTenant(@Param("tenantId") String tenantId);
+
+    @Query("SELECT sp.tradeName FROM SalonProfile sp WHERE sp.tenantId = :id")
+    Optional<String> findSalonTradeName(@Param("id") String tenantId);
 }

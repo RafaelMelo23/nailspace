@@ -13,6 +13,8 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - APP_HTTP_PROTOCOL=http
       - UPLOADS_PATH=/var/nailspro/uploads
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - RESEND_EMAIL_ADDRESS=
       # --- SENTRY & OBSERVABILITY ---
       - SENTRY_DSN=${SENTRY_DSN}
       - SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}

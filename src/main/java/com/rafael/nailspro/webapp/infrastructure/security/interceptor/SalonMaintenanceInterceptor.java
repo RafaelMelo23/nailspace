@@ -1,6 +1,7 @@
-package com.rafael.nailspro.webapp.infrastructure.security.filter;
+package com.rafael.nailspro.webapp.infrastructure.security.interceptor;
 
 import com.rafael.nailspro.webapp.application.salon.business.SalonProfileService;
+import com.rafael.nailspro.webapp.infrastructure.security.RequestPolicyManager;
 import com.rafael.nailspro.webapp.shared.tenant.TenantContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,30 +14,19 @@ import org.springframework.web.servlet.HandlerInterceptor;
 public class SalonMaintenanceInterceptor implements HandlerInterceptor {
 
     private final SalonProfileService salonProfileService;
+    private final RequestPolicyManager requestPolicyManager;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-
         String path = request.getRequestURI();
-        boolean isWhitelisted = isPathWhitelisted(path);
+        boolean isWhiteListed = requestPolicyManager.isWhiteListed(path);
 
-        if (TenantContext.getTenant() != null && !isWhitelisted) {
-            if (salonProfileService.isSalonOpenByTenantId(TenantContext.getTenant())) {
+        if (TenantContext.getTenant() != null && !isWhiteListed) {
+            if (!salonProfileService.isSalonOpenByTenantId(TenantContext.getTenant())) {
                 request.getRequestDispatcher("/offline").forward(request, response);
                 return false;
             }
         }
         return true;
-    }
-
-    private static boolean isPathWhitelisted(String path) {
-        return path.startsWith("/admin") ||
-                path.startsWith("/api/v1/auth") ||
-                path.contains("/css/") ||
-                path.contains("/js/") ||
-                path.contains("/entrar") ||
-                path.startsWith("/public") ||
-                path.startsWith("/api/internal") ||
-                path.startsWith("/api/v1/webhook");
     }
 }

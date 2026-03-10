@@ -50,11 +50,6 @@ public class SecurityConfiguration {
         return new SecurityFilter(tokenService);
     }
 
-    // @Bean
-    // public TenantStatusFilter tenantStatusFilter(SalonProfileService salonProfileService) {
-    //     return new TenantStatusFilter(salonProfileService);
-    // }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    SecurityFilter securityFilter,
@@ -88,7 +83,6 @@ public class SecurityConfiguration {
 
                         .anyRequest().authenticated())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
-              //.addFilterAfter(tenantStatusFilter, SecurityFilter.class);
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authenticationEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler));

@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ScheduleBlockService {
+public class ProfessionalScheduleBlockUseCase {
 
     private final ScheduleBlockRepository repository;
     private final ProfessionalRepository professionalRepository;
@@ -52,15 +52,9 @@ public class ScheduleBlockService {
                 .map(f -> f.atZone(salonZoneId).toInstant())
                 .orElse(Instant.MIN);
 
-        return repository.findByProfessional_IdAndDateStartTimeGreaterThanEqual(professionalId, fromInstant).stream()
-                .map(sb -> ScheduleBlockOutDTO.builder()
-                        .id(sb.getId())
-                        .dateAndStartTime(ZonedDateTime.ofInstant(sb.getDateStartTime(), salonZoneId))
-                        .dateAndEndTime(ZonedDateTime.ofInstant(sb.getDateEndTime(), salonZoneId))
-                        .isWholeDayBlocked(sb.getIsWholeDayBlocked())
-                        .professionalId(sb.getProfessional().getId())
-                        .reason(sb.getReason())
-                        .build()
-                ).collect(Collectors.toList());
+        return repository.findByProfessional_IdAndDateStartTimeGreaterThanEqual(professionalId, fromInstant)
+                .stream()
+                .map(sb -> ScheduleBlockOutDTO.fromEntity(sb, salonZoneId))
+                .collect(Collectors.toList());
     }
 }

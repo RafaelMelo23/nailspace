@@ -20,7 +20,6 @@ public class ProfessionalScheduleQueryUseCase {
     public List<ProfessionalAppointmentScheduleDTO> findProfessionalAppointmentsByDay(Long professionalId,
                                                                                       ZonedDateTime start,
                                                                                       ZonedDateTime end) {
-
         return appointmentRepository
                 .findByProfessional_IdAndStartDateBetween(professionalId, start.toInstant(), end.toInstant())
                 .stream()

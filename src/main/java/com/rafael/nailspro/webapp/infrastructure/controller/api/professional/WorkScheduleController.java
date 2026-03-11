@@ -1,6 +1,6 @@
 package com.rafael.nailspro.webapp.infrastructure.controller.api.professional;
 
-import com.rafael.nailspro.webapp.application.professional.WorkScheduleService;
+import com.rafael.nailspro.webapp.application.professional.ProfessionalWorkScheduleUseCase;
 import com.rafael.nailspro.webapp.domain.model.UserPrincipal;
 import com.rafael.nailspro.webapp.infrastructure.dto.professional.schedule.WorkScheduleRecordDTO;
 import jakarta.validation.Valid;
@@ -18,20 +18,20 @@ import java.util.Set;
 @RequestMapping("/api/v1/schedule")
 public class WorkScheduleController {
 
-    private final WorkScheduleService workScheduleService;
+    private final ProfessionalWorkScheduleUseCase professionalWorkScheduleUseCase;
 
     @GetMapping
     public ResponseEntity<Set<WorkScheduleRecordDTO>> getSchedules(@AuthenticationPrincipal
                                                                        UserPrincipal userPrincipal) {
 
-        return ResponseEntity.ok(workScheduleService.getWorkSchedules(userPrincipal.getUserId()));
+        return ResponseEntity.ok(professionalWorkScheduleUseCase.getWorkSchedules(userPrincipal.getUserId()));
     }
 
     @PostMapping
     public ResponseEntity<Void> createWorkSchedule(@Valid @RequestBody List<WorkScheduleRecordDTO> workScheduleRecordDTO,
                                                    @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        workScheduleService.registerSchedules(workScheduleRecordDTO, userPrincipal.getUserId());
+        professionalWorkScheduleUseCase.registerSchedules(workScheduleRecordDTO, userPrincipal.getUserId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -39,7 +39,7 @@ public class WorkScheduleController {
     public ResponseEntity<Void> modifySchedules(@Valid @RequestBody List<WorkScheduleRecordDTO> workScheduleRecordDTO,
                                                 @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        workScheduleService.modifyWeekSchedule(workScheduleRecordDTO, userPrincipal.getUserId());
+        professionalWorkScheduleUseCase.modifyWeekSchedule(workScheduleRecordDTO, userPrincipal.getUserId());
         return ResponseEntity.noContent().build();
     }
 
@@ -47,7 +47,7 @@ public class WorkScheduleController {
     public ResponseEntity<Void> deleteSchedule(@PathVariable Long scheduleId,
                                                @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        workScheduleService.deleteSchedule(scheduleId, userPrincipal.getUserId());
+        professionalWorkScheduleUseCase.deleteSchedule(scheduleId, userPrincipal.getUserId());
         return ResponseEntity.noContent().build();
     }
 }

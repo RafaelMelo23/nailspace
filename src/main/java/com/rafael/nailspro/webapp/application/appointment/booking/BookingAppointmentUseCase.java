@@ -1,7 +1,7 @@
 package com.rafael.nailspro.webapp.application.appointment.booking;
 
 import com.rafael.nailspro.webapp.application.appointment.BookingPolicyService;
-import com.rafael.nailspro.webapp.application.professional.WorkScheduleService;
+import com.rafael.nailspro.webapp.application.professional.ProfessionalWorkScheduleUseCase;
 import com.rafael.nailspro.webapp.application.salon.business.SalonProfileService;
 import com.rafael.nailspro.webapp.application.salon.business.SalonServiceService;
 import com.rafael.nailspro.webapp.domain.AvailabilityDomainService;
@@ -25,7 +25,7 @@ public class BookingAppointmentUseCase {
 
     private final ClientRepository clientRepository;
     private final AppointmentRepository repository;
-    private final WorkScheduleService workScheduleService;
+    private final ProfessionalWorkScheduleUseCase professionalWorkScheduleUseCase;
     private final AvailabilityDomainService availabilityDomainService;
     private final SalonProfileService salonProfileService;
     private final BookingPolicyService bookingPolicyManager;
@@ -61,7 +61,7 @@ public class BookingAppointmentUseCase {
                         Appointment.calculateDurationInSeconds(mainService, addOns),
                         salonProfile);
 
-        workScheduleService.checkProfessionalAvailability(professionalId, interval);
+        professionalWorkScheduleUseCase.checkProfessionalAvailability(professionalId, interval);
 
         availabilityDomainService.checkIfProfessionalHasTimeConflicts(professionalId, interval);
 

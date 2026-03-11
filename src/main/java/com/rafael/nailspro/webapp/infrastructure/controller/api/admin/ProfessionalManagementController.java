@@ -2,8 +2,8 @@ package com.rafael.nailspro.webapp.infrastructure.controller.api.admin;
 
 import com.rafael.nailspro.webapp.application.admin.professional.ProfessionalManagementService;
 import com.rafael.nailspro.webapp.application.professional.ProfessionalQueryService;
-import com.rafael.nailspro.webapp.application.professional.ScheduleBlockService;
-import com.rafael.nailspro.webapp.application.professional.WorkScheduleService;
+import com.rafael.nailspro.webapp.application.professional.ProfessionalScheduleBlockUseCase;
+import com.rafael.nailspro.webapp.application.professional.ProfessionalWorkScheduleUseCase;
 import com.rafael.nailspro.webapp.infrastructure.dto.admin.professional.CreateProfessionalDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.professional.ProfessionalResponseDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.professional.schedule.WorkScheduleRecordDTO;
@@ -26,8 +26,8 @@ public class ProfessionalManagementController {
 
     private final ProfessionalManagementService managementService;
     private final ProfessionalQueryService queryService;
-    private final WorkScheduleService workScheduleService;
-    private final ScheduleBlockService scheduleBlockService;
+    private final ProfessionalWorkScheduleUseCase professionalWorkScheduleUseCase;
+    private final ProfessionalScheduleBlockUseCase professionalScheduleBlockUseCase;
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
@@ -58,7 +58,7 @@ public class ProfessionalManagementController {
     @GetMapping("/schedule/{professionalId}")
     public ResponseEntity<Set<WorkScheduleRecordDTO>> getProfessionalWorkSchedule(@PathVariable Long professionalId) {
 
-        return ResponseEntity.ok(workScheduleService.getWorkSchedules(professionalId));
+        return ResponseEntity.ok(professionalWorkScheduleUseCase.getWorkSchedules(professionalId));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -66,7 +66,7 @@ public class ProfessionalManagementController {
     public ResponseEntity<List<ScheduleBlockOutDTO>> getProfessionalScheduleBlocks(@PathVariable Long professionalId,
                                                                                    @RequestParam LocalDateTime dateAndTime) {
 
-        return ResponseEntity.ok(scheduleBlockService.getBlocks(professionalId, Optional.of(dateAndTime)));
+        return ResponseEntity.ok(professionalScheduleBlockUseCase.getBlocks(professionalId, Optional.of(dateAndTime)));
     }
 }
 

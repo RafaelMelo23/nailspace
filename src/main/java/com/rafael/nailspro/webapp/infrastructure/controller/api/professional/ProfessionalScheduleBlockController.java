@@ -19,8 +19,8 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/schedule/block")
-public class ScheduleBlockController {
+@RequestMapping("/api/v1/professional/schedule/block")
+public class ProfessionalScheduleBlockController {
 
     private final ProfessionalScheduleBlockUseCase professionalScheduleBlockUseCase;
 

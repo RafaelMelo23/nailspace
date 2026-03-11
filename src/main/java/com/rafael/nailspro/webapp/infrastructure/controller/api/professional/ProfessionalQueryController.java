@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/professional")
-public class ProfessionalController {
+public class ProfessionalQueryController {
 
     private final ProfessionalQueryService professionalQueryService;
 

@@ -15,8 +15,8 @@ import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/schedule")
-public class WorkScheduleController {
+@RequestMapping("/api/v1/professional/schedule")
+public class ProfessionalWorkScheduleController {
 
     private final ProfessionalWorkScheduleUseCase professionalWorkScheduleUseCase;
 

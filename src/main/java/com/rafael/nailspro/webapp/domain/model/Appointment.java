@@ -175,6 +175,7 @@ public class Appointment extends BaseEntity {
                 .realTimeStart(start)
                 .realTimeEnd(realEnd)
                 .endTimeWithBuffer(endWithBuffer)
+                .salonZoneId(salonProfile.getZoneId())
                 .build();
     }
 

@@ -32,7 +32,7 @@ import java.time.LocalTime;
 public class WorkSchedule extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "externalId", nullable = false)
+    @Column(name = "id", nullable = false)
     private Long id;
 
     @Enumerated(EnumType.STRING)

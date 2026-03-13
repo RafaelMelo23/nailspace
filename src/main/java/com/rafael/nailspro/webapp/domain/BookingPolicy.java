@@ -22,23 +22,22 @@ import java.util.stream.Stream;
 public class BookingPolicy {
 
     public int resolveAllowedWindowDays(
-            boolean prioritizeLoyalClients,
-            boolean isLoyalClient,
-            int loyalClientWindowDays,
-            int standardWindowDays
+            Boolean prioritizeLoyalClients,
+            Boolean isLoyalClient,
+            Integer loyalClientWindowDays,
+            Integer standardWindowDays
     ) {
+        boolean prioritize = Boolean.TRUE.equals(prioritizeLoyalClients);
+        boolean loyal = Boolean.TRUE.equals(isLoyalClient);
 
-        int resolved = !prioritizeLoyalClients
-                ? standardWindowDays
-                : (isLoyalClient ? loyalClientWindowDays : standardWindowDays);
+        int standardDays = standardWindowDays != null ? standardWindowDays : 7;
+        int loyalDays = loyalClientWindowDays != null ? loyalClientWindowDays : 30;
 
-        log.debug(
-                "Resolved booking window days -> prioritizeLoyalClients: {}, isLoyalClient: {}, result: {}",
-                prioritizeLoyalClients,
-                isLoyalClient,
-                resolved
-        );
+        int resolved = !prioritize
+                ? standardDays
+                : (loyal ? loyalDays : standardDays);
 
+        log.debug("Resolved booking window days -> prioritize: {}, loyal: {}, result: {}", prioritize, loyal, resolved);
         return resolved;
     }
 
@@ -47,7 +46,6 @@ public class BookingPolicy {
             int allowedDays,
             LocalDate today
     ) {
-
         long daysAhead = ChronoUnit.DAYS.between(today, requestedDate);
 
         log.debug(

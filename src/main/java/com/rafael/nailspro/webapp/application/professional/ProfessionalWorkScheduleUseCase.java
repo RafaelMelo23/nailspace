@@ -80,7 +80,10 @@ public class ProfessionalWorkScheduleUseCase {
     }
 
     public void checkProfessionalAvailability(UUID professionalExternalId, TimeInterval interval) {
-        if (!repository.checkIfProfessionalIsAvailable(professionalExternalId, interval.getStartTimeOnly(), interval.getEndTimeOnly(), interval.getDayOfWeek())) {
+        if (!repository.checkIfProfessionalIsAvailable(professionalExternalId,
+                interval.getStartTimeOnly(),
+                interval.getEndTimeOnly(),
+                interval.getDayOfWeek())) {
             throw new BusinessException("O profissional não está disponível neste período.");
         }
     }

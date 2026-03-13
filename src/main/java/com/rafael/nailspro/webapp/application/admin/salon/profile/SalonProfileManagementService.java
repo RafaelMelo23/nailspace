@@ -35,9 +35,18 @@ public class SalonProfileManagementService {
         setIfNotNull(profile.status(), salonProfile::setOperationalStatus);
         setIfNotNull(profile.appointmentBufferMinutes(), salonProfile::setAppointmentBufferMinutes);
         setIfNotNull(profile.zoneId(), salonProfile::setZoneId);
-        setIfNotNull(profile.isLoyalClientelePrioritized(), salonProfile::setIsLoyalClientelePrioritized);
+        setIfNotNull(profile.isLoyalClientelePrioritized(), salonProfile::setLoyalClientelePrioritized);
         setIfNotNull(profile.loyalClientBookingWindowDays(), salonProfile::setLoyalClientBookingWindowDays);
         setIfNotNull(profile.standardBookingWindow(), salonProfile::setStandardBookingWindow);
+
+        if (profile.isLoyalClientelePrioritized() && (
+                profile.loyalClientBookingWindowDays() == null ||
+                profile.standardBookingWindow() == null)) {
+            throw new BusinessException("""
+                    O número de dias de antecedência
+                    para clientes fiéis deve ser informado
+                    quando a priorização de clientes fiéis estiver ativada.""");
+        }
 
         if (profile.logoBase64() != null) {
             String oldLogo = salonProfile.getLogoPath();

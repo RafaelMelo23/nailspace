@@ -49,7 +49,6 @@ public class OnboardingService {
         SalonProfile profile = SalonProfile.builder()
                 .owner(owner)
                 .tenantId(tenantId)
-                .domainSlug(tenantId)
                 .build();
 
         return salonProfileRepository.save(profile);

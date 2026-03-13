@@ -27,14 +27,15 @@ public class BookingPolicyService {
     private final BookingPolicy bookingPolicy;
 
     public void validate(LocalDateTime requestedTime, UserPrincipal userPrincipal) {
-
-        SalonProfile profile =
-                salonProfileService.getByTenantId(userPrincipal.getTenantId());
+        SalonProfile profile = salonProfileService.getByTenantId(userPrincipal.getTenantId());
+        if (!profile.isLoyalClientelePrioritized()) {
+            return;
+        }
 
         boolean isLoyalClient = isLoyalClient(userPrincipal.getUserId());
 
         int allowedDays = bookingPolicy.resolveAllowedWindowDays(
-                Boolean.TRUE.equals(profile.getIsLoyalClientelePrioritized()),
+                profile.isLoyalClientelePrioritized(),
                 isLoyalClient,
                 profile.getLoyalClientBookingWindowDays(),
                 profile.getStandardBookingWindow()
@@ -51,7 +52,6 @@ public class BookingPolicyService {
             List<SalonService> services,
             UserPrincipal userPrincipal
     ) {
-
         SalonProfile profile =
                 salonProfileService.getByTenantId(userPrincipal.getTenantId());
 
@@ -62,7 +62,7 @@ public class BookingPolicyService {
                         .findFirstByClientIdOrderByStartDateDesc(userPrincipal.getUserId());
 
         int windowDays = bookingPolicy.resolveAllowedWindowDays(
-                Boolean.TRUE.equals(profile.getIsLoyalClientelePrioritized()),
+                profile.isLoyalClientelePrioritized(),
                 isLoyalClient,
                 profile.getLoyalClientBookingWindowDays(),
                 profile.getStandardBookingWindow()

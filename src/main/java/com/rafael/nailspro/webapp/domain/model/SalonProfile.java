@@ -4,10 +4,7 @@ import com.rafael.nailspro.webapp.domain.enums.appointment.TenantStatus;
 import com.rafael.nailspro.webapp.domain.enums.evolution.EvolutionConnectionState;
 import com.rafael.nailspro.webapp.domain.enums.salon.OperationalStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
@@ -22,59 +19,71 @@ import java.time.ZoneId;
 @Table(name = "salon_profile",
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_salon_domain_slug", columnNames = {"domain_slug"}),
-                @UniqueConstraint(name = "uk_salon_tenant_id", columnNames = {"tenant_Id"}),
+                @UniqueConstraint(name = "uk_salon_tenant_id", columnNames = {"tenant_id"}),
                 @UniqueConstraint(name = "uk_salon_owner_id", columnNames = {"owner_id"})
         }
 )
-public class SalonProfile extends BaseEntity {
+public class SalonProfile {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
     private Long id;
 
     @Column(name = "trade_name", nullable = false, length = 60)
-    private String tradeName;
+    @Builder.Default
+    private String tradeName = "Novo Estabelecimento";
+
+    @Column(name = "tenant_id", nullable = false)
+    private String tenantId;
 
     @Column(name = "slogan", length = 120)
     private String slogan;
 
     @Column(name = "primary_color", nullable = false, length = 15)
-    private String primaryColor;
+    @Builder.Default
+    private String primaryColor = "#FB7185";
 
     @Column(name = "logo_path", nullable = false)
-    private String logoPath;
+    @Builder.Default
+    private String logoPath = "default-logo.png";
 
     @Column(name = "comercial_phone", nullable = false, length = 11)
-    private String comercialPhone;
+    @Builder.Default
+    private String comercialPhone = "00000000000";
 
     @Column(name = "full_address", nullable = false, length = 80)
-    private String fullAddress;
+    @Builder.Default
+    private String fullAddress = "Endereço a preencher";
 
     @Column(name = "social_media_link", length = 50)
     private String socialMediaLink;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "operational_status", nullable = false)
+    @Builder.Default
     private OperationalStatus operationalStatus = OperationalStatus.OPEN;
 
     @Column(name = "warning_message", length = 200)
     private String warningMessage;
 
     @Column(name = "appointment_buffer_minutes", nullable = false)
-    private Integer appointmentBufferMinutes;
+    @Builder.Default
+    private Integer appointmentBufferMinutes = 0;
 
-    @Column(name = "domain_slug", nullable = false, length = 40)
-    private String domainSlug;
-
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @OneToOne(fetch = FetchType.LAZY, optional = false, orphanRemoval = true)
     @JoinColumn(name = "owner_id", nullable = false)
     private Professional owner;
 
     @Column(name = "salon_zone_id", nullable = false)
-    private ZoneId zoneId;
+    @Builder.Default
+    private ZoneId zoneId = ZoneId.of("America/Sao_Paulo");
 
     @Column(name = "is_loyal_clientele_prioritized", nullable = false)
-    private Boolean isLoyalClientelePrioritized = false;
+    @Builder.Default
+    private boolean isLoyalClientelePrioritized = false;
 
     @Column(name = "loyal_client_booking_window_days")
     private Integer loyalClientBookingWindowDays;
@@ -84,7 +93,8 @@ public class SalonProfile extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "evolution_connection_state", nullable = false)
-    private EvolutionConnectionState evolutionConnectionState;
+    @Builder.Default
+    private EvolutionConnectionState evolutionConnectionState = EvolutionConnectionState.CLOSE;
 
     @Column(name = "whatsapp_last_reset_at")
     private LocalDateTime whatsappLastResetAt;
@@ -94,57 +104,26 @@ public class SalonProfile extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tenant_status")
-    private TenantStatus tenantStatus;
+    @Builder.Default
+    private TenantStatus tenantStatus = TenantStatus.ACTIVE;
 
     @Column(name = "auto_confirmation_appointment", nullable = false)
-    private boolean autoConfirmationAppointment;
+    @Builder.Default
+    private boolean autoConfirmationAppointment = false;
 
-    @Override
-    public void prePersist() {
-        super.prePersist();
-
-        if (this.tradeName == null || this.tradeName.isBlank()) {
-            this.tradeName = "Novo Estabelecimento";
-        } else {
+    @PrePersist
+    @PreUpdate
+    public void sanitizeData() {
+        if (this.tradeName != null) {
             this.tradeName = this.tradeName.trim();
         }
 
-        if (this.primaryColor == null || this.primaryColor.isBlank()) {
-            this.primaryColor = "#FB7185";
+        if (this.standardBookingWindow == null) {
+            this.standardBookingWindow = 7;
         }
 
-        if (this.logoPath == null || this.logoPath.isBlank()) {
-            this.logoPath = "default-logo.png";
-        }
-
-        if (this.comercialPhone == null || this.comercialPhone.isBlank()) {
-            this.comercialPhone = "00000000000";
-        } else {
+        if (this.comercialPhone != null) {
             this.comercialPhone = this.comercialPhone.replaceAll("\\D", "");
-        }
-
-        if (this.fullAddress == null || this.fullAddress.isBlank()) {
-            this.fullAddress = "Endereço a preencher";
-        }
-
-        if (this.appointmentBufferMinutes == null) {
-            this.appointmentBufferMinutes = 0;
-        }
-
-        if (this.operationalStatus == null) {
-            this.operationalStatus = OperationalStatus.OPEN;
-        }
-
-        if (this.evolutionConnectionState == null) {
-            this.evolutionConnectionState = EvolutionConnectionState.CLOSE;
-        }
-
-        if (this.tenantStatus == null) {
-            this.tenantStatus = TenantStatus.ACTIVE;
-        }
-
-        if (this.zoneId == null) {
-            this.zoneId = ZoneId.of("America/Sao_Paulo");
         }
     }
 }

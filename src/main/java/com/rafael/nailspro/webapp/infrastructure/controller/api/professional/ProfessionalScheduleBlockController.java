@@ -70,7 +70,7 @@ public class ProfessionalScheduleBlockController {
                                             @PathVariable @Positive(message = "O identificador do bloqueio deve ser positivo") Long blockId,
                                             @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        professionalScheduleBlockUseCase.deleteBlock(userPrincipal.getUserId(), blockId);
+        professionalScheduleBlockUseCase.deleteBlock(blockId, userPrincipal.getUserId());
         return ResponseEntity.noContent().build();
     }
 

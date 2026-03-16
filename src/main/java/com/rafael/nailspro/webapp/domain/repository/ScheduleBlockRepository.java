@@ -2,6 +2,7 @@ package com.rafael.nailspro.webapp.domain.repository;
 
 import com.rafael.nailspro.webapp.domain.model.ScheduleBlock;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -17,4 +18,9 @@ public interface ScheduleBlockRepository extends JpaRepository<ScheduleBlock, Lo
     List<ScheduleBlock> findBusyBlocksInRange(@Param("prof") Long professionalId,
                                               @Param("start") Instant startRange,
                                               @Param("end") Instant endRange);
+
+    @Modifying
+    @Query("DELETE FROM ScheduleBlock sb WHERE sb.id = :blockId AND sb.professional.id = :professionalId")
+    void deleteByIdAndProfessionalId(@Param("blockId") Long blockId,
+                                     @Param("professionalId") Long professionalId);
 }

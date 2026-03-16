@@ -59,14 +59,7 @@ public class ProfessionalWorkScheduleUseCase {
 
     @Transactional
     public void deleteSchedule(Long scheduleId, Long professionalId) {
-        WorkSchedule schedule = repository.findById(scheduleId)
-                .orElseThrow(() -> new BusinessException("Horário não encontrado no sistema."));
-
-        if (!Objects.equals(schedule.getProfessional().getId(), professionalId)) {
-            throw new BusinessException("Essa operação não é permitida.");
-        }
-
-        repository.delete(schedule);
+        repository.deleteByIdAndProfessional(scheduleId, professionalId);
     }
 
     public Set<WorkScheduleRecordDTO> getWorkSchedules(Long userId) {
@@ -76,7 +69,17 @@ public class ProfessionalWorkScheduleUseCase {
             throw new BusinessException("Nenhum cronograma de trabalho encontrado para este profissional.");
         }
 
-        return schedules.stream().map(wsc -> new WorkScheduleRecordDTO(wsc.getId(), wsc.getDayOfWeek(), wsc.getWorkStart(), wsc.getWorkEnd(), wsc.getLunchBreakStartTime(), wsc.getLunchBreakEndTime(), wsc.getIsActive())).collect(Collectors.toSet());
+        return schedules.stream()
+                .map(wsc ->
+                        new WorkScheduleRecordDTO(
+                                wsc.getId(),
+                                wsc.getDayOfWeek(),
+                                wsc.getWorkStart(),
+                                wsc.getWorkEnd(),
+                                wsc.getLunchBreakStartTime(),
+                                wsc.getLunchBreakEndTime(),
+                                wsc.getIsActive()))
+                .collect(Collectors.toSet());
     }
 
     public void checkProfessionalAvailability(UUID professionalExternalId, TimeInterval interval) {

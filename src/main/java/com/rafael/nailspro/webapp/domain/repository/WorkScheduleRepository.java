@@ -2,6 +2,7 @@ package com.rafael.nailspro.webapp.domain.repository;
 
 import com.rafael.nailspro.webapp.domain.model.WorkSchedule;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -29,4 +30,12 @@ public interface WorkScheduleRepository extends JpaRepository<WorkSchedule, Long
                                            @Param("startTime") LocalTime startTime,
                                            @Param("endTime") LocalTime endTime,
                                            @Param("day") DayOfWeek day);
+
+    @Modifying
+    @Query("""
+            DELETE FROM WorkSchedule ws
+            WHERE ws.id = :scheduleId
+            AND ws.professional.id = :professionalId
+            """)
+    void deleteByIdAndProfessional(Long scheduleId, Long professionalId);
 }

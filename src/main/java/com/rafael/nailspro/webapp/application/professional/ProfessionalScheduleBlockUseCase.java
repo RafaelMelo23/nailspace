@@ -35,13 +35,9 @@ public class ProfessionalScheduleBlockUseCase {
         repository.save(ScheduleBlock.createBlock(blockDTO, professional));
     }
 
-    public void deleteBlock(Long professionalId, Long blockId) {
-
-        repository.findById(blockId).ifPresent(sb -> {
-            if (sb.getProfessional().getId().equals(professionalId)) {
-                repository.delete(sb);
-            }
-        });
+    @Transactional
+    public void deleteBlock(Long blockId, Long professionalId) {
+        repository.deleteByIdAndProfessionalId(blockId, professionalId);
     }
 
     @Transactional(readOnly = true)

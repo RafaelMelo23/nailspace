@@ -37,6 +37,7 @@ public class ClientManagementService {
                 .findByFullNameContainingIgnoreCase(clientName, pageable)
                 .map(cl -> ClientDTO.builder()
                         .clientId(cl.getId())
+                        .fullName(cl.getFullName())
                         .email(cl.getEmail())
                         .phoneNumber(cl.getPhoneNumber())
                         .missedAppointments(cl.getMissedAppointments())

@@ -4,6 +4,7 @@ import com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentStatus;
 import com.rafael.nailspro.webapp.infrastructure.dto.appointment.AppointmentCreateDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.appointment.booking.event.AppointmentConfirmedEvent;
 import com.rafael.nailspro.webapp.infrastructure.dto.appointment.date.TimeInterval;
+import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -94,14 +95,23 @@ public class Appointment extends BaseEntity {
     }
 
     public void miss() {
+        ensureStatusIsNotFinal();
+        if (Instant.now().isBefore(this.endDate)) {
+            throw new BusinessException("O agendamento ainda não terminou.");
+        }
         this.setAppointmentStatus(AppointmentStatus.MISSED);
     }
 
     public void cancel() {
+        ensureStatusIsNotFinal();
         this.setAppointmentStatus(AppointmentStatus.CANCELLED);
     }
 
     public void finish() {
+        ensureStatusIsNotFinal();
+        if (!Instant.now().isAfter(this.endDate)) {
+            throw new BusinessException("O agendamento ainda não terminou.");
+        }
         this.setAppointmentStatus(AppointmentStatus.FINISHED);
     }
 
@@ -112,6 +122,14 @@ public class Appointment extends BaseEntity {
 
         this.appointmentStatus = AppointmentStatus.CONFIRMED;
         registerEvent(new AppointmentConfirmedEvent(this.id));
+    }
+
+    public void ensureStatusIsNotFinal() {
+        if (this.appointmentStatus == AppointmentStatus.FINISHED ||
+            this.appointmentStatus == AppointmentStatus.MISSED ||
+            this.appointmentStatus == AppointmentStatus.CANCELLED) {
+            throw new BusinessException("Este agendamento já foi finalizado.");
+        }
     }
 
     public BigDecimal calculateTotalValue() {

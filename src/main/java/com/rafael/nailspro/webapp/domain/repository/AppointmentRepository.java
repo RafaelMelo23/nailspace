@@ -16,7 +16,12 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     Page<Appointment> getClientAppointmentsById(Long id, Pageable pageable);
 
-    Page<Appointment> findByClient_Id(Long userId, Pageable pageable);
+    @Query("""
+            SELECT a
+            FROM Appointment a
+            WHERE a.client.id = :userId
+            """)
+    Page<Appointment> findByClientId(@Param("userId") Long userId, Pageable pageable);
 
     List<Appointment> findByProfessional_IdAndStartDateBetween(Long professionalId,
                                                                Instant startDateAfter,

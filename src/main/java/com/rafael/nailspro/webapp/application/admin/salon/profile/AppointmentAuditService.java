@@ -25,7 +25,7 @@ public class AppointmentAuditService {
 
         ZoneId salonZoneId = salonProfileService.getSalonZoneIdByContext();
 
-        return repository.findByClient_Id(userId, pageable)
+        return repository.findByClientId(userId, pageable)
                 .map(ap -> AdminUserAppointmentDTO.builder()
                         .appointmentId(ap.getId())
                         .clientId(ap.getClient().getId())

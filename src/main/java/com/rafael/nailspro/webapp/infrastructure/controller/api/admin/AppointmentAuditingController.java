@@ -45,7 +45,7 @@ public class AppointmentAuditingController {
             @Parameter(example = "2001")
             @PathVariable @Positive(message = "O identificador do usuário deve ser positivo") Long userId,
             @PageableDefault(
-                    sort = "startDateAndTime"
+                    sort = "startDate"
             ) Pageable pageable
     ) {
         return ResponseEntity.ok(

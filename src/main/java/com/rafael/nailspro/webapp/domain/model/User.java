@@ -49,6 +49,11 @@ public abstract class User extends BaseEntity implements UserDetails {
     private UserRole userRole;
 
     @Override
+    public void prePersist() {
+        super.prePersist();
+    }
+
+    @Override
     public String getUsername() {
         return this.email;
     }

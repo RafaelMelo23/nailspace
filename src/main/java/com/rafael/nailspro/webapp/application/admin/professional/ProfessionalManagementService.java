@@ -24,28 +24,32 @@ public class ProfessionalManagementService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void createProfessional(CreateProfessionalDTO professionalDTO) {
+    public void createProfessional(CreateProfessionalDTO professionalDTO, String tenantId) {
 
-        Set<SalonService> servicesOfferedByProfessional =
-                new HashSet<>(salonServiceService.findByIdIn(
-                        professionalDTO.servicesOfferedByProfessional()
-                                .stream()
-                                .toList()
-                ));
+        Set<SalonService> services =
+                getServicesOfferedByProfessional(professionalDTO);
 
         professionalRepository.save(Professional.builder()
-                .salonServices(servicesOfferedByProfessional)
+                .salonServices(services)
                 .fullName(professionalDTO.fullName())
                 .email(professionalDTO.email())
                 .password(passwordEncoder.encode("mudar123"))
                 .userRole(UserRole.PROFESSIONAL)
                 .status(UserStatus.ACTIVE)
+                .tenantId(tenantId)
                 .build());
+    }
+
+    private Set<SalonService> getServicesOfferedByProfessional(CreateProfessionalDTO professionalDTO) {
+        return new HashSet<>(salonServiceService.findByIdIn(
+                professionalDTO.servicesOfferedByProfessional()
+                        .stream()
+                        .toList()
+        ));
     }
 
     @Transactional
     public void deactivateProfessional(Long id) {
-
         professionalRepository.deactivateProfessional(id);
     }
 }

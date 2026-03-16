@@ -4,6 +4,7 @@ import com.rafael.nailspro.webapp.application.admin.professional.ProfessionalMan
 import com.rafael.nailspro.webapp.application.professional.ProfessionalQueryService;
 import com.rafael.nailspro.webapp.application.professional.ProfessionalScheduleBlockUseCase;
 import com.rafael.nailspro.webapp.application.professional.ProfessionalWorkScheduleUseCase;
+import com.rafael.nailspro.webapp.domain.model.UserPrincipal;
 import com.rafael.nailspro.webapp.infrastructure.config.SwaggerExamples;
 import com.rafael.nailspro.webapp.infrastructure.dto.admin.professional.CreateProfessionalDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.professional.ProfessionalResponseDTO;
@@ -22,6 +23,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -57,9 +59,10 @@ public class ProfessionalManagementController {
     )
     @PostMapping
     public ResponseEntity<Void> createProfessional(
-            @Valid @RequestBody CreateProfessionalDTO professionalDTO) {
+            @Valid @RequestBody CreateProfessionalDTO professionalDTO,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        managementService.createProfessional(professionalDTO);
+        managementService.createProfessional(professionalDTO, userPrincipal.getTenantId());
         return ResponseEntity.status(201).build();
     }
 

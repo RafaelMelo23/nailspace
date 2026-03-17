@@ -1,5 +1,6 @@
 package com.rafael.nailspro.webapp.support.user;
 
+import com.rafael.nailspro.webapp.domain.enums.user.UserRole;
 import com.rafael.nailspro.webapp.domain.enums.user.UserStatus;
 import com.rafael.nailspro.webapp.domain.model.Client;
 
@@ -15,6 +16,7 @@ public final class TestUserFactory {
                 .email("user@test.local")
                 .password("password")
                 .status(UserStatus.ACTIVE)
+                .userRole(UserRole.CLIENT)
                 .phoneNumber("5500000000000")
                 .missedAppointments(0)
                 .canceledAppointments(0)

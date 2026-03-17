@@ -109,6 +109,8 @@ public class SecurityConfiguration {
                                 "/error"
                         ).permitAll()
 
+                        .requestMatchers(HttpMethod.GET, "/api/v1/salon/service").permitAll()
+
                         // ===== SUPER ADMIN =====
                         .requestMatchers(
                                 "/api/internal/**"

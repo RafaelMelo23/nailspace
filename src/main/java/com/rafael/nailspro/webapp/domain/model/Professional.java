@@ -9,7 +9,6 @@ import java.time.DayOfWeek;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
 @Entity
 @SuperBuilder
 @Setter

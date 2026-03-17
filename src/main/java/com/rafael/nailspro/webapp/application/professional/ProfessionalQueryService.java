@@ -20,7 +20,7 @@ public class ProfessionalQueryService {
     public List<ProfessionalSimplifiedDTO> findAllSimplified() {
 
         return repository.findAll().stream()
-                .filter(Professional::getIsActive)
+                .filter(p -> Boolean.TRUE.equals(p.getIsActive()))
                 .map(p -> ProfessionalSimplifiedDTO.builder()
                         .externalId(p.getExternalId())
                         .name(p.getFullName())

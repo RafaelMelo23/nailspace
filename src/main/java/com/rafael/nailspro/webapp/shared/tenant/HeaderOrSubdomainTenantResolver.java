@@ -30,10 +30,14 @@ public class HeaderOrSubdomainTenantResolver implements TenantResolver {
             String host = request.getHeader("X-Forwarded-Host");
             if (host == null) host = request.getHeader("Host");
             if (host == null) host = request.getServerName();
-            tenantFromSubdomain = host.split("\\.")[0];
+
+            if (host != null) {
+                tenantFromSubdomain = host.split("\\.")[0];
+            }
         }
 
         if (tenantFromToken != null &&
+                tenantFromSubdomain != null &&
                 !tenantFromToken.equalsIgnoreCase(tenantFromSubdomain)) {
             throw new TenantIdentifierMismatchException("Tenant mismatch between token and domain");
         }

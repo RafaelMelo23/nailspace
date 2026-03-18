@@ -1,4 +1,4 @@
-package com.rafael.nailspro.webapp.support.user;
+package com.rafael.nailspro.webapp.support.factory;
 
 import com.rafael.nailspro.webapp.domain.enums.user.UserRole;
 import com.rafael.nailspro.webapp.domain.enums.user.UserStatus;

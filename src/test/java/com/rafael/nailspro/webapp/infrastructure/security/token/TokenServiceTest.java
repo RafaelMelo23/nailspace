@@ -7,7 +7,7 @@ import com.rafael.nailspro.webapp.domain.enums.security.TokenPurpose;
 import com.rafael.nailspro.webapp.domain.model.Client;
 import com.rafael.nailspro.webapp.infrastructure.dto.auth.ResetPasswordDTO;
 import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
-import com.rafael.nailspro.webapp.support.user.TestUserFactory;
+import com.rafael.nailspro.webapp.support.factory.TestUserFactory;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;

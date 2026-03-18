@@ -57,10 +57,6 @@ public class BookingPolicyService {
 
         boolean isLoyalClient = isLoyalClient(userPrincipal.getUserId());
 
-        Optional<Appointment> lastAppointment =
-                appointmentRepository
-                        .findFirstByClientIdOrderByStartDateDesc(userPrincipal.getUserId());
-
         int windowDays = bookingPolicy.resolveAllowedWindowDays(
                 profile.isLoyalClientelePrioritized(),
                 isLoyalClient,
@@ -68,11 +64,14 @@ public class BookingPolicyService {
                 profile.getStandardBookingWindow()
         );
 
+        Appointment lastAppointment =
+                appointmentRepository.findFirstByClientIdOrderByStartDateDesc(userPrincipal.getUserId())
+                        .orElse(null);
+
         LocalDate startDate =
                 bookingPolicy.determineStartDate(
                         services,
-                        lastAppointment,
-                        LocalDate.now()
+                        lastAppointment
                 );
 
         return bookingPolicy.buildWindow(startDate, windowDays);
@@ -89,8 +88,10 @@ public class BookingPolicyService {
     }
 
     public Instant calculateEarliestRecommendedDate(Long clientId) {
+        Appointment appointment = appointmentRepository
+                .findFirstByClientIdOrderByStartDateDesc(clientId)
+                .orElse(null);
 
-        return bookingPolicy.calculateEarliestRecommendedDate(appointmentRepository
-                        .findFirstByClientIdOrderByStartDateDesc(clientId));
+        return bookingPolicy.calculateEarliestRecommendedDate(appointment);
     }
 }

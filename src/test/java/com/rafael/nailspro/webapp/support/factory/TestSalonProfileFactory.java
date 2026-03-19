@@ -7,27 +7,12 @@ import com.rafael.nailspro.webapp.domain.model.Professional;
 import com.rafael.nailspro.webapp.domain.model.SalonProfile;
 
 import java.time.ZoneId;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class TestSalonProfileFactory {
 
     public static SalonProfile standard() {
-        return SalonProfile.builder()
-                .id(1L)
-                .tradeName("Test Salon")
-                .tenantId("tenant-test")
-                .primaryColor("#FB7185")
-                .logoPath("default-logo.png")
-                .comercialPhone("11999999999")
-                .fullAddress("Test Address 123")
-                .operationalStatus(OperationalStatus.OPEN)
-                .appointmentBufferMinutes(15)
-                .zoneId(ZoneId.of("America/Sao_Paulo"))
-                .isLoyalClientelePrioritized(false)
-                .standardBookingWindow(7)
-                .evolutionConnectionState(EvolutionConnectionState.CLOSE)
-                .tenantStatus(TenantStatus.ACTIVE)
-                .autoConfirmationAppointment(false)
-                .build();
+        return baseBuilder().build();
     }
 
     public static SalonProfile standard(Professional owner) {
@@ -47,5 +32,28 @@ public class TestSalonProfileFactory {
         profile.setAppointmentBufferMinutes(bufferMinutes);
         profile.setZoneId(zoneId);
         return profile;
+    }
+
+    private static SalonProfile.SalonProfileBuilder<?, ?> baseBuilder() {
+        return SalonProfile.builder()
+                .id(nextId())
+                .tradeName("Test Salon")
+                .tenantId("tenant-test")
+                .primaryColor("#FB7185")
+                .logoPath("default-logo.png")
+                .comercialPhone("11999999999")
+                .fullAddress("Test Address 123")
+                .operationalStatus(OperationalStatus.OPEN)
+                .appointmentBufferMinutes(15)
+                .zoneId(ZoneId.of("America/Sao_Paulo"))
+                .isLoyalClientelePrioritized(false)
+                .standardBookingWindow(7)
+                .evolutionConnectionState(EvolutionConnectionState.CLOSE)
+                .tenantStatus(TenantStatus.ACTIVE)
+                .autoConfirmationAppointment(false);
+    }
+
+    private static long nextId() {
+        return ThreadLocalRandom.current().nextLong(1, Long.MAX_VALUE);
     }
 }

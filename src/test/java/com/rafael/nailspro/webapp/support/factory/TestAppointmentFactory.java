@@ -13,6 +13,7 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class TestAppointmentFactory {
 
@@ -49,7 +50,7 @@ public class TestAppointmentFactory {
         Instant baseDate = Instant.now().plus(1, ChronoUnit.DAYS);
 
         return Appointment.builder()
-                .id(1L)
+                .id(nextId())
                 .client(client)
                 .professional(professional)
                 .mainSalonService(mainService)
@@ -76,7 +77,7 @@ public class TestAppointmentFactory {
         Instant baseDate = Instant.now().plus(daysOffset, ChronoUnit.DAYS);
 
         return Appointment.builder()
-                .id(1L)
+                .id(nextId())
                 .client(client)
                 .professional(professional)
                 .mainSalonService(mainService)
@@ -99,7 +100,7 @@ public class TestAppointmentFactory {
             AppointmentStatus status
     ) {
         return Appointment.builder()
-                .id((long) (Math.random() * 1000))
+                .id(nextId())
                 .professional(professional)
                 .appointmentStatus(status)
                 .startDate(start)
@@ -108,5 +109,9 @@ public class TestAppointmentFactory {
                 .addOns(new ArrayList<>())
                 .tenantId("tenant-test")
                 .build();
+    }
+
+    private static long nextId() {
+        return ThreadLocalRandom.current().nextLong(1, Long.MAX_VALUE);
     }
 }

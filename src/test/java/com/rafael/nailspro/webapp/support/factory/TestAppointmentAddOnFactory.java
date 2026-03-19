@@ -3,6 +3,8 @@ package com.rafael.nailspro.webapp.support.factory;
 import com.rafael.nailspro.webapp.domain.model.AppointmentAddOn;
 import com.rafael.nailspro.webapp.domain.model.SalonService;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 public class TestAppointmentAddOnFactory {
 
     public static AppointmentAddOn standard(SalonService service) {
@@ -31,10 +33,14 @@ public class TestAppointmentAddOnFactory {
 
     private static AppointmentAddOn.AppointmentAddOnBuilder<?, ?> baseBuilder(SalonService service) {
         return AppointmentAddOn.builder()
-                .id(1L)
+                .id(nextId())
                 .service(service)
                 .tenantId("tenant-test")
                 .quantity(1)
                 .unitPriceSnapshot(service.getValue());
+    }
+
+    private static long nextId() {
+        return ThreadLocalRandom.current().nextLong(1, Long.MAX_VALUE);
     }
 }

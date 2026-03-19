@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class TestProfessionalFactory {
 
@@ -48,12 +49,13 @@ public class TestProfessionalFactory {
     }
 
     private static Professional.ProfessionalBuilder<?, ?> baseBuilder() {
+        String unique = UUID.randomUUID().toString();
         return Professional.builder()
-                .id(1L)
+                .id(nextId())
 
                 // User fields
-                .fullName("Test Professional")
-                .email("professional@test.com")
+                .fullName("Test Professional " + unique)
+                .email("professional+" + unique + "@test.com")
                 .password("encoded-password")
                 .status(UserStatus.ACTIVE)
                 .userRole(UserRole.PROFESSIONAL)
@@ -65,5 +67,9 @@ public class TestProfessionalFactory {
                 .isFirstLogin(false)
                 .workSchedules(new HashSet<>())
                 .scheduleBlocks(new LinkedHashSet<>());
+    }
+
+    private static long nextId() {
+        return ThreadLocalRandom.current().nextLong(1, Long.MAX_VALUE);
     }
 }

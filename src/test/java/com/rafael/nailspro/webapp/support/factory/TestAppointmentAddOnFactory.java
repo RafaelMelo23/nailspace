@@ -15,6 +15,14 @@ public class TestAppointmentAddOnFactory {
                 .build();
     }
 
+    public static AppointmentAddOn standardEnglish(SalonService service) {
+        return baseBuilder(service)
+                .quantity(1)
+                .unitPriceSnapshot(service.getValue())
+                .tenantId("tenant-123")
+                .build();
+    }
+
     public static AppointmentAddOn withQuantity(SalonService service, int quantity) {
         return baseBuilder(service)
                 .quantity(quantity)

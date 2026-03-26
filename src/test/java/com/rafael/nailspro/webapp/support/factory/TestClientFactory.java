@@ -30,6 +30,15 @@ public final class TestClientFactory {
         return builder().id(nextId()).build();
     }
 
+    public static Client standardEnglish() {
+        return builder()
+                .id(nextId())
+                .fullName("Jane Doe")
+                .email("jane.doe@test.com")
+                .tenantId("tenant-123")
+                .build();
+    }
+
     public static Client standardForIt() {
         return builder().build();
     }

@@ -37,6 +37,14 @@ public class TestProfessionalFactory {
         return builder().id(nextId()).build();
     }
 
+    public static Professional standardEnglish() {
+        return builder()
+                .id(nextId())
+                .fullName("John Professional")
+                .tenantId("tenant-123")
+                .build();
+    }
+
     public static Professional standardForIt() {
         return builder().build();
     }

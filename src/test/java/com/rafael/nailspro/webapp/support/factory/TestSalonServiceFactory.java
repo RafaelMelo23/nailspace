@@ -30,6 +30,22 @@ public class TestSalonServiceFactory {
         return builder().id(nextId()).build();
     }
 
+    public static SalonService manicure() {
+        return builder()
+                .id(nextId())
+                .name("Manicure")
+                .tenantId("tenant-123")
+                .build();
+    }
+
+    public static SalonService pedicure() {
+        return builder()
+                .id(nextId())
+                .name("Pedicure")
+                .tenantId("tenant-123")
+                .build();
+    }
+
     public static SalonService standardForIt() {
         return builder().build();
     }

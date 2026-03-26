@@ -40,6 +40,41 @@ public class TestAppointmentFactory {
         return buildWithStatusAndDates(client, professional, mainService, AppointmentStatus.PENDING, 1);
     }
 
+    public static Appointment standardEnglish(
+            Client client,
+            Professional professional,
+            SalonService mainService,
+            List<AppointmentAddOn> addOns
+    ) {
+        List<AppointmentAddOn> safeAddOns =
+                addOns == null ? new ArrayList<>() : new ArrayList<>(addOns);
+
+        BigDecimal total = BigDecimal.valueOf(mainService.getValue());
+
+        for (AppointmentAddOn addOn : safeAddOns) {
+            BigDecimal addOnTotal = BigDecimal.valueOf(addOn.getService().getValue())
+                    .multiply(BigDecimal.valueOf(addOn.getQuantity()));
+            total = total.add(addOnTotal);
+        }
+
+        Instant baseDate = Instant.now().plus(1, ChronoUnit.DAYS);
+
+        return Appointment.builder()
+                .id(nextId())
+                .client(client)
+                .professional(professional)
+                .mainSalonService(mainService)
+                .totalValue(total)
+                .appointmentStatus(AppointmentStatus.PENDING)
+                .startDate(baseDate)
+                .endDate(baseDate.plus(1, ChronoUnit.HOURS))
+                .salonTradeName("Beauty Salon")
+                .salonZoneId(ZoneId.of("America/Sao_Paulo"))
+                .addOns(safeAddOns)
+                .tenantId("tenant-123")
+                .build();
+    }
+
     public static Appointment past(Client client, Professional professional, SalonService mainService, AppointmentStatus status) {
         return buildWithStatusAndDates(client, professional, mainService, status, -2);
     }

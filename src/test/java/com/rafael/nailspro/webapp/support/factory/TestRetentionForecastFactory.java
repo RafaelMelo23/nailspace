@@ -33,7 +33,7 @@ public class TestRetentionForecastFactory {
                 .build();
     }
 
-    public static RetentionForecast withAppointment(Professional p,
+    public static RetentionForecast complete(Professional p,
                                                     Client c,
                                                     List<SalonService> s,
                                                     Appointment origin,
@@ -45,6 +45,14 @@ public class TestRetentionForecastFactory {
                 .originAppointment(origin)
                 .predictedReturnDate(returnDate)
                 .build();
+    }
+
+    public static RetentionForecast standardEnglish(Professional p,
+                                             Client c,
+                                             List<SalonService> s,
+                                             Appointment origin,
+                                             Instant returnDate) {
+        return complete(p, c, s, origin, returnDate);
     }
 
     public static RetentionForecast withAppointmentAndStatus(Professional p,

@@ -5,13 +5,10 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder
-public record FindProfessionalAvailabilityDTO(
+public record FindProfessionalAvailabilityDTO(String professionalExternalId,
+                                              int serviceDurationInSeconds,
+                                              List<Long> servicesIds
 
-        String professionalExternalId,
-
-        int serviceDurationInSeconds,
-
-        List<Long> servicesIds
-
-) {}
+) {
+}
 

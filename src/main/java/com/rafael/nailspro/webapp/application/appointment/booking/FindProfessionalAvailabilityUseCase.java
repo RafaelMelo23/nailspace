@@ -20,6 +20,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -41,7 +42,7 @@ public class FindProfessionalAvailabilityUseCase {
     public ProfessionalAvailabilityDTO findAvailableTimes(FindProfessionalAvailabilityDTO dto, UserPrincipal userPrincipal) {
         log.debug("Searching availability: Professional={}, Client={}", dto.professionalExternalId(), userPrincipal.getUserId());
 
-        SalonProfile salonProfile = salonProfileService.getByTenantId(TenantContext.getTenant());
+        SalonProfile salonProfile = salonProfileService.getByTenantId(userPrincipal.getTenantId());
 
         Professional professional = professionalRepository.findByExternalId(UUID.fromString(dto.professionalExternalId()))
                 .orElseThrow(() -> new BusinessException("Professional not found"));

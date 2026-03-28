@@ -6,9 +6,11 @@ import com.rafael.nailspro.webapp.domain.model.SalonService;
 import com.rafael.nailspro.webapp.infrastructure.dto.appointment.booking.AppointmentTimeWindow;
 import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
 import jakarta.annotation.Nullable;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -20,7 +22,10 @@ import java.util.stream.Stream;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class BookingPolicy {
+
+    private final Clock clock;
 
     public int resolveAllowedWindowDays(
             Boolean prioritizeLoyalClients,
@@ -95,7 +100,7 @@ public class BookingPolicy {
             List<SalonService> services,
             @Nullable Appointment lastAppointment
     ) {
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(clock);
         Integer maintenanceInterval = services.stream()
                 .map(SalonService::getMaintenanceIntervalDays)
                 .filter(Objects::nonNull)
@@ -129,33 +134,40 @@ public class BookingPolicy {
     }
 
     public Instant calculateEarliestRecommendedDate(@Nullable Appointment lastAppointment) {
+        Instant now = Instant.now(clock);
+
         if (lastAppointment == null) {
             log.debug("No last appointment found. Returning current instant.");
-            return Instant.now();
+            return now;
         }
 
-        List<SalonService> allServices =
-                Stream.concat(
-                        Stream.of(lastAppointment.getMainSalonService()),
-                        lastAppointment.getAddOns().stream().map(AppointmentAddOn::getService)
-                ).toList();
+        var maxInterval = getMaxInterval(lastAppointment);
 
-        Optional<Integer> maxInterval = allServices.stream()
-                .map(SalonService::getMaintenanceIntervalDays)
-                .filter(Objects::nonNull)
-                .max(Integer::compareTo);
-
-        Instant recommended = maxInterval
-                .map(interval -> lastAppointment.getEndDate().plus(interval, ChronoUnit.DAYS))
-                .orElse(Instant.now());
+        Instant recommendedDate = calculateRecommendedDate(lastAppointment, maxInterval, now);
 
         log.debug(
                 "Earliest recommended booking date calculated -> lastAppointment: {}, maxIntervalDays: {}, result: {}",
                 lastAppointment.getStartDate(),
                 maxInterval,
-                recommended
+                recommendedDate
         );
+        return recommendedDate;
+    }
 
-        return recommended;
+    private static Instant calculateRecommendedDate(Appointment lastAppointment, Optional<Integer> maxInterval, Instant now) {
+        Instant recommendedDate = maxInterval
+                .map(interval -> lastAppointment.getEndDate().plus(interval, ChronoUnit.DAYS))
+                        .orElse(now);
+
+        if (recommendedDate.isBefore(now)) recommendedDate = now;
+        return recommendedDate;
+    }
+
+    private static Optional<Integer> getMaxInterval(Appointment lastAppointment) {
+        return Stream.concat(Stream.of(lastAppointment.getMainSalonService()),
+                lastAppointment.getAddOns().stream().map(AppointmentAddOn::getService))
+                .map(SalonService::getMaintenanceIntervalDays)
+                .filter(Objects::nonNull)
+                .max(Integer::compareTo);
     }
 }

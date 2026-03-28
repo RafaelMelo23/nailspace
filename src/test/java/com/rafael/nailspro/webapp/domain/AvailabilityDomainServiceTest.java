@@ -14,11 +14,8 @@ import com.rafael.nailspro.webapp.infrastructure.dto.appointment.booking.Appoint
 import com.rafael.nailspro.webapp.infrastructure.dto.appointment.contract.BusyInterval;
 import com.rafael.nailspro.webapp.domain.model.TimeInterval;
 import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
-import com.rafael.nailspro.webapp.support.factory.TestAppointmentFactory;
-import com.rafael.nailspro.webapp.support.factory.TestProfessionalFactory;
+import com.rafael.nailspro.webapp.support.factory.*;
 import com.rafael.nailspro.webapp.support.factory.TestScheduleBlockFactory;
-import com.rafael.nailspro.webapp.support.factory.TestSalonProfileFactory;
-import com.rafael.nailspro.webapp.support.factory.TestWorkScheduleFactory;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

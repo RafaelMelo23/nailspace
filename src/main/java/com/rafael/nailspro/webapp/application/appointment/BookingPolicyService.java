@@ -12,6 +12,7 @@ import com.rafael.nailspro.webapp.infrastructure.dto.appointment.booking.Appoint
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,6 +26,7 @@ public class BookingPolicyService {
     private final AppointmentRepository appointmentRepository;
     private final SalonProfileService salonProfileService;
     private final BookingPolicy bookingPolicy;
+    private final Clock clock;
 
     public void validate(LocalDateTime requestedTime, UserPrincipal userPrincipal) {
         SalonProfile profile = salonProfileService.getByTenantId(userPrincipal.getTenantId());
@@ -44,7 +46,7 @@ public class BookingPolicyService {
         bookingPolicy.validateBookingHorizon(
                 requestedTime.toLocalDate(),
                 allowedDays,
-                LocalDate.now()
+                LocalDate.now(clock)
         );
     }
 

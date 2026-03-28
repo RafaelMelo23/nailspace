@@ -13,6 +13,7 @@ import com.rafael.nailspro.webapp.infrastructure.dto.appointment.date.SimpleBusy
 import com.rafael.nailspro.webapp.domain.model.TimeInterval;
 import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
@@ -24,6 +25,7 @@ import java.util.stream.Stream;
 import static com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentStatus.CONFIRMED;
 import static com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentStatus.FINISHED;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AvailabilityDomainService {
@@ -37,19 +39,28 @@ public class AvailabilityDomainService {
                                                         AppointmentTimeWindow window,
                                                         SalonProfile salonProfile,
                                                         int serviceDurationInSeconds) {
+        log.debug("Finding available times for professional: {}, window: {} to {}, duration: {}", 
+                professional.getId(), window.start(), window.end(), serviceDurationInSeconds);
+
         if (serviceDurationInSeconds <= 0) {
             return List.of();
         }
 
         Map<LocalDate, List<BusyInterval>> intervalsByDate = groupBusyIntervalsByDate(professional, window, salonProfile);
+        log.debug("Busy intervals count by date: {}", intervalsByDate.size());
+
         Map<DayOfWeek, WorkSchedule> weeklySchedules = mapWeeklySchedulesByDay(professional);
+        log.debug("Weekly schedules days: {}", weeklySchedules.keySet());
 
         return window.start().datesUntil(window.end())
-                .map(date -> buildDailyAvailability(
+                .map(date -> {
+                    log.debug("Checking date: {}, hasSchedule: {}", date, weeklySchedules.containsKey(date.getDayOfWeek()));
+                    return buildDailyAvailability(
                         date,
                         weeklySchedules.get(date.getDayOfWeek()),
                         intervalsByDate.getOrDefault(date, List.of()),
-                        serviceDurationInSeconds)
+                        serviceDurationInSeconds);
+                }
                 )
                 .filter(Optional::isPresent)
                 .map(Optional::get)

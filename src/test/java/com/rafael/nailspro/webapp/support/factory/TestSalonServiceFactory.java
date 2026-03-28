@@ -20,7 +20,6 @@ public class TestSalonServiceFactory {
                 .value(50)
                 .active(true)
                 .maintenanceIntervalDays(15)
-                .requiresLoyalty(false)
                 .isAddOn(false)
                 .professionals(new LinkedHashSet<>())
                 .tenantId("tenant-test");
@@ -50,8 +49,23 @@ public class TestSalonServiceFactory {
         return builder().build();
     }
 
+    public static SalonService standardForIt(int durationSeconds, Integer maintenanceIntervalDays) {
+        return builder()
+                .durationInSeconds(durationSeconds)
+                .maintenanceIntervalDays(maintenanceIntervalDays)
+                .build();
+    }
+
     public static SalonService standardForIt(String tenantId) {
         return builder().tenantId(tenantId).build();
+    }
+
+    public static SalonService standardForIt(String tenantId, int durationSeconds, Integer maintenanceIntervalDays) {
+        return builder()
+                .tenantId(tenantId)
+                .durationInSeconds(durationSeconds)
+                .maintenanceIntervalDays(maintenanceIntervalDays)
+                .build();
     }
 
     public static SalonService withCustomValue(Integer value) {

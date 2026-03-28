@@ -46,9 +46,6 @@ public class SalonService extends BaseEntity {
     @Column(name = "maintenance_interval_days")
     private Integer maintenanceIntervalDays;
 
-    @Column(name = "requires_loyalty")
-    private boolean requiresLoyalty = false;
-
     @Column(name = "is_add_on")
     private boolean isAddOn;
 
@@ -74,7 +71,6 @@ public class SalonService extends BaseEntity {
                 .value(dto.value())
                 .durationInSeconds(dto.durationInSeconds())
                 .maintenanceIntervalDays(dto.maintenanceIntervalDays())
-                .requiresLoyalty(dto.requiresLoyalty() != null ? dto.requiresLoyalty() : false)
                 .isAddOn(dto.isAddOn() != null ? dto.isAddOn() : false)
                 .professionals(professionals)
                 .nailCount(0)

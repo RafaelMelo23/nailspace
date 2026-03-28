@@ -58,7 +58,7 @@ public class TestAppointmentFactory {
             SalonService mainService
     ) {
         return Appointment.builder()
-                .id(null) // DB generated
+                .id(null)
                 .client(client)
                 .professional(professional)
                 .mainSalonService(mainService)

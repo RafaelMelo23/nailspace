@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Filter;
 
 import java.time.Instant;
 
@@ -22,9 +21,6 @@ import java.time.Instant;
                         name = "uk_refresh_token_per_tenant",
                         columnNames = {"tenantId", "token"})
         })
-@Filter(name = "tenantFilter",
-        condition = "tenant_id = :tenantId"
-)
 public class RefreshToken extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

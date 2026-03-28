@@ -3,6 +3,7 @@ package com.rafael.nailspro.webapp.domain.repository;
 import com.rafael.nailspro.webapp.domain.enums.whatsapp.WhatsappMessageStatus;
 import com.rafael.nailspro.webapp.domain.enums.whatsapp.WhatsappMessageType;
 import com.rafael.nailspro.webapp.domain.model.WhatsappMessage;
+import com.rafael.nailspro.webapp.shared.tenant.IgnoreTenantFilter;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 public interface WhatsappMessageRepository extends JpaRepository<WhatsappMessage, Long> {
 
+    @IgnoreTenantFilter
     @Modifying
     @Transactional
     @Query("""
@@ -24,6 +26,7 @@ public interface WhatsappMessageRepository extends JpaRepository<WhatsappMessage
     """)
     int deleteOldMessagesInBatch(@Param("instant") Instant instant);
 
+    @IgnoreTenantFilter
     @Query("""
     SELECT wm FROM WhatsappMessage wm
     WHERE wm.attempts <= :maxRetries

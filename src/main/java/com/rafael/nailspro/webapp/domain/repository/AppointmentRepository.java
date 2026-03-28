@@ -2,6 +2,7 @@ package com.rafael.nailspro.webapp.domain.repository;
 
 import com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentStatus;
 import com.rafael.nailspro.webapp.domain.model.Appointment;
+import com.rafael.nailspro.webapp.shared.tenant.IgnoreTenantFilter;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,6 +42,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             """)
     Optional<Appointment> findFullById(Long id);
 
+    @IgnoreTenantFilter
     @Query("""
             SELECT ap FROM Appointment ap
             WHERE ap.startDate > :now

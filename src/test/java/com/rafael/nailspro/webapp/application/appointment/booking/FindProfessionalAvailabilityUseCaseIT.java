@@ -5,6 +5,7 @@ import com.rafael.nailspro.webapp.domain.model.*;
 import com.rafael.nailspro.webapp.domain.repository.*;
 import com.rafael.nailspro.webapp.infrastructure.dto.appointment.AppointmentTimesDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.professional.FindProfessionalAvailabilityDTO;
+import com.rafael.nailspro.webapp.shared.tenant.TenantContext;
 import com.rafael.nailspro.webapp.support.BaseIntegrationTest;
 import com.rafael.nailspro.webapp.support.TestClockConfig;
 import com.rafael.nailspro.webapp.support.factory.*;
@@ -30,34 +31,9 @@ class FindProfessionalAvailabilityUseCaseIT extends BaseIntegrationTest {
 
     @Autowired
     private FindProfessionalAvailabilityUseCase findProfessionalAvailabilityUseCase;
-    @Autowired
-    private SalonProfileRepository salonProfileRepository;
-    @Autowired
-    private ProfessionalRepository professionalRepository;
-    @Autowired
-    private SalonServiceRepository salonServiceRepository;
-    @Autowired
-    private ClientRepository clientRepository;
-    @Autowired
-    private WorkScheduleRepository workScheduleRepository;
-    @Autowired
-    private AppointmentRepository appointmentRepository;
-    @Autowired
-    private ScheduleBlockRepository scheduleBlockRepository;
 
     @Autowired
     private Clock clock;
-
-    @BeforeEach
-    void setUp() {
-        appointmentRepository.deleteAll();
-        scheduleBlockRepository.deleteAll();
-        workScheduleRepository.deleteAll();
-        salonServiceRepository.deleteAll();
-        salonProfileRepository.deleteAll();
-        professionalRepository.deleteAll();
-        clientRepository.deleteAll();
-    }
 
     private record SetupData(
             Professional professional,
@@ -107,7 +83,7 @@ class FindProfessionalAvailabilityUseCaseIT extends BaseIntegrationTest {
 
     @Test
     void findAvailableTimes_shouldFindAvailability_WhenAllFieldsAreValid() {
-        String tenantId = "tenant-availability-test";
+        String tenantId = "tenant-test";
         LocalDate frozenDate = LocalDate.now(clock);
         SetupData setup = setupStandard(tenantId);
 
@@ -135,10 +111,11 @@ class FindProfessionalAvailabilityUseCaseIT extends BaseIntegrationTest {
 
         FindProfessionalAvailabilityDTO dto = FindProfessionalAvailabilityDTO.builder()
                 .professionalExternalId(professional.getExternalId().toString())
-                .serviceDurationInSeconds(7200) // 2 hours
+                .serviceDurationInSeconds(7200)
                 .servicesIds(List.of(salonService1.getId(), salonService2.getId()))
                 .build();
 
+        TenantContext.setTenant(setup.tenantId());
         var result = findProfessionalAvailabilityUseCase.findAvailableTimes(dto, setup.principal());
 
         assertThat(result.appointmentTimesDTOList()).hasSize(7);
@@ -153,7 +130,7 @@ class FindProfessionalAvailabilityUseCaseIT extends BaseIntegrationTest {
 
     @Test
     void findAvailableTimes_shouldRespectLoyalClientPriority_WhenPrioritized() {
-        String tenantId = "tenant-loyal-test";
+        String tenantId = "tenant-test";
         SetupData setup = setup(tenantId, TestSalonProfileFactory.standardForIT(null, tenantId, true, 5, 15), null);
         Professional professional = setup.professional();
 
@@ -167,6 +144,7 @@ class FindProfessionalAvailabilityUseCaseIT extends BaseIntegrationTest {
                 .servicesIds(List.of(service.getId()))
                 .build();
 
+        TenantContext.setTenant(setup.tenantId());
         var result = findProfessionalAvailabilityUseCase.findAvailableTimes(dto, setup.principal());
 
         assertThat(result.appointmentTimesDTOList()).hasSize(15);
@@ -174,7 +152,7 @@ class FindProfessionalAvailabilityUseCaseIT extends BaseIntegrationTest {
 
     @Test
     void findAvailableTimes_shouldRespectMaintenanceInterval_WhenPreviousAppointmentExists() {
-        String tenantId = "tenant-main-test";
+        String tenantId = "tenant-test";
         LocalDate frozenDate = LocalDate.now(clock);
         SetupData setup = setupStandard(tenantId);
         Professional professional = setup.professional();
@@ -197,6 +175,7 @@ class FindProfessionalAvailabilityUseCaseIT extends BaseIntegrationTest {
                 .servicesIds(List.of(service.getId()))
                 .build();
 
+        TenantContext.setTenant(setup.tenantId());
         var result = findProfessionalAvailabilityUseCase.findAvailableTimes(dto, setup.principal());
 
         LocalDate expectedStart = frozenDate.plusDays(2);
@@ -205,7 +184,7 @@ class FindProfessionalAvailabilityUseCaseIT extends BaseIntegrationTest {
 
     @Test
     void findAvailableTimes_shouldApplySalonBuffer_WhenCalculatingSlots() {
-        String tenantId = "tenant-buffer-test";
+        String tenantId = "tenant-test";
         LocalDate frozenDate = LocalDate.now(clock);
 
         List<WorkSchedule> schedules = TestWorkScheduleFactory.fullWeekForIt(
@@ -219,7 +198,7 @@ class FindProfessionalAvailabilityUseCaseIT extends BaseIntegrationTest {
         Professional professional = setup.professional();
         SalonProfile salonProfile = setup.salonProfile();
 
-        SalonService service = salonServiceRepository.save(TestSalonServiceFactory.standardForIt(tenantId, 3600, null)); // 1h duration
+        SalonService service = salonServiceRepository.save(TestSalonServiceFactory.standardForIt(tenantId, 3600, null));
         Client otherClient = clientRepository.save(TestClientFactory.standardForIt(tenantId));
 
         appointmentRepository.save(TestAppointmentFactory.atLocalTimeForIt(
@@ -233,6 +212,7 @@ class FindProfessionalAvailabilityUseCaseIT extends BaseIntegrationTest {
                 .servicesIds(List.of(service.getId()))
                 .build();
 
+        TenantContext.setTenant(setup.tenantId());
         var result = findProfessionalAvailabilityUseCase.findAvailableTimes(dto, setup.principal());
 
         AppointmentTimesDTO day = result.appointmentTimesDTOList().getFirst();
@@ -244,7 +224,7 @@ class FindProfessionalAvailabilityUseCaseIT extends BaseIntegrationTest {
 
     @Test
     void findAvailableTimes_shouldHandleProfessionalScheduleBlocks() {
-        String tenantId = "tenant-block-test";
+        String tenantId = "tenant-test";
         LocalDate frozenDate = LocalDate.now(clock);
         SetupData setup = setupStandard(tenantId);
         Professional professional = setup.professional();
@@ -269,6 +249,7 @@ class FindProfessionalAvailabilityUseCaseIT extends BaseIntegrationTest {
                 .servicesIds(List.of(service.getId()))
                 .build();
 
+        TenantContext.setTenant(setup.tenantId());
         var result = findProfessionalAvailabilityUseCase.findAvailableTimes(dto, setup.principal());
 
         AppointmentTimesDTO day = result.appointmentTimesDTOList().getFirst();
@@ -312,6 +293,7 @@ class FindProfessionalAvailabilityUseCaseIT extends BaseIntegrationTest {
                 .plus(service.getMaintenanceIntervalDays(), ChronoUnit.DAYS)
                 .atZone(setup.salonProfile().getZoneId());
 
+        TenantContext.setTenant(setup.tenantId());
         var result = findProfessionalAvailabilityUseCase.findAvailableTimes(dto, setup.principal());
 
         assertThat(result.earliestRecommendedDate())
@@ -351,6 +333,7 @@ class FindProfessionalAvailabilityUseCaseIT extends BaseIntegrationTest {
 
         ZonedDateTime expectedResult = now.atZone(setup.salonProfile().getZoneId());
 
+        TenantContext.setTenant(setup.tenantId());
         var result = findProfessionalAvailabilityUseCase.findAvailableTimes(dto, setup.principal());
 
         assertThat(result.earliestRecommendedDate())

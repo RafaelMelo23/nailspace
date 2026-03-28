@@ -23,7 +23,7 @@ import java.time.ZoneId;
                 @UniqueConstraint(name = "uk_salon_owner_id", columnNames = {"owner_id"})
         }
 )
-public class SalonProfile {
+public class SalonProfile extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -33,9 +33,6 @@ public class SalonProfile {
     @Column(name = "trade_name", nullable = false, length = 60)
     @Builder.Default
     private String tradeName = "Novo Estabelecimento";
-
-    @Column(name = "tenant_id", nullable = false)
-    private String tenantId;
 
     @Column(name = "slogan", length = 120)
     private String slogan;

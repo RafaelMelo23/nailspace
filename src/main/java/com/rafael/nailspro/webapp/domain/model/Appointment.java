@@ -7,7 +7,6 @@ import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Filter;
 import org.springframework.data.domain.AfterDomainEventPublication;
 import org.springframework.data.domain.DomainEvents;
 
@@ -27,9 +26,6 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "appointment")
-@Filter(name = "tenantFilter",
-        condition = "tenant_id = :tenantId"
-)
 public class Appointment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

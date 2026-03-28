@@ -35,24 +35,6 @@ class BookingAppointmentUseCaseIT extends BaseIntegrationTest {
     @Autowired
     private BookingAppointmentUseCase bookingAppointmentUseCase;
 
-    @Autowired
-    private ClientRepository clientRepository;
-
-    @Autowired
-    private ProfessionalRepository professionalRepository;
-
-    @Autowired
-    private SalonServiceRepository salonServiceRepository;
-
-    @Autowired
-    private SalonProfileRepository salonProfileRepository;
-
-    @Autowired
-    private WorkScheduleRepository workScheduleRepository;
-
-    @Autowired
-    private AppointmentRepository appointmentRepository;
-
     private Client client;
     private UserPrincipal principal;
     private final String tenantId = "tenant-test";

@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Filter;
 
 import java.time.Instant;
 
@@ -19,9 +18,6 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "schedule_block")
-@Filter(name = "tenantFilter",
-        condition = "tenant_id = :tenantId"
-)
 public class ScheduleBlock extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

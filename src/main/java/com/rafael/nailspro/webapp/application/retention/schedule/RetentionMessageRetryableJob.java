@@ -3,7 +3,7 @@ package com.rafael.nailspro.webapp.application.retention.schedule;
 import com.rafael.nailspro.webapp.application.retention.VisitPredictionService;
 import com.rafael.nailspro.webapp.domain.model.WhatsappMessage;
 import com.rafael.nailspro.webapp.domain.repository.WhatsappMessageRepository;
-import jakarta.persistence.EntityManagerFactory;
+import com.rafael.nailspro.webapp.shared.tenant.IgnoreTenantFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -19,8 +19,8 @@ public class RetentionMessageRetryableJob {
 
     private final VisitPredictionService visitPredictionService;
     private final WhatsappMessageRepository messageRepository;
-    private final EntityManagerFactory entityManagerFactory;
 
+    @IgnoreTenantFilter
     @Scheduled(cron = "0 */5 * * * *")
     public void retryFailedRetentionMessages() {
         final int MAX_RETRIES = 3;

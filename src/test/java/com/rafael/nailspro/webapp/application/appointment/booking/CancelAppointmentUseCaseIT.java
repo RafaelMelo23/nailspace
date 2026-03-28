@@ -5,11 +5,9 @@ import com.rafael.nailspro.webapp.domain.model.Appointment;
 import com.rafael.nailspro.webapp.domain.model.Client;
 import com.rafael.nailspro.webapp.domain.model.Professional;
 import com.rafael.nailspro.webapp.domain.model.SalonService;
-import com.rafael.nailspro.webapp.domain.repository.AppointmentRepository;
-import com.rafael.nailspro.webapp.domain.repository.ClientRepository;
-import com.rafael.nailspro.webapp.domain.repository.ProfessionalRepository;
-import com.rafael.nailspro.webapp.domain.repository.SalonServiceRepository;
+import com.rafael.nailspro.webapp.domain.repository.*;
 import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
+import com.rafael.nailspro.webapp.shared.tenant.TenantContext;
 import com.rafael.nailspro.webapp.support.BaseIntegrationTest;
 import com.rafael.nailspro.webapp.support.factory.TestAppointmentFactory;
 import com.rafael.nailspro.webapp.support.factory.TestClientFactory;
@@ -47,6 +45,10 @@ class CancelAppointmentUseCaseIT extends BaseIntegrationTest {
     private SalonServiceRepository salonServiceRepository;
     @Autowired
     private AppointmentRepository appointmentRepository;
+    @Autowired
+    private SalonProfileRepository salonProfileRepository;
+    @Autowired
+    private WorkScheduleRepository workScheduleRepository;
 
     private @NotNull PreparationData getPreparationData() {
         var client = clientRepository.save(TestClientFactory.standardForIt());
@@ -188,12 +190,14 @@ class CancelAppointmentUseCaseIT extends BaseIntegrationTest {
             Appointment finalAppointment = appointment;
             executorService.submit(() -> {
                 try {
+                    TenantContext.setTenant("tenant-test");
                     startLatch.await();
                     cancelAppointmentUseCase.cancelAppointment(finalAppointment.getId(), prep.client().getId());
                     successCount.incrementAndGet();
                 } catch (Exception e) {
                     exceptionCount.incrementAndGet();
                 } finally {
+                    TenantContext.clear();
                     doneLatch.countDown();
                 }
             });

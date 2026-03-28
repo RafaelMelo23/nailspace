@@ -3,10 +3,9 @@ package com.rafael.nailspro.webapp.application.appointment.message.schedule;
 import com.rafael.nailspro.webapp.application.appointment.message.AppointmentMessagingUseCase;
 import com.rafael.nailspro.webapp.domain.model.Appointment;
 import com.rafael.nailspro.webapp.domain.repository.AppointmentRepository;
-import jakarta.persistence.EntityManager;
+import com.rafael.nailspro.webapp.shared.tenant.IgnoreTenantFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.hibernate.Session;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -21,16 +20,13 @@ public class AppointmentReminderJob {
 
     private final AppointmentRepository appointmentRepository;
     private final AppointmentMessagingUseCase messagingUseCase;
-    private final EntityManager entityManager;
 
+    @IgnoreTenantFilter
     @Scheduled(cron = "0 0/15 * * * *")
     public void scheduleReminders() {
         Instant startTime = Instant.now();
         log.info("Starting appointment reminder job");
         try {
-            Session session = entityManager.unwrap(Session.class);
-            session.disableFilter("tenantFilter");
-
             int processed = sendReminders();
 
             long durationMs = ChronoUnit.MILLIS.between(startTime, Instant.now());

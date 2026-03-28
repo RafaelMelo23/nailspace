@@ -6,7 +6,6 @@ import com.rafael.nailspro.webapp.shared.tenant.TenantContext;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Filter;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -24,9 +23,6 @@ import java.time.LocalTime;
                         columnNames = {"professional_id", "day_of_week"}
                 )
         }
-)
-@Filter(name = "tenantFilter",
-        condition = "tenant_id = :tenantId"
 )
 public class WorkSchedule extends BaseEntity {
     @Id

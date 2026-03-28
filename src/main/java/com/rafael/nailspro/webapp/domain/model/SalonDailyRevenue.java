@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Filter;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -17,15 +16,11 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Table(name = "salon_daily_revenue")
-@Filter(name = "tenantFilter",
-        condition = "tenant_id = :tenantId"
-)
 public class SalonDailyRevenue extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String tenantId;
     private LocalDate date;
 
     @Column(precision = 19, scale = 2)
@@ -34,7 +29,7 @@ public class SalonDailyRevenue extends BaseEntity {
     private Long appointmentsCount;
 
     public SalonDailyRevenue(String tenantId, LocalDate date) {
-        this.tenantId = tenantId;
+        setTenantId(tenantId);
         this.date = date;
         this.totalRevenue = BigDecimal.ZERO;
         this.appointmentsCount = 0L;

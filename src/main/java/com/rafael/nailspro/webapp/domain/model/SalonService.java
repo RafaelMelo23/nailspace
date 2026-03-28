@@ -4,7 +4,6 @@ import com.rafael.nailspro.webapp.infrastructure.dto.salon.service.SalonServiceD
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Filter;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -16,9 +15,6 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "service")
-@Filter(name = "tenantFilter",
-        condition = "tenant_id = :tenantId"
-)
 public class SalonService extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

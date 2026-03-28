@@ -2,7 +2,6 @@ package com.rafael.nailspro.webapp.domain.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Filter;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
@@ -13,9 +12,6 @@ import java.time.ZonedDateTime;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "client_audit_metrics")
-@Filter(name = "tenantFilter",
-        condition = "tenant_id = :tenantId"
-)
 public class ClientAuditMetrics extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

@@ -32,4 +32,6 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
     void incrementCanceledAppointments(@Param("clientId") Long clientId);
 
     boolean existsByPhoneNumber(String phoneNumber);
+
+    Optional<Client> findByEmailIgnoreCase(String email);
 }

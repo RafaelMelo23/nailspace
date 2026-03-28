@@ -3,11 +3,9 @@ package com.rafael.nailspro.webapp.application.appointment.message.schedule;
 import com.rafael.nailspro.webapp.application.appointment.message.AppointmentMessagingUseCase;
 import com.rafael.nailspro.webapp.domain.model.WhatsappMessage;
 import com.rafael.nailspro.webapp.domain.repository.WhatsappMessageRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
+import com.rafael.nailspro.webapp.shared.tenant.IgnoreTenantFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Session;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -23,16 +21,13 @@ public class AppointmentConfirmationRetryableJob {
 
     private final AppointmentMessagingUseCase messagingUseCase;
     private final WhatsappMessageRepository messageRepository;
-    private final EntityManager entityManager;
     // todo: consider changing to a circuit-breaker like approach for all scheduled sending message classes
 
+    @IgnoreTenantFilter
     @Scheduled(cron = "0 */5 * * * *")
     public void retryFailedConfirmationMessages() {
         final int MAX_RETRIES = 3;
         try {
-            Session session = entityManager.unwrap(Session.class);
-            session.disableFilter("tenantFilter");
-
             List<WhatsappMessage> messages =
                     messageRepository.findRetriableMessages(MAX_RETRIES, FAILED, CONFIRMATION);
 

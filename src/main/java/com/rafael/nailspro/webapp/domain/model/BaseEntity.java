@@ -6,6 +6,7 @@ import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Filter;
 
 
 @NoArgsConstructor
@@ -13,6 +14,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Getter @Setter
 @MappedSuperclass
+@Filter(name = "tenantFilter")
 public class BaseEntity {
 
     @Column(name = "tenant_id", nullable = false, updatable = false)

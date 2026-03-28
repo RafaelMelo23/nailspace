@@ -1,6 +1,7 @@
 package com.rafael.nailspro.webapp.application.whatsapp.schedule;
 
 import com.rafael.nailspro.webapp.domain.repository.WhatsappMessageRepository;
+import com.rafael.nailspro.webapp.shared.tenant.IgnoreTenantFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,6 +17,7 @@ public class WhatsappMessageCleanupJob {
 
     private final WhatsappMessageRepository messageRepository;
 
+    @IgnoreTenantFilter
     @Scheduled(cron = "0 0 5 * * *")
     public void deleteOldMessages() {
         Instant cutoff = Instant.now().minus(30, ChronoUnit.DAYS);

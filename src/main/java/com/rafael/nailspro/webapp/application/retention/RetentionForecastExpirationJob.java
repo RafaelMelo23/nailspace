@@ -3,11 +3,9 @@ package com.rafael.nailspro.webapp.application.retention;
 import com.rafael.nailspro.webapp.domain.enums.appointment.RetentionStatus;
 import com.rafael.nailspro.webapp.domain.model.RetentionForecast;
 import com.rafael.nailspro.webapp.domain.repository.RetentionForecastRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
+import com.rafael.nailspro.webapp.shared.tenant.IgnoreTenantFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Session;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -21,15 +19,12 @@ public class RetentionForecastExpirationJob {
 
     private final VisitPredictionService visitPredictionService;
     private final RetentionForecastRepository repository;
-    private final EntityManagerFactory entityManagerFactory;
 
+    @IgnoreTenantFilter
     @Scheduled(cron = "0 0 0 * * *")
     public void expireForecasts() {
         Instant now = Instant.now();
-        try (EntityManager em = entityManagerFactory.createEntityManager()) {
-            Session session = em.unwrap(Session.class);
-            session.disableFilter("tenantFilter");
-
+        try {
             List<RetentionForecast> expiredForecasts =
                     repository.findAllExpiredPredictedForecastsByStatus(
                             now, List.of(RetentionStatus.PENDING, RetentionStatus.NOTIFIED)

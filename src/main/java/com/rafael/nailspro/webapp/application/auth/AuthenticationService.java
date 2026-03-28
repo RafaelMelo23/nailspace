@@ -72,8 +72,6 @@ public class AuthenticationService {
 
     @Transactional
     public AuthResultDTO login(LoginDTO loginDTO) {
-        disableTenantFilter();
-
         Optional<User> userOptional = userRepository.findByEmailIgnoreCase(loginDTO.email());
         User user;
 
@@ -94,11 +92,6 @@ public class AuthenticationService {
         return AuthResultDTO.builder()
                 .jwtToken(jwt)
                 .refreshToken(refresh).build();
-    }
-
-    private void disableTenantFilter() {
-        Session session = entityManager.unwrap(Session.class);
-        session.disableFilter("tenantFilter");
     }
 
     private static void checkUsersTenant(User user) {

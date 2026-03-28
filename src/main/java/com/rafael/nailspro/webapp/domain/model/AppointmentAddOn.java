@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Filter;
 
 @Entity
 @Getter
@@ -13,9 +12,6 @@ import org.hibernate.annotations.Filter;
 @Table(name = "appointment_addons_record")
 @NoArgsConstructor
 @AllArgsConstructor
-@Filter(name = "tenantFilter",
-        condition = "tenant_id = :tenantId"
-)
 public class AppointmentAddOn extends BaseEntity {
 
     @Id

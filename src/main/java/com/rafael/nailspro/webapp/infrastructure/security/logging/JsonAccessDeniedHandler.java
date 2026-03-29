@@ -32,6 +32,7 @@ public class JsonAccessDeniedHandler implements AccessDeniedHandler {
                        AccessDeniedException ex) throws IOException {
 
         String traceId = MDC.get("trace_id");
+        if (traceId == null) traceId = "N/A";
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String principal = auth != null ? auth.getName() : "anonymous";
 

@@ -2,6 +2,7 @@ package com.rafael.nailspro.webapp.infrastructure.controller.api.admin.professio
 
 import com.rafael.nailspro.webapp.application.professional.ProfessionalScheduleBlockUseCase;
 import com.rafael.nailspro.webapp.application.professional.ProfessionalWorkScheduleUseCase;
+import com.rafael.nailspro.webapp.domain.model.UserPrincipal;
 import com.rafael.nailspro.webapp.infrastructure.dto.professional.schedule.WorkScheduleRecordDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.professional.schedule.block.ScheduleBlockOutDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,11 +15,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -56,16 +57,15 @@ public class ProfessionalScheduleController {
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "403", description = "Forbidden")
     })
-    @GetMapping("/schedule/block/{professionalId}")
+    @GetMapping("/schedule/block")
     public ResponseEntity<List<ScheduleBlockOutDTO>> getProfessionalScheduleBlocks(
             @Parameter(description = "ID of the professional", example = "2002")
-            @PathVariable Long professionalId,
+            @AuthenticationPrincipal UserPrincipal principal,
             @Parameter(description = "Optional date to filter blocks", example = "2026-04-01T00:00:00")
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateAndTime) {
 
-        Optional<LocalDateTime> optionalDate = Optional.ofNullable(dateAndTime);
-        List<ScheduleBlockOutDTO> blocks = professionalScheduleBlockUseCase.getBlocks(professionalId, optionalDate);
+        List<ScheduleBlockOutDTO> blocks = professionalScheduleBlockUseCase.getBlocks(principal, dateAndTime);
         return ResponseEntity.ok(blocks);
     }
 }

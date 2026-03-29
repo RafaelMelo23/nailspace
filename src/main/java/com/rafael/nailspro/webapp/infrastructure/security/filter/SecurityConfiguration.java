@@ -52,15 +52,8 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public SecurityFilter securityFilter(TokenService tokenService) {
-        return new SecurityFilter(tokenService);
-    }
-
-    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-
         CorsConfiguration config = new CorsConfiguration();
-
         // todo: adjust to prod
         config.setAllowedOriginPatterns(List.of(
                 "http://*.localhost:8080",
@@ -82,10 +75,11 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   SecurityFilter securityFilter,
+                                                   TokenService tokenService,
                                                    JsonAuthenticationEntryPoint authenticationEntryPoint,
                                                    JsonAccessDeniedHandler accessDeniedHandler
     ) throws Exception {
+        SecurityFilter securityFilter = new SecurityFilter(tokenService);
         http.cors(cors -> {
                 })
                 .csrf(csrf -> csrf
@@ -100,6 +94,7 @@ public class SecurityConfiguration {
                         ).permitAll()
                         .requestMatchers(
                                 "/api/v1/auth/**",
+                                "/api/v1/webhook",
                                 "/api/v1/webhook/**",
                                 "/api/v1/professional/simplified",
                                 "/api/v1/booking/{professionalExternalId}/availability",

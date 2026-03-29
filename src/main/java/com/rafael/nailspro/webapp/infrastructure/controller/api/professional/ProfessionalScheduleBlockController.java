@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -65,8 +64,7 @@ public class ProfessionalScheduleBlockController {
             @ApiResponse(responseCode = "403", description = "Forbidden")
     })
     @DeleteMapping("/{blockId}")
-    public ResponseEntity<Void> deleteBlock(
-                                            @Parameter(example = "7001")
+    public ResponseEntity<Void> deleteBlock(@Parameter(example = "7001")
                                             @PathVariable @Positive(message = "O identificador do bloqueio deve ser positivo") Long blockId,
                                             @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
@@ -83,11 +81,11 @@ public class ProfessionalScheduleBlockController {
             @ApiResponse(responseCode = "403", description = "Forbidden")
     })
     @GetMapping
-    public ResponseEntity<List<ScheduleBlockOutDTO>> getBlocks(
-                                                               @Parameter(example = "2026-04-01T00:00:00")
-                                                               @RequestParam @NotNull(message = "A data e hora são obrigatórias") LocalDateTime dateAndTime,
+    public ResponseEntity<List<ScheduleBlockOutDTO>> getBlocks(@Parameter(example = "2026-04-01T00:00:00")
+                                                               @RequestParam @NotNull(message = "A data e hora são obrigatórias")
+                                                               LocalDateTime dateAndTime,
                                                                @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        return ResponseEntity.ok(professionalScheduleBlockUseCase.getBlocks(userPrincipal.getUserId(), Optional.of(dateAndTime)));
+        return ResponseEntity.ok(professionalScheduleBlockUseCase.getBlocks(userPrincipal, dateAndTime));
     }
 }

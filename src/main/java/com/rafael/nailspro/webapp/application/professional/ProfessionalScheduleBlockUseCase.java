@@ -3,6 +3,7 @@ package com.rafael.nailspro.webapp.application.professional;
 import com.rafael.nailspro.webapp.application.salon.business.SalonProfileService;
 import com.rafael.nailspro.webapp.domain.model.Professional;
 import com.rafael.nailspro.webapp.domain.model.ScheduleBlock;
+import com.rafael.nailspro.webapp.domain.model.UserPrincipal;
 import com.rafael.nailspro.webapp.domain.repository.ProfessionalRepository;
 import com.rafael.nailspro.webapp.domain.repository.ScheduleBlockRepository;
 import com.rafael.nailspro.webapp.infrastructure.dto.professional.schedule.block.ScheduleBlockDTO;
@@ -40,14 +41,15 @@ public class ProfessionalScheduleBlockUseCase {
     }
 
     @Transactional(readOnly = true)
-    public List<ScheduleBlockOutDTO> getBlocks(Long professionalId, Optional<LocalDateTime> from) {
-        ZoneId salonZoneId = salonProfileService.getSalonZoneIdByContext();
+    public List<ScheduleBlockOutDTO> getBlocks(UserPrincipal principal, LocalDateTime from) {
+        ZoneId salonZoneId = salonProfileService.getSalonZoneId(principal.getTenantId());
 
-        Instant fromInstant = from
-                .map(f -> f.atZone(salonZoneId).toInstant())
-                .orElse(Instant.MIN);
+        var fromInstant = Instant.MIN;
+        if (from != null) {
+            fromInstant = from.atZone(salonZoneId).toInstant();
+        }
 
-        return repository.findByProfessional_IdAndDateStartTimeGreaterThanEqual(professionalId, fromInstant)
+        return repository.findByProfessional_IdAndDateStartTimeGreaterThanEqual(principal.getUserId(), fromInstant)
                 .stream()
                 .map(sb -> ScheduleBlockOutDTO.fromEntity(sb, salonZoneId))
                 .collect(Collectors.toList());

@@ -11,6 +11,8 @@ import com.rafael.nailspro.webapp.support.factory.TestClientFactory;
 import com.rafael.nailspro.webapp.support.factory.TestProfessionalFactory;
 import com.rafael.nailspro.webapp.support.factory.TestSalonProfileFactory;
 import com.rafael.nailspro.webapp.support.factory.TestSalonServiceFactory;
+import jakarta.persistence.EntityManager;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -24,14 +26,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-@lombok.extern.slf4j.Slf4j
+@Slf4j
 class AppointmentReminderJobIT extends BaseIntegrationTest {
 
     @Autowired
     private AppointmentReminderJob job;
 
     @Autowired
-    private jakarta.persistence.EntityManager entityManager;
+    private EntityManager entityManager;
 
     @MockitoBean(name = "whatsappProvider")
     private WhatsappProvider whatsappProvider;
@@ -117,17 +119,12 @@ class AppointmentReminderJobIT extends BaseIntegrationTest {
         apB.setTenantId("tenant-b");
         appointmentRepository.save(apB);
 
-        TenantContext.setIgnoreFilter(true);
-        try {
-            Instant now = Instant.now();
-            Instant windowEnd = now.plus(5, ChronoUnit.HOURS);
-            var results = appointmentRepository.findAppointmentsNeedingReminder(now, windowEnd);
-            log.info("DEBUG: Repo query returned {} appointments", results.size());
-            
-            job.sendReminders();
-        } finally {
-            TenantContext.setIgnoreFilter(false);
-        }
+        Instant now = Instant.now();
+        Instant windowEnd = now.plus(5, ChronoUnit.HOURS);
+        var results = appointmentRepository.findAppointmentsNeedingReminder(now, windowEnd);
+        log.info("DEBUG: Repo query returned {} appointments", results.size());
+        
+        job.sendReminders();
 
         verify(whatsappProvider, times(2)).sendText(anyString(), anyString(), anyString());
     }

@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "retention_forecast")
-public class RetentionForecast {
+public class RetentionForecast extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
@@ -74,6 +74,7 @@ public class RetentionForecast {
                 .originAppointment(appointment)
                 .predictedReturnDate(predictedReturn)
                 .professional(appointment.getProfessional())
+                .tenantId(appointment.getTenantId())
                 .build();
     }
 

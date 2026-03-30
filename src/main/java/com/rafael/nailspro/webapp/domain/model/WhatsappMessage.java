@@ -18,7 +18,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "whatsapp_message")
-public class WhatsappMessage {
+public class WhatsappMessage extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

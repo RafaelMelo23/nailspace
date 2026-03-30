@@ -108,9 +108,9 @@ public class SalonProfile extends BaseEntity {
     @Builder.Default
     private boolean autoConfirmationAppointment = false;
 
-    @PrePersist
-    @PreUpdate
-    public void sanitizeData() {
+    @Override
+    public void prePersist() {
+
         if (this.tradeName != null) {
             this.tradeName = this.tradeName.trim();
         }

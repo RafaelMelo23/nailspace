@@ -34,6 +34,7 @@ public class WhatsappMessageService {
                             .messageType(type)
                             .messageStatus(WhatsappMessageStatus.FAILED)
                             .attempts(0)
+                            .tenantId(appointment.getTenantId())
                             .build();
 
                     return messageRepository.save(newMessage);
@@ -54,6 +55,7 @@ public class WhatsappMessageService {
                             .messageType(type)
                             .messageStatus(WhatsappMessageStatus.FAILED)
                             .attempts(0)
+                            .tenantId(retentionForecast.getTenantId())
                             .build();
 
                     return messageRepository.save(newMessage);

@@ -3,6 +3,7 @@ package com.rafael.nailspro.webapp.support;
 import com.rafael.nailspro.webapp.SchedulingNailsProApplication;
 import com.rafael.nailspro.webapp.domain.repository.*;
 import com.rafael.nailspro.webapp.shared.tenant.TenantContext;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -47,6 +48,8 @@ public abstract class BaseIntegrationTest {
     protected ClientAuditMetricsRepository clientAuditMetricsRepository;
     @Autowired
     protected SalonDailyRevenueRepository salonDailyRevenueRepository;
+    @Autowired
+    protected EntityManager entityManager;
 
     protected static final PostgreSQLContainer<?> POSTGRES =
             new PostgreSQLContainer<>("postgres:15-alpine")

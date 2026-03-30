@@ -27,13 +27,13 @@ public class BookingPolicyService {
     private final BookingPolicy bookingPolicy;
     private final Clock clock;
 
-    public void validate(LocalDateTime requestedTime, UserPrincipal userPrincipal) {
+    public void enforceBookingHorizon(LocalDateTime requestedTime, UserPrincipal userPrincipal) {
         SalonProfile profile = salonProfileService.getByTenantId(userPrincipal.getTenantId());
         if (!profile.isLoyalClientelePrioritized()) {
             return;
         }
 
-        boolean isLoyalClient = isLoyalClient(userPrincipal.getUserId());
+        boolean isLoyalClient = isClientLoyal(userPrincipal.getUserId());
 
         int allowedDays = bookingPolicy.resolveAllowedWindowDays(
                 profile.isLoyalClientelePrioritized(),
@@ -49,6 +49,16 @@ public class BookingPolicyService {
         );
     }
 
+    private boolean isClientLoyal(Long clientId) {
+        if (clientId == null) return false;
+
+        return appointmentRepository
+                .countByClientIdAndAppointmentStatus(
+                        clientId,
+                        AppointmentStatus.FINISHED
+                ) >= 3;
+    }
+
     public AppointmentTimeWindow calculateAllowedWindow(
             List<SalonService> services,
             UserPrincipal userPrincipal
@@ -56,7 +66,7 @@ public class BookingPolicyService {
         SalonProfile profile =
                 salonProfileService.getByTenantId(userPrincipal.getTenantId());
 
-        boolean isLoyalClient = isLoyalClient(userPrincipal.getUserId());
+        boolean isLoyalClient = isClientLoyal(userPrincipal.getUserId());
 
         int windowDays = bookingPolicy.resolveAllowedWindowDays(
                 profile.isLoyalClientelePrioritized(),
@@ -76,16 +86,6 @@ public class BookingPolicyService {
                 );
 
         return bookingPolicy.buildWindow(startDate, windowDays);
-    }
-
-    private boolean isLoyalClient(Long clientId) {
-        if (clientId == null) return false;
-
-        return appointmentRepository
-                .countByClientIdAndAppointmentStatus(
-                        clientId,
-                        AppointmentStatus.FINISHED
-                ) >= 3;
     }
 
     public Instant calculateEarliestRecommendedDate(Long clientId) {

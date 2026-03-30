@@ -1,7 +1,6 @@
 package com.rafael.nailspro.webapp.application.internal;
 
 import com.rafael.nailspro.webapp.domain.enums.user.UserRole;
-import com.rafael.nailspro.webapp.domain.enums.user.UserStatus;
 import com.rafael.nailspro.webapp.domain.model.Professional;
 import com.rafael.nailspro.webapp.domain.model.SalonProfile;
 import com.rafael.nailspro.webapp.infrastructure.dto.onboarding.OnboardingRequestDTO;

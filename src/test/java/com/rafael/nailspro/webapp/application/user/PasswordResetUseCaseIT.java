@@ -9,8 +9,8 @@ import com.rafael.nailspro.webapp.support.BaseIntegrationTest;
 import com.rafael.nailspro.webapp.support.factory.TestClientFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.Optional;
 
@@ -64,11 +64,10 @@ class PasswordResetUseCaseIT extends BaseIntegrationTest {
         Client client = TestClientFactory.standardForIt();
         userRepository.save(client);
 
-        // Generate a token but with wrong purpose (e.g. auth token instead of reset token)
         String wrongToken = tokenService.generateAuthToken(client);
         ResetPasswordDTO dto = new ResetPasswordDTO(client.getEmail(), "newPassword123", wrongToken);
 
         assertThatThrownBy(() -> passwordResetUseCase.resetPassword(dto))
-                .isInstanceOf(RuntimeException.class); // TokenService throws BusinessException but wrapped in some cases
+                .isInstanceOf(RuntimeException.class);
     }
 }

@@ -6,21 +6,15 @@ import com.rafael.nailspro.webapp.domain.whatsapp.SentMessageResult;
 import com.rafael.nailspro.webapp.domain.whatsapp.WhatsappProvider;
 import com.rafael.nailspro.webapp.shared.tenant.TenantContext;
 import com.rafael.nailspro.webapp.support.BaseIntegrationTest;
-import com.rafael.nailspro.webapp.support.factory.TestAppointmentFactory;
-import com.rafael.nailspro.webapp.support.factory.TestClientFactory;
-import com.rafael.nailspro.webapp.support.factory.TestProfessionalFactory;
-import com.rafael.nailspro.webapp.support.factory.TestSalonProfileFactory;
-import com.rafael.nailspro.webapp.support.factory.TestSalonServiceFactory;
+import com.rafael.nailspro.webapp.support.factory.*;
 import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;

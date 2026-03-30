@@ -1,20 +1,15 @@
 package com.rafael.nailspro.webapp.application.admin.client;
 
-import com.rafael.nailspro.webapp.application.salon.business.SalonProfileService;
 import com.rafael.nailspro.webapp.domain.enums.user.UserStatus;
 import com.rafael.nailspro.webapp.domain.model.Client;
-import com.rafael.nailspro.webapp.domain.model.SalonProfile;
 import com.rafael.nailspro.webapp.infrastructure.dto.admin.client.ClientDTO;
 import com.rafael.nailspro.webapp.shared.tenant.TenantContext;
 import com.rafael.nailspro.webapp.support.BaseIntegrationTest;
 import com.rafael.nailspro.webapp.support.factory.TestClientFactory;
-import com.rafael.nailspro.webapp.support.factory.TestSalonProfileFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

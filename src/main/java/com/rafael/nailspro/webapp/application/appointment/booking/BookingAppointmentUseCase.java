@@ -63,7 +63,7 @@ public class BookingAppointmentUseCase {
 
         availabilityDomainService.checkIfProfessionalHasTimeConflicts(professionalId, interval);
 
-        bookingPolicyManager.validate(
+        bookingPolicyManager.enforceBookingHorizon(
                 dto.zonedAppointmentDateTime().toLocalDateTime(),
                 principal
         );

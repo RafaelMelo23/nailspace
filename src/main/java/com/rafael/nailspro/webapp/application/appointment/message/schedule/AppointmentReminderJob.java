@@ -21,7 +21,6 @@ public class AppointmentReminderJob {
     private final AppointmentRepository appointmentRepository;
     private final AppointmentMessagingUseCase messagingUseCase;
 
-    @IgnoreTenantFilter
     @Scheduled(cron = "0 0/15 * * * *")
     public void scheduleReminders() {
         Instant startTime = Instant.now();
@@ -39,8 +38,8 @@ public class AppointmentReminderJob {
         }
     }
 
-    private int sendReminders() {
-
+    @IgnoreTenantFilter
+    public int sendReminders() {
         Instant windowStart = Instant.now();
         Instant windowEnd = windowStart.plus(5, ChronoUnit.HOURS);
 
@@ -55,7 +54,6 @@ public class AppointmentReminderJob {
         log.info("Found {} appointments requiring reminders", upcomingAppointments.size());
 
         int processed = 0;
-
         for (Appointment ap : upcomingAppointments) {
             try {
                 messagingUseCase.sendAppointmentReminderMessage(ap.getId());
@@ -64,7 +62,6 @@ public class AppointmentReminderJob {
                 log.error("Failed to send reminder for appointmentId={}", ap.getId(), e);
             }
         }
-
         return processed;
     }
 }

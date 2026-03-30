@@ -14,6 +14,7 @@ import java.util.Optional;
 
 public interface RetentionForecastRepository extends JpaRepository<RetentionForecast, Long> {
 
+    @IgnoreTenantFilter
     @Query("""
             SELECT rf FROM RetentionForecast rf
             WHERE rf.predictedReturnDate >= :start
@@ -32,6 +33,7 @@ public interface RetentionForecastRepository extends JpaRepository<RetentionFore
     @IgnoreTenantFilter
     int deleteByPredictedReturnDateBefore(Instant predictedReturnDateBefore);
 
+    @IgnoreTenantFilter
     @Query("""
             SELECT rf
             FROM RetentionForecast rf
@@ -42,6 +44,7 @@ public interface RetentionForecastRepository extends JpaRepository<RetentionFore
             """)
     Optional<RetentionForecast> findWithJoins(@Param("id") Long id);
 
+    @IgnoreTenantFilter
     @Modifying
     @Query("UPDATE RetentionForecast rt SET rt.status = :status WHERE rt.id = :id")
     void updateStatus(@Param("id") Long retentionId,

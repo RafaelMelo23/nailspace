@@ -17,6 +17,7 @@ import com.rafael.nailspro.webapp.infrastructure.exception.TokenRefreshException
 import com.rafael.nailspro.webapp.infrastructure.exception.UserAlreadyExistsException;
 import com.rafael.nailspro.webapp.infrastructure.security.token.TokenService;
 import com.rafael.nailspro.webapp.infrastructure.security.token.refresh.RefreshTokenService;
+import com.rafael.nailspro.webapp.shared.tenant.IgnoreTenantFilter;
 import com.rafael.nailspro.webapp.shared.tenant.TenantContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -67,6 +68,7 @@ public class AuthenticationService {
     }
 
     @Transactional
+    @IgnoreTenantFilter
     public AuthResultDTO login(LoginDTO loginDTO) {
         Optional<User> userOptional = userRepository.findByEmailIgnoreCase(loginDTO.email());
         User user;
@@ -111,11 +113,13 @@ public class AuthenticationService {
     }
 
     @Transactional
+    @IgnoreTenantFilter
     public void logout(String refreshToken, Long userId) {
         refreshTokenService.revokeUserToken(refreshToken, userId);
     }
 
     @Transactional(noRollbackFor = TokenRefreshException.class)
+    @IgnoreTenantFilter
     public TokenRefreshResponseDTO refreshToken(String refreshToken) {
         return refreshTokenService.findByToken(refreshToken)
                 .map(token -> {

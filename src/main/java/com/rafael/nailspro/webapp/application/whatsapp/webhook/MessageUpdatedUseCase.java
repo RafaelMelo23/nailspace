@@ -7,6 +7,7 @@ import com.rafael.nailspro.webapp.domain.repository.WhatsappMessageRepository;
 import com.rafael.nailspro.webapp.domain.webhook.WebhookStrategy;
 import com.rafael.nailspro.webapp.infrastructure.dto.whatsapp.evolution.webhook.EvolutionWebhookResponseDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.whatsapp.evolution.webhook.message.update.MessageUpdateData;
+import com.rafael.nailspro.webapp.shared.tenant.IgnoreTenantFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@IgnoreTenantFilter
 public class MessageUpdatedUseCase implements WebhookStrategy {
 
     private final ObjectMapper objectMapper;

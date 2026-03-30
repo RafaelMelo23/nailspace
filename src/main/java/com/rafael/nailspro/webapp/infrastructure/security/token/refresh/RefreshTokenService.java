@@ -4,6 +4,7 @@ import com.rafael.nailspro.webapp.domain.model.RefreshToken;
 import com.rafael.nailspro.webapp.domain.model.User;
 import com.rafael.nailspro.webapp.domain.repository.RefreshTokenRepository;
 import com.rafael.nailspro.webapp.infrastructure.exception.TokenRefreshException;
+import com.rafael.nailspro.webapp.shared.tenant.IgnoreTenantFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class RefreshTokenService {
     }
 
     @Transactional
+    @IgnoreTenantFilter
     public void deleteExpiredTokens() {
         repository.deleteByExpiryDateBefore(Instant.now(clock));
     }

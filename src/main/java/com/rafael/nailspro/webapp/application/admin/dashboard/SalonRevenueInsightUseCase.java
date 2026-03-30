@@ -24,12 +24,17 @@ public class SalonRevenueInsightUseCase {
         var thirtyDaysAgo = now.minusDays(30);
         var sevenDaysAgo = now.minusDays(7);
 
-        List<SalonDailyRevenue> dailyRevenues = repository.findByTenantIdAndDateBetween(tenantId, thirtyDaysAgo, now)
-                .orElseThrow(() -> new BusinessException("Não foi possível encontrar métricas para este salão."));
+        List<SalonDailyRevenue> dailyRevenues = repository.findByTenantIdAndDateBetween(tenantId, thirtyDaysAgo, now);
+
+        if (dailyRevenues == null || dailyRevenues.isEmpty()) {
+            throw new BusinessException("Não foi possível encontrar métricas para este salão.");
+        }
 
         BigDecimal monthlyRevenue = calculateRevenue(dailyRevenues, thirtyDaysAgo, now);
         BigDecimal weeklyRevenue = calculateRevenue(dailyRevenues, sevenDaysAgo, now);
-        Long appointmentsCount = (long) dailyRevenues.size();
+        Long appointmentsCount = dailyRevenues.stream()
+                .mapToLong(SalonDailyRevenue::getAppointmentsCount)
+                .sum();
         BigDecimal averageTicket = calculateAvgTicket(monthlyRevenue, appointmentsCount);
 
         return SalonDashboardDTO.builder()

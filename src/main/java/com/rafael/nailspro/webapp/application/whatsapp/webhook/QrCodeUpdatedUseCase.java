@@ -9,6 +9,7 @@ import com.rafael.nailspro.webapp.domain.webhook.WebhookStrategy;
 import com.rafael.nailspro.webapp.infrastructure.dto.whatsapp.evolution.webhook.EvolutionWebhookResponseDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.whatsapp.evolution.webhook.connection.update.QrCodeDataDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.whatsapp.evolution.webhook.connection.update.QrCodeDetailsDTO;
+import com.rafael.nailspro.webapp.shared.tenant.IgnoreTenantFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@IgnoreTenantFilter
 public class QrCodeUpdatedUseCase implements WebhookStrategy {
 
     private final ProfessionalQueryService professionalQueryService;

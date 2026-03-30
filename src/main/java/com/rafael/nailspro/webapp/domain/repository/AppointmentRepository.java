@@ -45,14 +45,14 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     @IgnoreTenantFilter
     @Query("""
             SELECT ap FROM Appointment ap
-            WHERE ap.startDate > :now
+            WHERE ap.appointmentStatus = com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentStatus.PENDING
+            AND ap.startDate > :now
             AND ap.startDate <= :windowEnd
-            AND NOT EXISTS(
-            SELECT 1 FROM WhatsappMessage wm
-            WHERE wm.appointment = ap
-            AND wm.messageType = 'REMINDER'
-            AND (wm.messageStatus = 'SENT' OR wm.attempts >= 3)
-                        )
+            AND NOT EXISTS (
+                SELECT 1 FROM WhatsappMessage wm
+                WHERE wm.appointment = ap
+                AND wm.messageType = com.rafael.nailspro.webapp.domain.enums.whatsapp.WhatsappMessageType.REMINDER
+            )
             """)
     List<Appointment> findAppointmentsNeedingReminder(@Param("now") Instant now,
                                                       @Param("windowEnd") Instant windowEnd);

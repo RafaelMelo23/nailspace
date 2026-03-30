@@ -2,6 +2,7 @@ package com.rafael.nailspro.webapp.domain.repository;
 
 import com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentStatus;
 import com.rafael.nailspro.webapp.domain.model.Professional;
+import com.rafael.nailspro.webapp.shared.tenant.IgnoreTenantFilter;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;
 import org.springframework.data.jpa.repository.*;
@@ -51,6 +52,7 @@ public interface ProfessionalRepository extends JpaRepository<Professional, Long
     @Query("SELECT p FROM Professional p WHERE p.externalId = :id")
     Professional findByExternalIdWithPessimisticLock(@Param("id") UUID externalId);
 
+    @IgnoreTenantFilter
     @Query("SELECT sp.owner from SalonProfile sp WHERE sp.tenantId = :id")
     Optional<Professional> findSalonOwnerByTenantId(@Param("id") String tenantId);
 

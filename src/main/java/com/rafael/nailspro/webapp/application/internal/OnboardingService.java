@@ -9,6 +9,7 @@ import com.rafael.nailspro.webapp.domain.repository.SalonProfileRepository;
 import com.rafael.nailspro.webapp.infrastructure.dto.onboarding.OnboardingRequestDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.onboarding.OnboardingResultDTO;
 import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
+import com.rafael.nailspro.webapp.shared.tenant.IgnoreTenantFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@IgnoreTenantFilter
 public class OnboardingService {
 
     private final ProfessionalRepository professionalRepository;

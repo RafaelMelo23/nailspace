@@ -2,6 +2,7 @@ package com.rafael.nailspro.webapp.application.retention;
 
 import com.rafael.nailspro.webapp.domain.model.RetentionForecast;
 import com.rafael.nailspro.webapp.domain.repository.RetentionForecastRepository;
+import com.rafael.nailspro.webapp.shared.tenant.IgnoreTenantFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ public class FollowUpAutomationService {
     private final VisitPredictionService visitPredictionService;
     private final RetentionForecastRepository repository;
 
+    @IgnoreTenantFilter
     @Scheduled(cron = "0 30 9 * * *")
     public void sendMaintenanceForecastMessage() {
         Instant now = Instant.now();

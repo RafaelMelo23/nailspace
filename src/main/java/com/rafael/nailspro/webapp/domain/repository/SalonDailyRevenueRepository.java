@@ -11,5 +11,5 @@ public interface SalonDailyRevenueRepository extends JpaRepository<SalonDailyRev
 
     Optional<SalonDailyRevenue> findByTenantIdAndDate(String tenantId, LocalDate date);
 
-    Optional<List<SalonDailyRevenue>> findByTenantIdAndDateBetween(String tenantId, LocalDate startDate, LocalDate endDate);
+    List<SalonDailyRevenue> findByTenantIdAndDateBetween(String tenantId, LocalDate startDate, LocalDate endDate);
 }

@@ -10,6 +10,7 @@ import com.rafael.nailspro.webapp.domain.webhook.WebhookStrategy;
 import com.rafael.nailspro.webapp.domain.whatsapp.WhatsappProvider;
 import com.rafael.nailspro.webapp.infrastructure.dto.whatsapp.evolution.webhook.EvolutionWebhookResponseDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.whatsapp.evolution.webhook.connection.ConnectionDataDTO;
+import com.rafael.nailspro.webapp.shared.tenant.IgnoreTenantFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import static com.rafael.nailspro.webapp.domain.enums.evolution.EvolutionConnect
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@IgnoreTenantFilter
 public class ConnectionUpdatedUseCase implements WebhookStrategy {
 
     private final SalonProfileService salonProfileService;

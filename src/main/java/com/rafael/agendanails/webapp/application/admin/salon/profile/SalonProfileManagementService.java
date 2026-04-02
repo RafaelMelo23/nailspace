@@ -4,8 +4,6 @@ import com.rafael.agendanails.webapp.domain.model.SalonProfile;
 import com.rafael.agendanails.webapp.domain.repository.SalonProfileRepository;
 import com.rafael.agendanails.webapp.infrastructure.dto.admin.salon.profile.SalonProfileDTO;
 import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
-import com.rafael.agendanails.webapp.infrastructure.files.FileUploadService;
-import com.rafael.agendanails.webapp.shared.tenant.IgnoreTenantFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +16,6 @@ import java.util.function.Consumer;
 public class SalonProfileManagementService {
 
     private final SalonProfileRepository repository;
-    private final FileUploadService fileUploadService;
 
     @Transactional(readOnly = true)
     public SalonProfileDTO getProfile(Long ownerId) {

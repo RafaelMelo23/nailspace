@@ -26,6 +26,11 @@ const Auth = {
         }
     },
 
+    getUserId: function() {
+        const payload = this.getPayload();
+        return payload ? payload.sub : null;
+    },
+
     hasRole: function(role) {
         const payload = this.getPayload();
         if (!payload || !payload.roles) return false;

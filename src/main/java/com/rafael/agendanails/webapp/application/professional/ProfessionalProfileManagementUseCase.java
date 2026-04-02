@@ -22,11 +22,12 @@ public class ProfessionalProfileManagementUseCase {
         Professional professional = professionalRepository.findById(professionalId)
                 .orElseThrow(() -> new BusinessException("Profissional não encontrado."));
 
-        if (professional.getProfessionalPicture() != null) {
-            String oldPic = professional.getProfessionalPicture();
-            String newPic = fileUploadService.uploadBase64Image(pictureBase64);
+        String oldPic = professional.getProfessionalPicture();
+        String newPic = fileUploadService.uploadBase64Image(pictureBase64);
 
-            professional.setProfessionalPicture(newPic);
+        professional.setProfessionalPicture(newPic);
+
+        if (oldPic != null && !oldPic.isEmpty()) {
             fileUploadService.delete(oldPic);
         }
     }

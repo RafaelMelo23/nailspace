@@ -18,6 +18,9 @@ public class FileUploadService {
     @Value("${file.upload.dir}")
     private String uploadDir;
 
+    @Value("${domain.url}")
+    private String baseUrl;
+
     private Path getUploadPath() {
         Path path = Paths.get(uploadDir);
         try {
@@ -28,15 +31,26 @@ public class FileUploadService {
         return path;
     }
 
-    public String uploadBase64Image(String base64Image) throws IOException {
+    public String getFileUrl(String filename) {
+        if (filename == null) return null;
+        return baseUrl + "/uploads/" + filename;
+    }
 
+    public String uploadBase64Image(String base64Image) throws IOException {
         if (base64Image == null || base64Image.isEmpty()) {
             throw new RuntimeException("Base64 image data is empty.");
         }
 
-        if (base64Image.contains(",")) base64Image = base64Image.split(",")[1];
+        base64Image = base64Image.trim();
+        if (base64Image.startsWith("\"") && base64Image.endsWith("\"")) {
+            base64Image = base64Image.substring(1, base64Image.length() - 1);
+        }
 
-        byte[] imageBytes = Base64.getDecoder().decode(base64Image);
+        if (base64Image.contains(",")) {
+            base64Image = base64Image.split(",")[1];
+        }
+
+        byte[] imageBytes = Base64.getMimeDecoder().decode(base64Image.trim());
         String filename = UUID.randomUUID() + ".png";
         Path destinationFile = getUploadPath().resolve(filename).normalize().toAbsolutePath();
         log.info("Supposed to upload image to {}", destinationFile);

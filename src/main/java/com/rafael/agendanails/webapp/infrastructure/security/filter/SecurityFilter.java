@@ -28,7 +28,7 @@ public class SecurityFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.startsWith("/api/v1/webhook");
+        return path.startsWith("/api/v1/webhook") || path.startsWith("/uploads/");
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.rafael.agendanails.webapp.domain.repository.ProfessionalRepository;
 import com.rafael.agendanails.webapp.infrastructure.dto.professional.ProfessionalResponseDTO;
 import com.rafael.agendanails.webapp.infrastructure.dto.professional.ProfessionalSimplifiedDTO;
 import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
+import com.rafael.agendanails.webapp.infrastructure.files.FileUploadService;
 import com.rafael.agendanails.webapp.infrastructure.mapper.ProfessionalMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.util.List;
 public class ProfessionalQueryService {
 
     private final ProfessionalRepository repository;
+    private final FileUploadService fileUploadService;
 
     public List<ProfessionalSimplifiedDTO> findAllSimplified() {
 
@@ -24,7 +26,7 @@ public class ProfessionalQueryService {
                 .map(p -> ProfessionalSimplifiedDTO.builder()
                         .externalId(p.getExternalId())
                         .name(p.getFullName())
-                        .professionalPicture(p.getProfessionalPicture())
+                        .professionalPicture(fileUploadService.getFileUrl(p.getProfessionalPicture()))
                         .build())
                 .toList();
     }

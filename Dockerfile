@@ -7,6 +7,9 @@ RUN curl -L https://repo1.maven.org/maven2/io/sentry/sentry-opentelemetry-agent/
 FROM eclipse-temurin:21-jre-alpine
 
 RUN addgroup -S spring && adduser -S spring -G spring
+
+RUN mkdir -p /var/nailspro/uploads && chown -R spring:spring /var/nailspro/uploads
+
 USER spring:spring
 
 WORKDIR /app

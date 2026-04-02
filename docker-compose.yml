@@ -40,7 +40,7 @@ services:
       - MAIL_PASSWORD=${RESEND_API_KEY}
 
       # --- INTEGRATIONS & SECURITY ---
-      - DOMAIN_URL=todecide.com
+      - DOMAIN_URL=${DOMAIN_URL}
 
       # --- FLYWAY ---
       - SPRING_FLYWAY_ENABLED=true
@@ -58,6 +58,7 @@ services:
     volumes:
       - ./src/main/resources/static:/app/static
       - ./src/main/resources/templates:/app/templates
+      - uploads_volume:/var/nailspro/uploads
 
   db:
     image: postgres:15-alpine
@@ -110,3 +111,4 @@ networks:
 
 volumes:
   postgres_volume:
+  uploads_volume:

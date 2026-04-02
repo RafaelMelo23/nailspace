@@ -1,7 +1,6 @@
 package com.rafael.agendanails.webapp.application.admin.professional;
 
 import com.rafael.agendanails.webapp.application.salon.business.SalonServiceService;
-import com.rafael.agendanails.webapp.domain.enums.user.UserRole;
 import com.rafael.agendanails.webapp.domain.enums.user.UserStatus;
 import com.rafael.agendanails.webapp.domain.model.Professional;
 import com.rafael.agendanails.webapp.domain.model.SalonService;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static com.rafael.agendanails.webapp.domain.enums.user.UserRole.PROFESSIONAL;

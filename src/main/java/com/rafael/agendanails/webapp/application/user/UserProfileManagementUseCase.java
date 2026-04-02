@@ -11,6 +11,7 @@ import com.rafael.agendanails.webapp.infrastructure.dto.user.profile.ClientProfi
 import com.rafael.agendanails.webapp.infrastructure.dto.user.profile.ProfessionalProfileDto;
 import com.rafael.agendanails.webapp.infrastructure.dto.user.profile.UserProfileDto;
 import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
+import com.rafael.agendanails.webapp.infrastructure.files.FileUploadService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +25,7 @@ public class UserProfileManagementUseCase {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final ClientRepository clientRepository;
+    private final FileUploadService fileUploadService;
 
     public UserProfileDto getProfile(Long userId) {
         User user = userRepository.findById(userId)
@@ -43,7 +45,7 @@ public class UserProfileManagementUseCase {
             return ProfessionalProfileDto.builder()
                     .fullName(professional.getFullName())
                     .email(professional.getEmail())
-                    .professionalPicture(professional.getProfessionalPicture())
+                    .professionalPicture(fileUploadService.getFileUrl(professional.getProfessionalPicture()))
                     .externalId(professional.getExternalId())
                     .isActive(professional.getIsActive())
                     .build();

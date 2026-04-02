@@ -68,6 +68,78 @@ const profileApp = {
         document.getElementById('set-name').innerText = this.user.fullName;
         document.getElementById('set-email').innerText = this.user.email;
         document.getElementById('set-phone').innerText = this.user.phoneNumber || 'Não informado';
+
+        if (Auth.hasRole('PROFESSIONAL')) {
+            const picContainer = document.getElementById('prof-pic-container');
+            const picEl = document.getElementById('prof-pic');
+            
+            if (picContainer && picEl) {
+                picContainer.classList.remove('hidden');
+                if (this.user.professionalPicture) {
+                    picEl.src = this.user.professionalPicture;
+                } else {
+                    picEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(this.user.fullName)}&background=FB7185&color=fff`;
+                }
+            }
+        }
+    },
+
+    triggerPicUpload: function() {
+        document.getElementById('pic-upload-input').click();
+    },
+
+    handlePicUpload: async function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            Toast.error('Por favor, selecione uma imagem.');
+            return;
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+            Toast.error('A imagem deve ter no máximo 2MB.');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const base64 = e.target.result;
+            await this.uploadPicture(base64);
+        };
+        reader.readAsDataURL(file);
+    },
+
+    uploadPicture: async function(base64) {
+        const picEl = document.getElementById('prof-pic');
+        const oldSrc = picEl ? picEl.src : '';
+        
+        if (picEl) picEl.style.opacity = '0.5';
+
+        try {
+            const res = await fetch('/api/v1/professional/profile/picture', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${Auth.getToken()}`
+                },
+                body: JSON.stringify({ pictureBase64: base64 })
+            });
+
+            if (res.ok) {
+                Toast.success('Foto de perfil atualizada!');
+                await this.loadProfile();
+            } else {
+                if (picEl) picEl.src = oldSrc;
+                const err = await res.json();
+                Toast.error(err.message || 'Erro ao atualizar foto.');
+            }
+        } catch (error) {
+            if (picEl) picEl.src = oldSrc;
+            Toast.error('Erro de conexão.');
+        } finally {
+            if (picEl) picEl.style.opacity = '1';
+        }
     },
 
     renderAppointments: function() {

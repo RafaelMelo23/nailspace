@@ -6,7 +6,6 @@ import lombok.Builder;
 
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Builder
 public record AppointmentCreateDTO(

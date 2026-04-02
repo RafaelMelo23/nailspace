@@ -9,6 +9,15 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CookieService {
 
+    public void addAccessTokenCookie(HttpServletResponse response, String token) {
+        Cookie cookie = new Cookie("access_token", token);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(600);
+        response.addCookie(cookie);
+    }
+
     public void addRefreshTokenCookie(HttpServletResponse response, String token) {
         Cookie cookie = new Cookie("refresh_token", token);
         cookie.setHttpOnly(true);

@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -89,6 +90,7 @@ public class SecurityConfiguration {
         http.cors(cors -> {
                 })
                 .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(sesh -> sesh.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
 
                         // ===== PUBLIC =====
@@ -104,7 +106,9 @@ public class SecurityConfiguration {
                                 "/error"
                         ).permitAll()
 
-                        // ===== HTML PAGES =====
+                        .requestMatchers(HttpMethod.GET, "/api/v1/salon/service").permitAll()
+
+                        // ===== PUBLIC HTML PAGES =====
                         .requestMatchers(HttpMethod.GET,
                                 "/assets/**",
                                 "/css/**",
@@ -113,13 +117,15 @@ public class SecurityConfiguration {
                                 "/entrar",
                                 "/cadastro",
                                 "/perfil",
-                                "/admin/servicos",
-                                "/admin/configuracoes",
-                                "/profissional/agendamentos",
                                 "/manutencao")
                         .permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/api/v1/salon/service").permitAll()
+                        // ===== ADMIN HTML PAGES =====
+                        .requestMatchers("/admin/servicos",
+                                "/admin/configuracoes").hasRole("ADMIN")
+
+                        // ===== PROFESSIONAL HTML PAGES =====
+                        .requestMatchers("/profissional/agendamentos").hasRole("PROFESSIONAL")
 
                         // ===== SWAGGER (RESTRICTED TO SUPER_ADMIN) =====
                         .requestMatchers(

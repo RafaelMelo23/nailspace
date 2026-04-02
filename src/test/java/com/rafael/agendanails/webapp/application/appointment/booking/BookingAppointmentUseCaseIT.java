@@ -49,7 +49,7 @@ class BookingAppointmentUseCaseIT extends BaseIntegrationTest {
                 .userId(client.getId())
                 .email(client.getEmail())
                 .tenantId(tenantId)
-                .userRole(UserRole.CLIENT)
+                .userRole(List.of(UserRole.CLIENT))
                 .build();
     }
 
@@ -177,7 +177,7 @@ class BookingAppointmentUseCaseIT extends BaseIntegrationTest {
                 .userId(client2.getId())
                 .email(client2.getEmail())
                 .tenantId(tenantId)
-                .userRole(UserRole.CLIENT)
+                .userRole(List.of(UserRole.CLIENT))
                 .build();
 
         AppointmentCreateDTO dto1 = AppointmentCreateDTO.builder()

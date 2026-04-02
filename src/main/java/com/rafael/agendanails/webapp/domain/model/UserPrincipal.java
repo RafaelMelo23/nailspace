@@ -18,7 +18,7 @@ public class UserPrincipal implements UserDetails {
 
     private Long userId;
     private String email;
-    private UserRole userRole;
+    private List<UserRole> userRole;
     private String tenantId;
 
     @Override
@@ -26,14 +26,14 @@ public class UserPrincipal implements UserDetails {
 
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-        authorities.add(new SimpleGrantedAuthority("ROLE_" + this.userRole.name()));
+        userRole.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role.name())));
 
-        if (this.userRole == UserRole.SUPER_ADMIN) {
+        if (this.userRole.contains(UserRole.SUPER_ADMIN)) {
             authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
             authorities.add(new SimpleGrantedAuthority("ROLE_PROFESSIONAL"));
         }
 
-        if (this.userRole == UserRole.ADMIN) {
+        if (this.userRole.contains(UserRole.ADMIN)) {
             authorities.add(new SimpleGrantedAuthority("ROLE_PROFESSIONAL"));
         }
 

@@ -57,22 +57,30 @@ public abstract class User extends BaseEntity implements UserDetails {
         return this.email;
     }
 
+    public List<UserRole> getEffectiveRoles() {
+        return switch (this.userRole) {
+            case SUPER_ADMIN -> List.of(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.PROFESSIONAL);
+            case ADMIN -> List.of(UserRole.ADMIN, UserRole.PROFESSIONAL);
+            case PROFESSIONAL -> List.of(UserRole.PROFESSIONAL);
+            case CLIENT -> List.of(UserRole.CLIENT);
+        };
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-        authorities.add(new SimpleGrantedAuthority("ROLE_" + this.userRole.name()));
 
-        if (this.userRole == UserRole.SUPER_ADMIN) {
+        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + userRole.name()));
+
+        if (userRole == UserRole.SUPER_ADMIN) {
             authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
             authorities.add(new SimpleGrantedAuthority("ROLE_PROFESSIONAL"));
-        }
-
-        if (this.userRole == UserRole.ADMIN) {
+        } else if (userRole == UserRole.ADMIN) {
             authorities.add(new SimpleGrantedAuthority("ROLE_PROFESSIONAL"));
         }
-
         return authorities;
     }
 

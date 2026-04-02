@@ -48,4 +48,7 @@ public interface SalonProfileRepository extends JpaRepository<SalonProfile, Long
     @IgnoreTenantFilter
     @Query("SELECT sp.tradeName FROM SalonProfile sp WHERE sp.tenantId = :id")
     Optional<String> findSalonTradeName(@Param("id") String tenantId);
+
+    @Query("SELECT sp.primaryColor FROM SalonProfile sp WHERE sp.tenantId = :id")
+    Optional<String> findPrimaryColorByTenantId(@Param("id") String tenantId);
 }

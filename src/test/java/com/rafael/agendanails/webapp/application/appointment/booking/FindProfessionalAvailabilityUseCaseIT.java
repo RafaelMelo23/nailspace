@@ -72,7 +72,7 @@ class FindProfessionalAvailabilityUseCaseIT extends BaseIntegrationTest {
         UserPrincipal principal = UserPrincipal.builder()
                 .userId(client.getId())
                 .tenantId(tenantId)
-                .userRole(client.getUserRole())
+                .userRole(List.of(client.getUserRole()))
                 .email(client.getEmail())
                 .build();
 

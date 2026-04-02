@@ -13,7 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import static com.rafael.agendanails.webapp.domain.enums.user.UserRole.PROFESSIONAL;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +37,7 @@ public class ProfessionalManagementService {
                 .fullName(professionalDTO.fullName())
                 .email(professionalDTO.email())
                 .password(passwordEncoder.encode("mudar123"))
-                .userRole(UserRole.PROFESSIONAL)
+                .userRole(PROFESSIONAL)
                 .status(UserStatus.ACTIVE)
                 .tenantId(tenantId)
                 .build());

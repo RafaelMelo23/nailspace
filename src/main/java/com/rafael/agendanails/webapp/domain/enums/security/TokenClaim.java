@@ -6,8 +6,9 @@ import lombok.Getter;
 public enum TokenClaim {
 
     EMAIL("email"),
-    ROLE("role"),
-    TENANT_ID("tenantId");
+    ROLE("roles"),
+    TENANT_ID("tenantId"),
+    PURPOSE("purpose");
 
     private final String value;
 

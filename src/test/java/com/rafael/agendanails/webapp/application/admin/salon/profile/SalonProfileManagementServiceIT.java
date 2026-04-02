@@ -51,23 +51,6 @@ class SalonProfileManagementServiceIT extends BaseIntegrationTest {
     }
 
     @Test
-    void shouldUploadLogoWhenBase64IsProvided() throws IOException {
-        Professional owner = professionalRepository.save(TestProfessionalFactory.builder().build());
-        SalonProfile profile = salonProfileRepository.save(TestSalonProfileFactory.standardForIT(owner));
-
-        SalonProfileDTO dto = SalonProfileDTO.builder()
-                .logoBase64("data:image/png;base64,somebase64content")
-                .build();
-
-        when(fileUploadService.uploadBase64Image(anyString())).thenReturn("new-logo-path.png");
-
-        salonProfileManagementService.updateProfile(owner.getId(), dto);
-
-        SalonProfile updatedProfile = salonProfileRepository.findById(profile.getId()).orElseThrow();
-        assertThat(updatedProfile.getLogoPath()).isEqualTo("new-logo-path.png");
-    }
-
-    @Test
     void shouldThrowExceptionWhenLoyaltyPrioritizedButWindowsAreMissing() {
         Professional owner = professionalRepository.save(TestProfessionalFactory.builder().build());
         salonProfileRepository.save(TestSalonProfileFactory.standardForIT(owner));

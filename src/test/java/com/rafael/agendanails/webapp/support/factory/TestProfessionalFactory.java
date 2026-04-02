@@ -6,10 +6,7 @@ import com.rafael.agendanails.webapp.domain.model.Professional;
 import com.rafael.agendanails.webapp.domain.model.ScheduleBlock;
 import com.rafael.agendanails.webapp.domain.model.WorkSchedule;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class TestProfessionalFactory {

@@ -25,8 +25,12 @@ public class SalonProfileService {
     }
 
     public SalonProfile getByTenantIdElseNull(String tenantId) {
-
         return repository.findByTenantId(tenantId)
+                .orElse(null);
+    }
+
+    public String getCustomColor(String tenantId) {
+        return repository.findPrimaryColorByTenantId(tenantId)
                 .orElse(null);
     }
 

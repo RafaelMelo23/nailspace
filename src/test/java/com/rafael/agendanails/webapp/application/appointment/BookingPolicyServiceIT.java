@@ -45,7 +45,7 @@ class BookingPolicyServiceIT extends BaseIntegrationTest {
         var client = clientRepository.save(TestClientFactory.standardForIt());
         var principal = UserPrincipal.builder()
                 .userId(client.getId())
-                .userRole(client.getUserRole())
+                .userRole(client.getEffectiveRoles())
                 .email(client.getEmail())
                 .tenantId(client.getTenantId())
                 .build();
@@ -67,7 +67,7 @@ class BookingPolicyServiceIT extends BaseIntegrationTest {
         var client = clientRepository.save(TestClientFactory.standardForIt("tenant-test"));
         var principal = UserPrincipal.builder()
                 .userId(client.getId())
-                .userRole(client.getUserRole())
+                .userRole(client.getEffectiveRoles())
                 .email(client.getEmail())
                 .tenantId(client.getTenantId())
                 .build();
@@ -88,7 +88,7 @@ class BookingPolicyServiceIT extends BaseIntegrationTest {
         var client = clientRepository.save(TestClientFactory.standardForIt());
         var principal = UserPrincipal.builder()
                 .userId(client.getId())
-                .userRole(client.getUserRole())
+                .userRole(client.getEffectiveRoles())
                 .email(client.getEmail())
                 .tenantId(client.getTenantId())
                 .build();

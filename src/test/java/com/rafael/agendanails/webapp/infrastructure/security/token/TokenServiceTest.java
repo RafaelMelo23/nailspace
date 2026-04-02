@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.rafael.agendanails.webapp.domain.enums.security.TokenClaim;
 import com.rafael.agendanails.webapp.domain.enums.security.TokenPurpose;
+import com.rafael.agendanails.webapp.domain.enums.user.UserRole;
 import com.rafael.agendanails.webapp.domain.model.Client;
 import com.rafael.agendanails.webapp.infrastructure.dto.auth.ResetPasswordDTO;
 import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
@@ -56,8 +57,12 @@ class TokenServiceTest {
         assertEquals(user.getEmail(),
                 decodedJWT.getClaim(TokenClaim.EMAIL.getValue()).asString());
 
-        assertEquals(user.getUserRole().getRole(),
-                decodedJWT.getClaim(TokenClaim.ROLE.getValue()).asString());
+        UserRole roleFromToken = decodedJWT
+                .getClaim(TokenClaim.ROLE.getValue())
+                .asList(UserRole.class)
+                .getFirst();
+
+        assertTrue(user.getUserRole().equals(roleFromToken));
 
         assertEquals(user.getTenantId(),
                 decodedJWT.getClaim(TokenClaim.TENANT_ID.getValue()).asString());

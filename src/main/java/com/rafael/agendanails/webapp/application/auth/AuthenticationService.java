@@ -93,7 +93,7 @@ public class AuthenticationService {
     }
 
     private static void checkUsersTenant(User user) {
-        if (user.getUserRole() == UserRole.SUPER_ADMIN) return;
+        if (user.getUserRole().equals(UserRole.SUPER_ADMIN)) return;
 
         if (!user.getTenantId().equals(TenantContext.getTenant())) {
             throw new LoginException("Acesso negado para este estabelecimento.");

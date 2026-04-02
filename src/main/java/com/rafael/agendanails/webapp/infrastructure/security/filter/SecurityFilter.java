@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 import static com.rafael.agendanails.webapp.domain.enums.security.TokenPurpose.AUTHENTICATION;
 
@@ -42,7 +43,10 @@ public class SecurityFilter extends OncePerRequestFilter {
 
             if (AUTHENTICATION.getValue().equalsIgnoreCase(tokenPurposeClaim)) {
 
-                UserRole userRole = UserRole.fromString(token.getClaim(TokenClaim.ROLE.getValue()).asString());
+                List<UserRole> userRoles = token.getClaim(TokenClaim.ROLE.getValue()).asList(String.class).stream()
+                        .map(UserRole::fromString)
+                        .toList();
+
                 Long userId = Long.parseLong(token.getSubject());
                 String userEmail = token.getClaim(TokenClaim.EMAIL.getValue()).asString();
                 String tenantId = token.getClaim(TokenClaim.TENANT_ID.getValue()).asString();
@@ -50,7 +54,7 @@ public class SecurityFilter extends OncePerRequestFilter {
                 UserPrincipal userPrincipal = UserPrincipal.builder()
                         .userId(userId)
                         .email(userEmail)
-                        .userRole(userRole)
+                        .userRole(userRoles)
                         .tenantId(tenantId)
                         .build();
 

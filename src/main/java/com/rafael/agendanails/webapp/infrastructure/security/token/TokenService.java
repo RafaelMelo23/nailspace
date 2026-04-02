@@ -8,16 +8,19 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.rafael.agendanails.webapp.domain.enums.security.TokenClaim;
 import com.rafael.agendanails.webapp.domain.enums.security.TokenPurpose;
+import com.rafael.agendanails.webapp.domain.enums.user.UserRole;
 import com.rafael.agendanails.webapp.domain.model.User;
 import com.rafael.agendanails.webapp.infrastructure.dto.auth.ResetPasswordDTO;
 import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
 import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 
 @Service
 public class TokenService {
@@ -25,23 +28,23 @@ public class TokenService {
     @Value("${api.security.jwt.secret}")
     private String secret;
     private static final String ISSUER_CLAIM = "agendanails-api";
-    private static final String TENANT_CLAIM = "tenantId";
-    private static final String PURPOSE_CLAIM = "purpose";
 
     public String generateAuthToken(User user) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
-
             return JWT.create()
                     .withIssuer(ISSUER_CLAIM)
                     .withSubject(user.getId().toString())
                     .withClaim(TokenClaim.EMAIL.getValue(), user.getEmail())
-                    .withClaim(TokenClaim.ROLE.getValue(), user.getUserRole().getRole())
+                    .withClaim(TokenClaim.ROLE.getValue(), user.getEffectiveRoles()
+                            .stream()
+                            .map(Enum::name)
+                            .toList())
                     .withClaim(TokenClaim.TENANT_ID.getValue(), user.getTenantId())
-                    .withClaim(TENANT_CLAIM, user.getTenantId())
-                    .withClaim(PURPOSE_CLAIM, TokenPurpose.AUTHENTICATION.getValue())
+                    .withClaim(TokenClaim.PURPOSE.getValue(), TokenPurpose.AUTHENTICATION.getValue())
                     .withExpiresAt(generateAuthExpirationTime())
                     .sign(algorithm);
+
         } catch (JWTCreationException e) {
             throw new JWTCreationException("Failed to create JWT", e);
         }
@@ -53,13 +56,18 @@ public class TokenService {
     }
 
     public String recover(ServletRequest servletRequest) {
-
         if (servletRequest instanceof HttpServletRequest request) {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                return authHeader.substring(7);
+            }
 
-            String authorizationHeader = request.getHeader("Authorization");
-
-            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-                return authorizationHeader.substring(7);
+            if (request.getCookies() != null) {
+                return Arrays.stream(request.getCookies())
+                        .filter(c -> "access_token".equals(c.getName()))
+                        .map(Cookie::getValue)
+                        .findFirst()
+                        .orElse(null);
             }
         }
         return null;
@@ -85,7 +93,7 @@ public class TokenService {
             return JWT.create()
                     .withIssuer(ISSUER_CLAIM)
                     .withSubject(userId.toString())
-                    .withClaim(PURPOSE_CLAIM, TokenPurpose.RESET_PASSWORD.getValue())
+                    .withClaim(TokenClaim.PURPOSE.getValue(), TokenPurpose.RESET_PASSWORD.getValue())
                     .withExpiresAt(generateResetPasswordExpirationTime())
                     .sign(algorithm);
 

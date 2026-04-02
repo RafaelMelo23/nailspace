@@ -36,7 +36,7 @@ class OnboardingServiceIT extends BaseIntegrationTest {
 
         assertThat(result.owner().getFullName()).isEqualTo("Salon Owner");
         assertThat(result.owner().getEmail()).isEqualTo("owner@salon.com");
-        assertThat(result.owner().getUserRole()).isEqualTo(UserRole.ADMIN);
+        assertThat(result.owner().getUserRole()).equals(UserRole.ADMIN);
         assertThat(result.owner().getTenantId()).isEqualTo("my-salon");
         assertThat(passwordEncoder.matches("mudar123", result.owner().getPassword())).isTrue();
 

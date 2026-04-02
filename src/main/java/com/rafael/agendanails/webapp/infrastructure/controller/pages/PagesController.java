@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequiredArgsConstructor
 public class PagesController {
 
-    private void applySalonProfileToModel(Model model) {
-        SalonProfile salon = salonProfileService.getByTenantIdElseNull(TenantContext.getTenant());
-        if (salon != null) {
-            model.addAttribute("salon", salon);
+    private void applySalonCustomColor(Model model) {
+        String customColor = salonProfileService.getCustomColor(TenantContext.getTenant());
+        if (customColor != null) {
+            model.addAttribute("salonCustomColor", customColor);
         }
     }
 
@@ -44,7 +44,7 @@ public class PagesController {
 
     @RequestMapping("/agendar")
     public String scheduling(Model model) {
-        applySalonProfileToModel(model);
+        applySalonCustomColor(model);
         return "pages/booking/index";
     }
 
@@ -60,19 +60,19 @@ public class PagesController {
 
     @RequestMapping("/perfil")
     public String profile(Model model) {
-        applySalonProfileToModel(model);
+        applySalonCustomColor(model);
         return "pages/public/profile";
     }
 
     @RequestMapping("/admin/servicos")
     public String adminServices(Model model) {
-        applySalonProfileToModel(model);
+        applySalonCustomColor(model);
         return "pages/admin/services";
     }
 
     @RequestMapping("/admin/configuracoes")
     public String adminSettings(Model model) {
-        applySalonProfileToModel(model);
+        applySalonCustomColor(model);
         return "pages/admin/settings";
     }
 

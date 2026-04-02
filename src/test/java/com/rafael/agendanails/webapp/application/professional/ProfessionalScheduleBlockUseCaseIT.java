@@ -96,7 +96,7 @@ class ProfessionalScheduleBlockUseCaseIT extends BaseIntegrationTest {
                 .userId(proA.getId())
                 .tenantId(tenantA)
                 .email(proA.getEmail())
-                .userRole(proA.getUserRole())
+                .userRole(proA.getEffectiveRoles())
                 .build();
         List<ScheduleBlockOutDTO> blocksA = useCase.getBlocks(principalA, null);
 

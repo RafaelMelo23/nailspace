@@ -28,7 +28,7 @@ public class SpringSecurityUserProvider implements SentryUserProvider {
                 user.setEmail(userPrincipal.getEmail());
 
                 Map<String, String> data = new HashMap<>();
-                data.put("role", userPrincipal.getUserRole().name());
+                userPrincipal.getUserRole().forEach(role -> data.put("role", role.name()));
                 data.put("tenantId", userPrincipal.getTenantId());
 
                 user.setData(data);

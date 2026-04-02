@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.*;
@@ -72,7 +73,10 @@ class SecurityFilterTest {
 
         when(decodedJWT.getSubject()).thenReturn(userId);
 
-        setupClaimMock(TokenClaim.ROLE.getValue(), role);
+        Claim roleClaim = mock(Claim.class);
+        when(roleClaim.asList(String.class)).thenReturn(List.of(role));
+        when(decodedJWT.getClaim(TokenClaim.ROLE.getValue())).thenReturn(roleClaim);
+
         setupClaimMock(TokenClaim.EMAIL.getValue(), email);
         setupClaimMock(TokenClaim.TENANT_ID.getValue(), tenantId);
 

@@ -2,8 +2,15 @@
 
 <main>
     <div class="container">
+        <!-- Tab Navigation -->
+        <nav class="admin-tabs">
+            <button class="tab-btn active" onclick="adminSettingsApp.switchTab('professionals')">Equipe</button>
+            <button class="tab-btn" onclick="adminSettingsApp.switchTab('clients')">Clientes</button>
+            <button class="tab-btn" onclick="adminSettingsApp.switchTab('salon')">Salão</button>
+        </nav>
+
         <!-- Profissionais Section -->
-        <section class="admin-section">
+        <section id="tab-professionals" class="admin-section tab-content active">
             <div class="section-header">
                 <h2>Equipe & Profissionais</h2>
                 <button class="btn btn-primary btn-sm" onclick="adminSettingsApp.openProfessionalModal()">+ Nova Profissional</button>
@@ -15,13 +22,14 @@
                         <th>Profissional</th>
                         <th>E-mail</th>
                         <th>Serviços</th>
+                        <th>Gestão</th>
                         <th>Status</th>
                         <th>Ação</th>
                     </tr>
                     </thead>
                     <tbody id="professionals-list">
                     <tr>
-                        <td colspan="5" class="empty-state">Carregando profissionais...</td>
+                        <td colspan="6" class="empty-state">Carregando profissionais...</td>
                     </tr>
                     </tbody>
                 </table>
@@ -29,7 +37,7 @@
         </section>
 
         <!-- Clientes Section -->
-        <section class="admin-section">
+        <section id="tab-clients" class="admin-section tab-content">
             <div class="section-header">
                 <h2>Gestão de Clientes (CRM)</h2>
                 <div class="search-box">
@@ -57,39 +65,102 @@
         </section>
 
         <!-- Identidade Section -->
-        <section class="admin-section">
+        <section id="tab-salon" class="admin-section tab-content">
             <div class="section-header">
-                <h2>Identidade do Salão</h2>
+                <h2>Configurações do Salão</h2>
             </div>
             <div class="card settings-card">
                 <form id="salon-profile-form" onsubmit="adminSettingsApp.handleSaveProfile(event)">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label">Nome Fantasia</label>
-                            <input type="text" name="tradeName" class="form-input" value="" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Slogan</label>
-                            <input type="text" name="slogan" class="form-input" value="">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">WhatsApp Comercial</label>
-                            <input type="text" name="comercialPhone" class="form-input" value="" placeholder="(00) 00000-0000">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Cor Primária</label>
-                            <div class="color-picker-wrapper">
-                                <input type="color" name="primaryColor" class="color-picker" value="#E91E63">
-                                <input type="text" class="form-input color-text" value="#E91E63" readonly>
+                    <div class="settings-group">
+                        <h3 class="settings-subtitle">Identidade Visual</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Nome Fantasia <span class="required">*</span></label>
+                                <input type="text" name="tradeName" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Slogan</label>
+                                <input type="text" name="slogan" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Cor Primária <span class="required">*</span></label>
+                                <div class="color-picker-wrapper">
+                                    <input type="color" name="primaryColor" class="color-picker" value="#E91E63">
+                                    <input type="text" class="form-input color-text" value="#E91E63" readonly>
+                                </div>
                             </div>
                         </div>
-                        <div class="form-group full-width">
-                            <label class="form-label">Endereço Completo</label>
-                            <input type="text" name="fullAddress" class="form-input" value="">
+                    </div>
+
+                    <div class="settings-group">
+                        <h3 class="settings-subtitle">Contato & Localização</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">WhatsApp Comercial <span class="required">*</span></label>
+                                <input type="text" name="comercialPhone" class="form-input" placeholder="(00) 00000-0000" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Link Instagram / Redes Sociais</label>
+                                <input type="url" name="socialMediaLink" class="form-input" placeholder="https://instagram.com/seu-salao">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Fuso Horário (Timezone) <span class="required">*</span></label>
+                                <select name="zoneId" class="form-input" required>
+                                    <option value="America/Sao_Paulo">Brasília (GMT-3)</option>
+                                    <option value="America/Manaus">Manaus (GMT-4)</option>
+                                    <option value="America/Cuiaba">Cuiabá (GMT-4)</option>
+                                    <option value="America/Fortaleza">Fortaleza (GMT-3)</option>
+                                    <option value="America/Recife">Recife (GMT-3)</option>
+                                </select>
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label">Endereço Completo <span class="required">*</span></label>
+                                <input type="text" name="fullAddress" class="form-input" required>
+                            </div>
                         </div>
                     </div>
+
+                    <div class="settings-group">
+                        <h3 class="settings-subtitle">Políticas & Status</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Buffer entre Agendamentos (minutos) <span class="required">*</span></label>
+                                <input type="number" name="appointmentBufferMinutes" class="form-input" min="0" max="120" step="5" required>
+                                <small class="field-hint">Tempo de limpeza/preparação entre clientes.</small>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Janela de Agendamento (dias) <span class="required">*</span></label>
+                                <input type="number" name="standardBookingWindow" class="form-input" min="1" max="180" required>
+                                <small class="field-hint">Com quanta antecedência o cliente pode agendar.</small>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Status Operacional <span class="required">*</span></label>
+                                <select name="status" class="form-input" required onchange="adminSettingsApp.handleStatusChange(this.value)">
+                                    <option value="OPEN">Aberto / Recebendo Agendamentos</option>
+                                    <option value="CLOSED_TEMPORARY">Fechado Temporariamente</option>
+                                </select>
+                            </div>
+                            <div id="warning-message-group" class="form-group hidden">
+                                <label class="form-label">Mensagem de Aviso (Banner)</label>
+                                <textarea name="warningMessage" class="form-input" rows="1" placeholder="Ex: Estaremos de férias do dia 10 ao dia 15..."></textarea>
+                                <small class="field-hint">Aparece na página de manutenção.</small>
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="checkbox-item" style="margin-top: 10px;">
+                                    <input type="checkbox" name="isLoyalClientelePrioritized" id="isLoyalClientelePrioritized" onchange="adminSettingsApp.toggleLoyalWindow(this.checked)">
+                                    <strong>Priorizar Clientes Fiéis</strong>
+                                </label>
+                                <small class="field-hint" style="margin-left: 25px;">Permite que clientes frequentes agendem com mais antecedência.</small>
+                            </div>
+                            <div id="loyal-window-group" class="form-group hidden">
+                                <label class="form-label">Janela para Clientes Fiéis (dias)</label>
+                                <input type="number" name="loyalClientBookingWindowDays" class="form-input" min="1" max="365">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-actions">
-                        <button type="submit" class="btn btn-primary btn-block">Salvar Alterações</button>
+                        <button type="submit" class="btn btn-primary btn-block">Salvar Todas as Alterações</button>
                     </div>
                 </form>
             </div>
@@ -137,6 +208,46 @@
                 <button type="button" id="confirm-cancel" class="btn btn-secondary">Cancelar</button>
                 <button type="button" id="confirm-ok" class="btn btn-primary">Confirmar</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Schedules Modal -->
+    <div id="schedules-modal" class="modal-overlay hidden" onclick="adminSettingsApp.closeSchedulesModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="schedules-modal-title">Horários de Trabalho</h3>
+                <button class="btn-close" onclick="adminSettingsApp.closeSchedulesModal()">×</button>
+            </div>
+            <div id="schedules-container" class="schedules-list">
+                <!-- Content injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Blocks Modal -->
+    <div id="blocks-modal" class="modal-overlay hidden" onclick="adminSettingsApp.closeBlocksModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="blocks-modal-title">Bloqueios de Agenda</h3>
+                <button class="btn-close" onclick="adminSettingsApp.closeBlocksModal()">×</button>
+            </div>
+            <div id="blocks-container" class="blocks-list">
+                <!-- Content injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Client History Modal -->
+    <div id="client-history-modal" class="modal-overlay hidden" onclick="adminSettingsApp.closeHistoryModal()">
+        <div class="modal-content" style="max-width: 800px;" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="client-history-modal-title">Histórico de Agendamentos</h3>
+                <button class="btn-close" onclick="adminSettingsApp.closeHistoryModal()">×</button>
+            </div>
+            <div id="client-history-container" class="history-list">
+                <!-- Content injected by JS -->
+            </div>
+            <div id="history-pagination" class="pagination" style="margin-top: 15px; padding-bottom: 0;"></div>
         </div>
     </div>
 </main>

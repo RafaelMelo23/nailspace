@@ -1,29 +1,30 @@
 <!DOCTYPE html>
-<html lang="pt-BR"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/main-layout}">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Erro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <style>
+        :root {
+            --primary: #E91E63;
+        }
+    </style>
 </head>
 <body>
-
-<main layout:fragment="content">
-    <div class="container" style="text-align: center; padding: 60px 20px;">
-        <div style="font-size: 80px; font-weight: 700; color: var(--text-muted); margin-bottom: 20px; opacity: 0.1;" th:text="${status}">500</div>
-        <h1 style="font-size: 24px; margin-bottom: 10px;">Ocorreu um imprevisto.</h1>
-        <p style="color: var(--text-muted); margin-bottom: 30px;">Sentimos muito. Houve um erro inesperado. Se o problema persistir, entre em contato com o suporte.</p>
-        
-        <div style="display: flex; flex-direction: column; gap: 12px; max-width: 280px; margin: 0 auto;">
-            <a href="/agendar" class="btn btn-primary">
-                Página Inicial
-            </a>
-            <button onclick="history.back()" class="btn btn-secondary">
-                Voltar
-            </button>
+    <main>
+        <div class="container" style="text-align: center; padding: 60px 20px;">
+            <div style="font-size: 80px; font-weight: 700; color: var(--text-muted); margin-bottom: 20px; opacity: 0.1;" th:text="${status}">500</div>
+            <h1 style="font-size: 24px; margin-bottom: 10px;">Ocorreu um imprevisto.</h1>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">Sentimos muito. Houve um erro inesperado. Se o problema persistir, entre em contato com o suporte.</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px; max-width: 280px; margin: 0 auto;">
+                <a href="/agendar" class="btn btn-primary">Página Inicial</a>
+                <button onclick="history.back()" class="btn btn-secondary">Voltar</button>
+            </div>
         </div>
-    </div>
-</main>
-
+    </main>
 </body>
 </html>

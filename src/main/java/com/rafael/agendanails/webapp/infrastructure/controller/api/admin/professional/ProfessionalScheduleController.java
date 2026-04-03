@@ -57,15 +57,16 @@ public class ProfessionalScheduleController {
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "403", description = "Forbidden")
     })
-    @GetMapping("/schedule/block")
+    @GetMapping("/schedule/block/{professionalId}")
     public ResponseEntity<List<ScheduleBlockOutDTO>> getProfessionalScheduleBlocks(
             @Parameter(description = "ID of the professional", example = "2002")
+            @PathVariable Long professionalId,
             @AuthenticationPrincipal UserPrincipal principal,
             @Parameter(description = "Optional date to filter blocks", example = "2026-04-01T00:00:00")
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateAndTime) {
 
-        List<ScheduleBlockOutDTO> blocks = professionalScheduleBlockUseCase.getBlocks(principal, dateAndTime);
+        List<ScheduleBlockOutDTO> blocks = professionalScheduleBlockUseCase.getBlocks(professionalId, principal.getTenantId(), dateAndTime);
         return ResponseEntity.ok(blocks);
     }
 }

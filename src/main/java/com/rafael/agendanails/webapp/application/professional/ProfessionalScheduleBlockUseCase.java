@@ -41,14 +41,19 @@ public class ProfessionalScheduleBlockUseCase {
 
     @Transactional(readOnly = true)
     public List<ScheduleBlockOutDTO> getBlocks(UserPrincipal principal, LocalDateTime from) {
-        ZoneId salonZoneId = salonProfileService.getSalonZoneId(principal.getTenantId());
+        return getBlocks(principal.getUserId(), principal.getTenantId(), from);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ScheduleBlockOutDTO> getBlocks(Long professionalId, String tenantId, LocalDateTime from) {
+        ZoneId salonZoneId = salonProfileService.getSalonZoneId(tenantId);
 
         var fromInstant = Instant.EPOCH;
         if (from != null) {
             fromInstant = from.atZone(salonZoneId).toInstant();
         }
 
-        return repository.findByProfessional_IdAndDateStartTimeGreaterThanEqual(principal.getUserId(), fromInstant)
+        return repository.findByProfessional_IdAndDateStartTimeGreaterThanEqual(professionalId, fromInstant)
                 .stream()
                 .map(sb -> ScheduleBlockOutDTO.fromEntity(sb, salonZoneId))
                 .collect(Collectors.toList());

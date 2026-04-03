@@ -66,6 +66,7 @@ window.navigate = (path) => App.navigate(path);
 const App = {
     initialized: false,
     tenantError: false,
+    salon: null,
 
     init: async function() {
         if (this.initialized) return;
@@ -121,7 +122,7 @@ const App = {
         
         let templatePath = '';
         let scriptPath = '';
-        let pageTitle = 'Scheduling Nails Pro';
+        let pageTitle = 'Agendamento';
 
         if (path === '/entrar') {
             templatePath = '/pages/public/login.html';
@@ -153,7 +154,7 @@ const App = {
         }
 
         if (templatePath) {
-            document.title = pageTitle;
+            document.title = this.salon ? `${this.salon.tradeName} - ${pageTitle}` : pageTitle;
             appContent.innerHTML = '<div class="container" style="text-align: center; padding: 50px;"><p>Carregando...</p></div>';
             
             try {
@@ -177,6 +178,8 @@ const App = {
                             document.head.appendChild(newLink);
                         }
                     });
+
+                    this.applyBranding();
 
                     if (scriptPath) {
                         await this.loadScript(scriptPath);
@@ -223,17 +226,31 @@ const App = {
         try {
             const res = await fetch('/api/v1/salon/profile');
             if (res.ok) {
-                const salon = await res.json();
+                this.salon = await res.json();
                 
-                if (salon.primaryColor) {
-                    document.documentElement.style.setProperty('--primary', salon.primaryColor);
+                if (this.salon.primaryColor) {
+                    document.documentElement.style.setProperty('--primary', this.salon.primaryColor);
                 }
+
+                UI.renderGlobalHeader(this.salon);
+                UI.renderGlobalFooter(this.salon);
             } else if (res.status === 400) {
                 this.tenantError = true;
             }
         } catch (e) {
             console.warn('Could not load theme:', e);
         }
+    },
+
+    applyBranding: function() {
+        if (!this.salon) return;
+
+        document.querySelectorAll('[data-salon-field]').forEach(el => {
+            const field = el.getAttribute('data-salon-field');
+            if (this.salon[field]) {
+                el.innerText = this.salon[field];
+            }
+        });
     },
 
     checkAuth: function() {

@@ -60,5 +60,55 @@ const UI = {
 
     showToast: function(message, type) {
         Toast.show(message, type);
+    },
+
+    renderGlobalHeader: function(salon) {
+        const header = document.getElementById('main-header');
+        if (!header || !salon) return;
+
+        header.innerHTML = `
+            <div class="container">
+                <nav class="main-nav">
+                    <a href="/" class="brand-link">
+                        <span class="brand-name">${salon.tradeName}</span>
+                    </a>
+                </nav>
+            </div>
+        `;
+    },
+
+    renderGlobalFooter: function(salon) {
+        const footer = document.getElementById('main-footer');
+        if (!footer || !salon) return;
+
+        footer.innerHTML = `
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-info">
+                        <h3>${salon.tradeName}</h3>
+                        <p>${salon.slogan || ''}</p>
+                    </div>
+                    <div class="footer-contact">
+                        <div class="contact-item">
+                            <span>📍</span>
+                            <p>${salon.fullAddress}</p>
+                        </div>
+                        <div class="contact-item">
+                            <span>📞</span>
+                            <a href="tel:${salon.comercialPhone}">${salon.comercialPhone}</a>
+                        </div>
+                        ${salon.socialMediaLink ? `
+                        <div class="contact-item">
+                            <span>📱</span>
+                            <a href="${salon.socialMediaLink}" target="_blank" rel="noopener noreferrer">Redes Sociais</a>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; ${new Date().getFullYear()} ${salon.tradeName}. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        `;
     }
 };

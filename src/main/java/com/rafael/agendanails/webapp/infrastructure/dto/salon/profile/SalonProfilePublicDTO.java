@@ -8,6 +8,7 @@ public record SalonProfilePublicDTO(
         String slogan,
         String primaryColor,
         String comercialPhone,
-        String fullAddress
+        String fullAddress,
+        String socialMediaLink
 ) {
 }

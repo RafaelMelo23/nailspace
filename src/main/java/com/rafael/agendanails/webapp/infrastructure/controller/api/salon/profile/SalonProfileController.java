@@ -30,13 +30,14 @@ public class SalonProfileController {
     @GetMapping
     public ResponseEntity<SalonProfilePublicDTO> getPublicProfile() {
         SalonProfile salon = salonProfileService.getByTenantId(TenantContext.getTenant());
-        
+
         return ResponseEntity.ok(SalonProfilePublicDTO.builder()
                 .tradeName(salon.getTradeName())
                 .slogan(salon.getSlogan())
                 .primaryColor(salon.getPrimaryColor())
                 .comercialPhone(salon.getComercialPhone())
                 .fullAddress(salon.getFullAddress())
+                .socialMediaLink(salon.getSocialMediaLink())
                 .build());
     }
 }

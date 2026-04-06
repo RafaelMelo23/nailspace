@@ -38,7 +38,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/api/v1/auth/**", "/api/v1/webhook/**", "/api/internal/**");
 
         registry.addInterceptor(evolutionApiInterceptor)
-                .addPathPatterns("/api/v1/webhook/**");
+                .addPathPatterns("/api/v1/webhook", "/api/v1/webhook/**");
     }
 
     @Override

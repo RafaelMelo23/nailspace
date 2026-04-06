@@ -130,8 +130,6 @@ public class SecurityConfiguration {
                                 "/admin/servicos",
                                 "/admin/configuracoes",
                                 "/profissional/agenda").permitAll()
-
-                        // ===== ADMIN HTML PAGES (PROTECTED BY JS/API) =====
                         
                         // ===== SWAGGER (RESTRICTED TO SUPER_ADMIN) =====
                         .requestMatchers(
@@ -159,7 +157,8 @@ public class SecurityConfiguration {
 
                         // ===== ADMIN + SUPER ADMIN =====
                         .requestMatchers(
-                                "/api/v1/whatsapp/**"
+                                "/api/v1/whatsapp/**",
+                                "/api/v1/notifications"
                         ).hasAnyRole("SUPER_ADMIN", "ADMIN")
 
                         // ===== AUTHENTICATED USERS (CLIENT AREA) =====

@@ -36,6 +36,7 @@ public class SalonProfileManagementService {
                 .isLoyalClientelePrioritized(salonProfile.isLoyalClientelePrioritized())
                 .loyalClientBookingWindowDays(salonProfile.getLoyalClientBookingWindowDays())
                 .standardBookingWindow(salonProfile.getStandardBookingWindow())
+                .connectionState(salonProfile.getEvolutionConnectionState())
                 .build();
     }
 

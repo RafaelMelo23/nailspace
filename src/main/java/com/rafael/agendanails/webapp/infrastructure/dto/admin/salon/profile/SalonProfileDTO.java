@@ -1,6 +1,7 @@
 package com.rafael.agendanails.webapp.infrastructure.dto.admin.salon.profile;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.rafael.agendanails.webapp.domain.enums.evolution.EvolutionConnectionState;
 import com.rafael.agendanails.webapp.domain.enums.salon.OperationalStatus;
 import jakarta.validation.constraints.*;
 import lombok.Builder;
@@ -63,5 +64,7 @@ public record SalonProfileDTO(
         @NotNull(message = "Janela de agendamento padrão é obrigatória")
         @Positive(message = "Janela de agendamento padrão deve ser um número positivo de dias")
         @Max(value = 180, message = "Janela de agendamento padrão não pode exceder 180 dias")
-        Integer standardBookingWindow) {
+        Integer standardBookingWindow,
+
+        EvolutionConnectionState connectionState) {
 }

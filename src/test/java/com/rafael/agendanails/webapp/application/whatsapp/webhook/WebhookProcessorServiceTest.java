@@ -36,7 +36,7 @@ class WebhookProcessorServiceTest {
     @Test
     void shouldDelegateToCorrectStrategy() {
         EvolutionWebhookResponseDTO<Object> dto = EvolutionWebhookResponseDTO.builder()
-                .event(EvolutionWebhookEvent.MESSAGE_UPDATE)
+                .event(EvolutionWebhookEvent.MESSAGES_UPDATE)
                 .instance("instance")
                 .data(new Object())
                 .build();

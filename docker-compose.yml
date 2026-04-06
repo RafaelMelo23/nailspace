@@ -26,7 +26,7 @@ services:
       - OTEL_TRACES_EXPORTER=none
       - OTEL_LOGS_EXPORTER=none
 
-      - LOG_LEVEL=INFO
+      - LOG_LEVEL=DEBUG
 
       # --- DATABASE CONNECTION ---
       - DB_URL=jdbc:postgresql://db:5432/${POSTGRES_DB_APP}
@@ -51,7 +51,7 @@ services:
       # --- EVO ---
       - EVO_URL=http://evolution:8080
       - EVO_API_KEY=${EVO_API_KEY}
-      - EVO_WEBHOOK_URL=http://host.docker.internal:8080/api/v1/webhook
+      - EVO_WEBHOOK_URL=http://app:8080/api/v1/webhook
     depends_on:
       db:
         condition: service_healthy
@@ -100,7 +100,7 @@ services:
 
       - CACHE_REDIS_ENABLED=false
       - SERVER_URL=http://evolution:8080
-      - LOG_LEVEL=info
+      - LOG_LEVEL=debug
 
     networks:
       - app-network

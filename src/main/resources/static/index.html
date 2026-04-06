@@ -59,6 +59,11 @@
                     <button class="btn btn-secondary btn-sm btn-block" onclick="NotificationService.startWhatsappConnection('PAIRING_CODE')">Código</button>
                 </div>
             </div>
+            <div id="whatsapp-retry" class="hidden" style="margin-top: 20px; text-align: center;">
+                <p style="font-size: 13px; color: var(--text-muted);">
+                    Problemas? <a href="#" onclick="NotificationService.retryConnection(); return false;" style="color: var(--primary); text-decoration: underline;">Tente novamente</a>
+                </p>
+            </div>
         </div>
     </div>
 

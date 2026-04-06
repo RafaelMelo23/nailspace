@@ -69,6 +69,6 @@ public class MessageUpdatedUseCase implements WebhookStrategy {
 
     @Override
     public String getSupportedTypeEvent() {
-        return EvolutionWebhookEvent.MESSAGE_UPDATE.toString();
+        return EvolutionWebhookEvent.MESSAGES_UPDATE.toString();
     }
 }

@@ -68,6 +68,11 @@ public class TokenService {
                 return authHeader.substring(7);
             }
 
+            String queryToken = request.getParameter("token");
+            if (queryToken != null && !queryToken.isEmpty()) {
+                return queryToken;
+            }
+
             if (request.getCookies() != null) {
                 return Arrays.stream(request.getCookies())
                         .filter(c -> "access_token".equals(c.getName()))

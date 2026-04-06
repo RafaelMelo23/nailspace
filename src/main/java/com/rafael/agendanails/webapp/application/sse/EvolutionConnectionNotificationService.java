@@ -13,7 +13,6 @@ public class EvolutionConnectionNotificationService {
     private final SseService sseService;
 
     public void notifyQrCodeUpdate(Long professionalId, Object data) {
-
         SsePayloadDTO payload = SsePayloadDTO.builder()
                 .sseEventType(SseEventType.QR_CODE_UPDATE)
                 .data(data)
@@ -23,7 +22,6 @@ public class EvolutionConnectionNotificationService {
     }
 
     public void notifyInstanceDisconnected(Long professionalId, Object data) {
-
         SsePayloadDTO payload = SsePayloadDTO.builder()
                 .sseEventType(SseEventType.CONNECTION_UPDATE)
                 .data(data)
@@ -33,7 +31,6 @@ public class EvolutionConnectionNotificationService {
     }
 
     public void notifyInstanceConnected(Long professionalId, Object data) {
-
         SsePayloadDTO payload = SsePayloadDTO.builder()
                 .sseEventType(SseEventType.CONNECTION_UPDATE)
                 .data(data)

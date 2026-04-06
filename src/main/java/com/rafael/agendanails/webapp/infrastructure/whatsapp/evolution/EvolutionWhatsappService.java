@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.rafael.agendanails.webapp.domain.enums.evolution.EvolutionIntegraton.WHATSAPP_BAILEYS;
 
@@ -38,7 +39,7 @@ public class EvolutionWhatsappService implements WhatsappProvider {
     @Value("${evolution.url}")
     private String evolutionApiBaseUrl;
 
-    @Value("${evolution.apikey}")
+    @Value("${evolution.apikey:}")
     private String evolutionApiKey;
 
     @Value("${evolution.webhook.url}")
@@ -169,13 +170,19 @@ public class EvolutionWhatsappService implements WhatsappProvider {
         List<EvolutionWebhookEvent> events = List.of(
                 EvolutionWebhookEvent.QRCODE_UPDATED,
                 EvolutionWebhookEvent.SEND_MESSAGE,
-                EvolutionWebhookEvent.CONNECTION_UPDATE
+                EvolutionWebhookEvent.CONNECTION_UPDATE,
+                EvolutionWebhookEvent.MESSAGES_UPDATE
         );
 
+        log.info("Evolution API - Setting up webhook URL for instance {}: {}", tenantId, webhookUrl);
+
         WebhookDTO webhook = WebhookDTO.builder()
+                .enabled(true)
                 .base64(false)
+                .byEvents(false)
                 .url(webhookUrl)
                 .events(events)
+                .headers(Map.of("apiKey", evolutionApiKey))
                 .build();
 
         return CreateInstanceRequestDTO.builder()

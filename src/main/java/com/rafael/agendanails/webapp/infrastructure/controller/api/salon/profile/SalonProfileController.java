@@ -31,13 +31,20 @@ public class SalonProfileController {
     public ResponseEntity<SalonProfilePublicDTO> getPublicProfile() {
         SalonProfile salon = salonProfileService.getByTenantId(TenantContext.getTenant());
 
-        return ResponseEntity.ok(SalonProfilePublicDTO.builder()
-                .tradeName(salon.getTradeName())
-                .slogan(salon.getSlogan())
-                .primaryColor(salon.getPrimaryColor())
-                .comercialPhone(salon.getComercialPhone())
-                .fullAddress(salon.getFullAddress())
-                .socialMediaLink(salon.getSocialMediaLink())
-                .build());
+        if (salon == null) return ResponseEntity.notFound().build();
+
+        SalonProfilePublicDTO.SalonProfilePublicDTOBuilder builder =
+                SalonProfilePublicDTO.builder()
+                        .tradeName(salon.getTradeName())
+                        .slogan(salon.getSlogan())
+                        .primaryColor(salon.getPrimaryColor())
+                        .comercialPhone(salon.getComercialPhone())
+                        .fullAddress(salon.getFullAddress())
+                        .socialMediaLink(salon.getSocialMediaLink());
+
+        if (salon.getWarningMessage() != null) {
+            builder.warningMessage(salon.getWarningMessage());
+        }
+        return ResponseEntity.ok(builder.build());
     }
 }

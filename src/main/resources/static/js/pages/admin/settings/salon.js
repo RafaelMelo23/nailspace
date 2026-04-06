@@ -41,6 +41,10 @@ export const SalonModule = {
                     loyalCheckbox.checked = !!salon.isLoyalClientelePrioritized;
                     this.toggleLoyalWindow(loyalCheckbox.checked);
                 }
+
+                if (typeof NotificationService !== 'undefined' && salon.connectionState) {
+                    NotificationService.updateStatusUI(salon.connectionState);
+                }
             }
         } catch (e) {
         }

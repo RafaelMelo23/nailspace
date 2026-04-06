@@ -1,17 +1,17 @@
 package com.rafael.agendanails.webapp.domain.enums.evolution;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonAlias;
 
 public enum EvolutionWebhookEvent {
-    @JsonProperty("qrcode.updated")
+    @JsonAlias("qrcode.updated")
     QRCODE_UPDATED,
 
-    @JsonProperty("connection.update")
+    @JsonAlias("connection.update")
     CONNECTION_UPDATE,
 
-    @JsonProperty("send.message")
+    @JsonAlias("send.message")
     SEND_MESSAGE,
 
-    @JsonProperty("messages.update")
-    MESSAGE_UPDATE;
+    @JsonAlias("messages.update")
+    MESSAGES_UPDATE;
 }

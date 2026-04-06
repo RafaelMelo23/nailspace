@@ -26,9 +26,15 @@ function initRegister() {
 
             const fullName = document.getElementById('fullname').value;
             const email = document.getElementById('email').value;
+            const confirmEmail = document.getElementById('confirm-email').value;
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirm-password').value;
             const phone = phoneInput.value.replace(/\D/g, '');
+
+            if (email !== confirmEmail) {
+                UI.showToast('Os e-mails não coincidem!', 'error');
+                return;
+            }
 
             if (password !== confirmPassword) {
                 UI.showToast('As senhas não coincidem!', 'error');

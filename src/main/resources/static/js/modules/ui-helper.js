@@ -112,23 +112,50 @@ const UI = {
                             <span class="brand-name">${salon.tradeName}</span>
                         </a>
                     </div>
-                    <div class="nav-links">
+                    
+                    <button class="menu-toggle" aria-label="Abrir menu" onclick="UI.toggleMobileMenu()">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+
+                    <div class="nav-links" id="nav-links">
                         ${token ? `
-                            <a href="/perfil" class="nav-link" onclick="navigate('/perfil'); return false;">Meu Perfil</a>
-                            ${isProfessional ? `<a href="/profissional/agenda" class="nav-link" onclick="navigate('/profissional/agenda'); return false;">Minha Agenda</a>` : ''}
+                            <a href="/perfil" class="nav-link" onclick="UI.closeMobileMenu(); navigate('/perfil'); return false;">Meu Perfil</a>
+                            ${isProfessional ? `<a href="/profissional/agenda" class="nav-link" onclick="UI.closeMobileMenu(); navigate('/profissional/agenda'); return false;">Minha Agenda</a>` : ''}
                             ${isAdmin ? `
-                                <a href="/admin/configuracoes" class="nav-link" onclick="navigate('/admin/configuracoes'); return false;">Configurações</a>
-                                <a href="/admin/servicos" class="nav-link" onclick="navigate('/admin/servicos'); return false;">Serviços</a>
+                                <a href="/admin/configuracoes" class="nav-link" onclick="UI.closeMobileMenu(); navigate('/admin/configuracoes'); return false;">Configurações</a>
+                                <a href="/admin/servicos" class="nav-link" onclick="UI.closeMobileMenu(); navigate('/admin/servicos'); return false;">Serviços</a>
                             ` : ''}
-                            <button class="btn-logout" onclick="Auth.logout()">Sair</button>
+                            <button class="btn-logout" onclick="UI.closeMobileMenu(); Auth.logout()">Sair</button>
                         ` : `
-                            <a href="/entrar" class="nav-link" onclick="navigate('/entrar'); return false;">Entrar</a>
-                            <a href="/cadastro" class="btn btn-primary btn-sm" onclick="navigate('/cadastro'); return false;">Cadastrar</a>
+                            <a href="/entrar" class="nav-link" onclick="UI.closeMobileMenu(); navigate('/entrar'); return false;">Entrar</a>
+                            <a href="/cadastro" class="btn btn-primary btn-sm" onclick="UI.closeMobileMenu(); navigate('/cadastro'); return false;">Cadastrar</a>
                         `}
                     </div>
                 </nav>
             </div>
         `;
+    },
+
+    toggleMobileMenu: function() {
+        const navLinks = document.getElementById('nav-links');
+        const menuToggle = document.querySelector('.menu-toggle');
+        if (navLinks) {
+            const isActive = navLinks.classList.toggle('active');
+            menuToggle.classList.toggle('active');
+            document.body.style.overflow = isActive ? 'hidden' : '';
+        }
+    },
+
+    closeMobileMenu: function() {
+        const navLinks = document.getElementById('nav-links');
+        const menuToggle = document.querySelector('.menu-toggle');
+        if (navLinks && navLinks.classList.contains('active')) {
+            navLinks.classList.remove('active');
+            menuToggle.classList.remove('active');
+            document.body.style.overflow = '';
+        }
     },
 
     renderGlobalFooter: function(salon) {

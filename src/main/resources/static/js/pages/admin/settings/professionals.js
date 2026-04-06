@@ -141,8 +141,14 @@ export const ProfessionalsModule = {
         }
 
         const formatDate = (dateStr) => {
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            if (!dateStr) return '-';
+            try {
+                const date = new Date(dateStr);
+                if (isNaN(date.getTime())) return 'Data Inválida';
+                return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            } catch (e) {
+                return 'Erro na Data';
+            }
         };
 
         container.innerHTML = `
@@ -151,8 +157,8 @@ export const ProfessionalsModule = {
                 <tbody>
                     ${blocks.map(b => `
                         <tr>
-                            <td data-label="Início">${formatDate(b.dateStartTime)}</td>
-                            <td data-label="Fim">${formatDate(b.dateEndTime)}</td>
+                            <td data-label="Início">${formatDate(b.startTime || b.dateAndStartTime || b.dateStartTime)}</td>
+                            <td data-label="Fim">${formatDate(b.endTime || b.dateAndEndTime || b.dateEndTime)}</td>
                             <td data-label="Motivo">${b.reason || '-'}</td>
                         </tr>
                     `).join('')}

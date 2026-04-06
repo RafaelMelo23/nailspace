@@ -8,8 +8,8 @@ import java.time.ZonedDateTime;
 
 @Builder
 public record ScheduleBlockOutDTO(Long id,
-                                  ZonedDateTime dateAndStartTime,
-                                  ZonedDateTime dateAndEndTime,
+                                  ZonedDateTime startTime,
+                                  ZonedDateTime endTime,
                                   Boolean isWholeDayBlocked,
                                   String reason,
                                   Long professionalId) {
@@ -17,8 +17,8 @@ public record ScheduleBlockOutDTO(Long id,
     public static ScheduleBlockOutDTO fromEntity(ScheduleBlock sb, ZoneId salonZoneId) {
         return ScheduleBlockOutDTO.builder()
                 .id(sb.getId())
-                .dateAndStartTime(ZonedDateTime.ofInstant(sb.getDateStartTime(), salonZoneId))
-                .dateAndEndTime(ZonedDateTime.ofInstant(sb.getDateEndTime(), salonZoneId))
+                .startTime(ZonedDateTime.ofInstant(sb.getStartTime(), salonZoneId))
+                .endTime(ZonedDateTime.ofInstant(sb.getEndTime(), salonZoneId))
                 .isWholeDayBlocked(sb.getIsWholeDayBlocked())
                 .professionalId(sb.getProfessional().getId())
                 .reason(sb.getReason())

@@ -239,5 +239,3 @@ const adminServicesApp = {
         }
     }
 };
-
-// adminServicesApp.init() will be called by App.initPage()

@@ -1,0 +1,74 @@
+<div id="tab-blocks" class="tab-content">
+    <div class="card">
+        <div class="card-header">
+            <div class="header-flex">
+                <div>
+                    <h3>Bloqueios de Agenda</h3>
+                    <p>Gerencie datas e horários em que você não estará disponível para agendamentos (ex: folgas extras, compromissos pessoais).</p>
+                </div>
+                <button class="btn btn-primary" onclick="professionalScheduleApp.openBlockModal()">Adicionar Bloqueio</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div id="blocks-list">
+                <div class="loading-placeholder">Carregando bloqueios...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for block creation -->
+    <div id="block-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="block-modal-title">Adicionar Bloqueio</h2>
+                <button class="modal-close" onclick="professionalScheduleApp.closeBlockModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="block-form">
+                    <input type="hidden" id="block-id">
+                    <div class="form-group">
+                        <label class="form-label">Motivo (opcional)</label>
+                        <input type="text" id="block-reason" class="form-input" placeholder="Ex: Férias, Médico, etc.">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="switch-container">
+                                <input type="checkbox" id="block-whole-day" onchange="professionalScheduleApp.toggleWholeDay()">
+                                <span class="switch-label">Dia Inteiro</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Início</label>
+                            <input type="datetime-local" id="block-start" class="form-input" required>
+                        </div>
+                        <div class="form-group" id="block-end-container">
+                            <label class="form-label">Término</label>
+                            <input type="datetime-local" id="block-end" class="form-input" required>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="professionalScheduleApp.closeBlockModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" id="save-block-btn">Criar Bloqueio</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<template id="block-item-template">
+    <div class="block-item">
+        <div class="block-info">
+            <span class="block-reason"></span>
+            <span class="block-time"></span>
+        </div>
+        <div class="block-actions">
+            <button class="btn-delete-block" title="Excluir">Excluir</button>
+        </div>
+    </div>
+</template>

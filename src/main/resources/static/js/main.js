@@ -124,6 +124,11 @@ const App = {
             templatePath = '/pages/public/profile.html';
             scriptPath = '/js/pages/profile.js';
             pageTitle = 'Meu Perfil';
+        } else if (path === '/profissional/agenda') {
+            templatePath = '/pages/professional/schedule.html';
+            scriptPath = '/js/pages/professional/schedule.js';
+            isModule = true;
+            pageTitle = 'Minha Agenda';
         } else {
             templatePath = '/pages/booking/index.html';
             scriptPath = '/js/pages/booking.js';
@@ -171,6 +176,7 @@ const App = {
         if (path === '/admin/servicos' && typeof adminServicesApp !== 'undefined') adminServicesApp.init();
         if ((path === '/' || path === '/agendar') && typeof bookingApp !== 'undefined') bookingApp.init();
         if (path === '/perfil' && typeof initProfile === 'function') initProfile();
+        if (path === '/profissional/agenda' && typeof professionalScheduleApp !== 'undefined') professionalScheduleApp.init();
     },
 
     loadScript: function(src, isModule = false) {

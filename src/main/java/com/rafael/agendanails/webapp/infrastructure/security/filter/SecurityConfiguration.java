@@ -128,7 +128,8 @@ public class SecurityConfiguration {
                                 "/manutencao",
                                 "/redefinir-senha",
                                 "/admin/servicos",
-                                "/admin/configuracoes").permitAll()
+                                "/admin/configuracoes",
+                                "/profissional/agenda").permitAll()
 
                         // ===== ADMIN HTML PAGES (PROTECTED BY JS/API) =====
                         

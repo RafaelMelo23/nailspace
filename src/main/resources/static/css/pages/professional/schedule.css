@@ -1,0 +1,271 @@
+.tabs-container {
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.professional-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 32px;
+}
+
+@media (max-width: 480px) {
+    .professional-tabs {
+        gap: 12px 16px;
+    }
+    
+    .tab-btn {
+        flex: 1 1 auto;
+        text-align: center;
+        padding: 8px 0;
+        font-size: 14px;
+    }
+}
+
+.tab-btn {
+    padding: 12px 0;
+    border: none;
+    background: none;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+}
+
+.tab-btn:hover {
+    color: var(--text-main);
+}
+
+.tab-btn.active {
+    color: var(--primary);
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--primary);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Work Schedule Styles */
+.schedule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.schedule-day-row {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    gap: 24px;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.schedule-day-row.status-active {
+    border-left: 4px solid var(--status-avail);
+}
+
+.schedule-day-row.status-inactive {
+    border-left: 4px solid var(--status-part);
+    opacity: 0.8;
+}
+
+.schedule-day-row.status-unregistered {
+    border-left: 4px solid var(--border);
+    opacity: 0.6;
+}
+
+.schedule-day-row.status-unregistered .time-inputs-group {
+    visibility: hidden;
+    opacity: 0;
+}
+
+.day-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 180px;
+}
+
+.day-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.day-name {
+    font-weight: 600;
+    color: var(--text-main);
+    text-transform: capitalize;
+}
+
+.day-status-tag {
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.status-active .day-status-tag { color: var(--status-avail); }
+.status-inactive .day-status-tag { color: var(--status-part); }
+.status-unregistered .day-status-tag { color: var(--text-muted); }
+
+.time-inputs-group {
+    display: flex;
+    gap: 24px;
+    flex-grow: 1;
+}
+
+.input-pair {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.input-pair label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.time-inputs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.time-inputs .form-input {
+    width: 120px;
+    padding: 8px;
+}
+
+.time-inputs span {
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.day-actions {
+    display: flex;
+    align-items: center;
+}
+
+.btn-delete-schedule,
+.btn-delete-block {
+    background: none;
+    border: none;
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-delete-schedule:hover,
+.btn-delete-block:hover {
+    color: var(--status-busy);
+    background: rgba(239, 68, 68, 0.05);
+}
+
+/* Modal centering and size optimization on desktop */
+@media (min-width: 769px) {
+    .modal-content {
+        max-width: 450px;
+        margin: auto; /* Extra insurance for centering */
+    }
+}
+
+/* Blocks Styles */
+.header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.block-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.block-item:last-child {
+    border-bottom: none;
+}
+
+.block-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.block-reason {
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+.block-time {
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.loading-placeholder {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+}
+
+.switch-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.switch-label {
+    font-size: 14px;
+    color: var(--text-main);
+}
+
+@media (max-width: 768px) {
+    .schedule-day-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .time-inputs-group {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .time-inputs .form-input {
+        flex-grow: 1;
+    }
+}

@@ -522,5 +522,3 @@ const bookingApp = {
         }
     }
     };
-
-    // bookingApp.init() will be called by App.initPage()

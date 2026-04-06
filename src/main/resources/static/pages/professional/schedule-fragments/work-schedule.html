@@ -1,0 +1,57 @@
+<div id="tab-work-schedule" class="tab-content active">
+    <div class="card">
+        <div class="card-header">
+            <h3>Seu Horário de Trabalho Semanal</h3>
+            <p>Defina os dias e horários que você atende no salão.</p>
+        </div>
+        <div class="card-body">
+            <form id="work-schedule-form">
+                <div class="schedule-list" id="work-schedule-list">
+                    <!-- Days will be loaded here -->
+                    <div class="loading-placeholder">Carregando horários...</div>
+                </div>
+                <div class="form-actions mt-20">
+                    <button type="submit" class="btn btn-primary" id="save-work-schedule">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<template id="schedule-day-template">
+    <div class="schedule-day-row status-unregistered">
+        <div class="day-info">
+            <label class="switch">
+                <input type="checkbox" class="day-active-toggle">
+                <span class="slider round"></span>
+            </label>
+            <div class="day-text">
+                <span class="day-name"></span>
+                <span class="day-status-tag">Não registrado</span>
+            </div>
+        </div>
+        <div class="time-inputs-group">
+            <div class="input-pair">
+                <label>Expediente</label>
+                <div class="time-inputs">
+                    <input type="time" class="form-input start-time" required>
+                    <span>às</span>
+                    <input type="time" class="form-input end-time" required>
+                </div>
+            </div>
+            <div class="input-pair">
+                <label>Intervalo</label>
+                <div class="time-inputs">
+                    <input type="time" class="form-input lunch-start" required>
+                    <span>às</span>
+                    <input type="time" class="form-input lunch-end" required>
+                </div>
+            </div>
+        </div>
+        <div class="day-actions">
+            <button type="button" class="btn-delete-schedule" title="Excluir dia de trabalho" style="display: none;">
+                Excluir
+            </button>
+        </div>
+    </div>
+</template>

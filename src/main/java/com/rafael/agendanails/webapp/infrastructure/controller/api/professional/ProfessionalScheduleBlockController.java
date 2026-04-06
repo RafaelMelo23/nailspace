@@ -24,6 +24,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @RestController
@@ -83,7 +84,7 @@ public class ProfessionalScheduleBlockController {
     @GetMapping
     public ResponseEntity<List<ScheduleBlockOutDTO>> getBlocks(@Parameter(example = "2026-04-01T00:00:00")
                                                                @RequestParam @NotNull(message = "A data e hora são obrigatórias")
-                                                               LocalDateTime dateAndTime,
+                                                                   ZonedDateTime dateAndTime,
                                                                @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
         return ResponseEntity.ok(professionalScheduleBlockUseCase.getBlocks(userPrincipal, dateAndTime));

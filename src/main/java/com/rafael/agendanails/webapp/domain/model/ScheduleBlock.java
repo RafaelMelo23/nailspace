@@ -24,11 +24,11 @@ public class ScheduleBlock extends BaseEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "date_and_start_time", nullable = false)
-    private Instant dateStartTime;
+    @Column(name = "start_time", nullable = false)
+    private Instant startTime;
 
-    @Column(name = "date_and_end_time", nullable = false)
-    private Instant dateEndTime;
+    @Column(name = "end_time", nullable = false)
+    private Instant endTime;
 
     @Column(name = "is_whole_day_blocked")
     private Boolean isWholeDayBlocked = Boolean.FALSE;
@@ -46,11 +46,11 @@ public class ScheduleBlock extends BaseEntity {
                 .reason(blockDTO.reason())
                 .professional(professional)
                 .isWholeDayBlocked(blockDTO.isWholeDayBlocked())
-                .dateStartTime(blockDTO.dateAndStartTime().toInstant())
-                .dateEndTime(blockDTO.dateAndEndTime().toInstant())
+                .startTime(blockDTO.startTime().toInstant())
+                .endTime(blockDTO.endTime().toInstant())
                 .build();
 
-        if (!block.getIsWholeDayBlocked() && block.getDateStartTime() == null) {
+        if (!block.getIsWholeDayBlocked() && block.getStartTime() == null) {
             throw new BusinessException("Data e hora de início são obrigatórias para bloqueios totais.");
         }
 

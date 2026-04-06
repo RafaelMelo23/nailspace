@@ -12,6 +12,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,23 +37,33 @@ public class ProfessionalWorkScheduleUseCase {
 
     @Transactional
     public void modifyWeekSchedule(List<WorkScheduleRecordDTO> dtos, Long professionalId) {
+        Professional professional = professionalRepository.findById(professionalId)
+                .orElseThrow(() -> new BusinessException("Profissional não encontrado(a)"));
+
+        Map<Long, WorkSchedule> existingById = professional.getWorkSchedules().stream()
+                .collect(Collectors.toMap(WorkSchedule::getId, ws -> ws));
+
+        Map<DayOfWeek, WorkSchedule> existingByDay = professional.getWorkSchedules().stream()
+                .collect(Collectors.toMap(WorkSchedule::getDayOfWeek, ws -> ws));
+
+        List<WorkScheduleRecordDTO> toCreate = new ArrayList<>();
+
         for (WorkScheduleRecordDTO dto : dtos) {
-            if (dto.id() == null) {
-                throw new BusinessException("ID é obrigatório para atualizar um horário existente.");
+            if (dto.id() != null) {
+                WorkSchedule existing = existingById.get(dto.id());
+                if (existing == null || !existing.getProfessional().getId().equals(professionalId)) {
+                    throw new BusinessException("Horário não encontrado ou acesso não permitido.");
+                }
+                existing.updateFromDto(dto);
+            } else if (existingByDay.containsKey(dto.dayOfWeek())) {
+                existingByDay.get(dto.dayOfWeek()).updateFromDto(dto);
+            } else if (Boolean.TRUE.equals(dto.isActive())) {
+                toCreate.add(dto);
             }
-            List<WorkSchedule> workSchedules = repository.findAllById(dtos.stream().map(WorkScheduleRecordDTO::id).toList());
+        }
 
-            if (!workSchedules.stream().allMatch(sch -> professionalId.equals(sch.getProfessional().getId()))) {
-                throw new BusinessException("Essa operação não é permitida ou não foi encontrada");
-            }
-
-            Map<Long, WorkScheduleRecordDTO> dtoMap = dtos.stream()
-                    .collect(Collectors.toMap(WorkScheduleRecordDTO::id, dtoToMap -> dtoToMap));
-
-            workSchedules.forEach(ws -> {
-                WorkScheduleRecordDTO wsrDTO = dtoMap.get(ws.getId());
-                ws.updateFromDto(wsrDTO);
-            });
+        if (!toCreate.isEmpty()) {
+            professional.registerNewSchedules(toCreate);
         }
     }
 

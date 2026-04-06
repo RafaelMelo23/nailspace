@@ -40,8 +40,8 @@ public interface ProfessionalRepository extends JpaRepository<Professional, Long
             EXISTS (
             SELECT 1 From ScheduleBlock sb
             WHERE sb.professional = p
-            AND sb.dateStartTime < :endDateAndTime
-            AND sb.dateEndTime > :startDateAndTime
+            AND sb.startTime < :endDateAndTime
+            AND sb.endTime > :startDateAndTime
                 )
             )
                         )

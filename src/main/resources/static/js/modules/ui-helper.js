@@ -62,16 +62,70 @@ const UI = {
         Toast.show(message, type);
     },
 
+    confirm: function(title, message) {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('confirm-modal');
+            const titleEl = document.getElementById('confirm-modal-title');
+            const msgEl = document.getElementById('confirm-modal-message');
+            const okBtn = document.getElementById('confirm-modal-ok');
+            const cancelBtn = document.getElementById('confirm-modal-cancel');
+
+            if (!modal) {
+                console.warn('Confirm modal not found, falling back to window.confirm');
+                resolve(window.confirm(message));
+                return;
+            }
+
+            titleEl.textContent = title || 'Confirmar Ação';
+            msgEl.textContent = message;
+            modal.classList.remove('hidden');
+
+            const handleClose = (result) => {
+                modal.classList.add('hidden');
+                okBtn.onclick = null;
+                cancelBtn.onclick = null;
+                resolve(result);
+            };
+
+            okBtn.onclick = () => handleClose(true);
+            cancelBtn.onclick = () => handleClose(false);
+
+            modal.onclick = (e) => {
+                if (e.target === modal) handleClose(false);
+            };
+        });
+    },
+
     renderGlobalHeader: function(salon) {
         const header = document.getElementById('main-header');
         if (!header || !salon) return;
 
+        const token = Auth.getToken();
+        const isAdmin = Auth.hasRole('ADMIN');
+        const isProfessional = Auth.hasRole('PROFESSIONAL');
+
         header.innerHTML = `
             <div class="container">
                 <nav class="main-nav">
-                    <a href="/" class="brand-link">
-                        <span class="brand-name">${salon.tradeName}</span>
-                    </a>
+                    <div class="nav-left">
+                        <a href="/" class="brand-link" onclick="navigate('/'); return false;">
+                            <span class="brand-name">${salon.tradeName}</span>
+                        </a>
+                    </div>
+                    <div class="nav-links">
+                        ${token ? `
+                            <a href="/perfil" class="nav-link" onclick="navigate('/perfil'); return false;">Meu Perfil</a>
+                            ${isProfessional ? `<a href="/profissional/agenda" class="nav-link" onclick="navigate('/profissional/agenda'); return false;">Minha Agenda</a>` : ''}
+                            ${isAdmin ? `
+                                <a href="/admin/configuracoes" class="nav-link" onclick="navigate('/admin/configuracoes'); return false;">Configurações</a>
+                                <a href="/admin/servicos" class="nav-link" onclick="navigate('/admin/servicos'); return false;">Serviços</a>
+                            ` : ''}
+                            <button class="btn-logout" onclick="Auth.logout()">Sair</button>
+                        ` : `
+                            <a href="/entrar" class="nav-link" onclick="navigate('/entrar'); return false;">Entrar</a>
+                            <a href="/cadastro" class="btn btn-primary btn-sm" onclick="navigate('/cadastro'); return false;">Cadastrar</a>
+                        `}
+                    </div>
                 </nav>
             </div>
         `;

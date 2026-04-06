@@ -19,6 +19,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -64,9 +65,12 @@ public class ProfessionalScheduleController {
             @AuthenticationPrincipal UserPrincipal principal,
             @Parameter(description = "Optional date to filter blocks", example = "2026-04-01T00:00:00")
             @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateAndTime) {
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime dateAndTime) {
 
-        List<ScheduleBlockOutDTO> blocks = professionalScheduleBlockUseCase.getBlocks(professionalId, principal.getTenantId(), dateAndTime);
+        List<ScheduleBlockOutDTO> blocks = professionalScheduleBlockUseCase.getBlocks(
+                professionalId,
+                principal.getTenantId(),
+                dateAndTime);
         return ResponseEntity.ok(blocks);
     }
 }

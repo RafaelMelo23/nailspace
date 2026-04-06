@@ -150,7 +150,7 @@ public class AvailabilityDomainService {
         Stream<BusyInterval> blocks = scheduleBlockRepository
                 .findBusyBlocksInRange(professional.getId(), instantStart, instantEnd)
                 .stream()
-                .flatMap(block -> mapToDailyIntervals(block.getDateStartTime(), block.getDateEndTime(), zoneId, 0));
+                .flatMap(block -> mapToDailyIntervals(block.getStartTime(), block.getEndTime(), zoneId, 0));
 
         return Stream.concat(appointments, blocks)
                 .sorted(Comparator.comparing(BusyInterval::getStart))

@@ -76,8 +76,8 @@ public final class SwaggerExamples {
 
     public static final String SCHEDULE_BLOCK_REQUEST = """
             {
-              "dateAndStartTime": "2026-04-10T09:00:00-03:00",
-              "dateAndEndTime": "2026-04-10T12:00:00-03:00",
+              "startTime": "2026-04-10T09:00:00-03:00",
+              "endTime": "2026-04-10T12:00:00-03:00",
               "isWholeDayBlocked": false,
               "reason": "Almoco"
             }

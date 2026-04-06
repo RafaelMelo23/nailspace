@@ -14,7 +14,7 @@ public class PagesController {
             "/perfil",
             "/admin/servicos",
             "/admin/configuracoes",
-            "/profissional/agendamentos",
+            "/profissional/agenda",
             "/redefinir-senha",
             "/offline"
     })

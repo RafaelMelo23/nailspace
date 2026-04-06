@@ -258,8 +258,8 @@ class FindProfessionalAvailabilityUseCaseIT extends BaseIntegrationTest {
 
         scheduleBlockRepository.save(ScheduleBlock.builder()
                 .professional(professional)
-                .dateStartTime(blockStart)
-                .dateEndTime(blockEnd)
+                .startTime(blockStart)
+                .endTime(blockEnd)
                 .reason("Doctor")
                 .tenantId(tenantId)
                 .build());

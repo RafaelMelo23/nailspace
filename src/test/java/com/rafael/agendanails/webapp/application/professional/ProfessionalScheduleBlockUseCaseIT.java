@@ -49,8 +49,8 @@ class ProfessionalScheduleBlockUseCaseIT extends BaseIntegrationTest {
         ZonedDateTime now = ZonedDateTime.now();
         ScheduleBlock block = scheduleBlockRepository.save(ScheduleBlock.builder()
                 .professional(pro)
-                .dateStartTime(now.toInstant())
-                .dateEndTime(now.plusHours(1).toInstant())
+                .startTime(now.toInstant())
+                .endTime(now.plusHours(1).toInstant())
                 .isWholeDayBlocked(false)
                 .reason("Test")
                 .tenantId("tenant-test")
@@ -72,8 +72,8 @@ class ProfessionalScheduleBlockUseCaseIT extends BaseIntegrationTest {
         ZonedDateTime now = ZonedDateTime.now();
         scheduleBlockRepository.save(ScheduleBlock.builder()
                 .professional(proA)
-                .dateStartTime(now.toInstant())
-                .dateEndTime(now.plusHours(1).toInstant())
+                .startTime(now.toInstant())
+                .endTime(now.plusHours(1).toInstant())
                 .isWholeDayBlocked(false)
                 .reason("Test")
                 .tenantId(tenantA)
@@ -84,8 +84,8 @@ class ProfessionalScheduleBlockUseCaseIT extends BaseIntegrationTest {
         salonProfileRepository.save(TestSalonProfileFactory.standardForIT(proB, tenantB));
         scheduleBlockRepository.save(ScheduleBlock.builder()
                 .professional(proB)
-                .dateStartTime(now.toInstant())
-                .dateEndTime(now.plusHours(1).toInstant())
+                .startTime(now.toInstant())
+                .endTime(now.plusHours(1).toInstant())
                 .isWholeDayBlocked(false)
                 .reason("Test")
                 .tenantId(tenantB)

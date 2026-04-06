@@ -96,7 +96,7 @@ public class Professional extends User {
                 .workEnd(dto.endTime())
                 .lunchBreakStartTime(dto.lunchBreakStartTime())
                 .lunchBreakEndTime(dto.lunchBreakEndTime())
-                .isActive(true)
+                .isActive(dto.isActive() != null ? dto.isActive() : true)
                 .professional(this)
                 .build();
     }

@@ -11,12 +11,12 @@ import java.util.List;
 
 public interface ScheduleBlockRepository extends JpaRepository<ScheduleBlock, Long> {
 
-    List<ScheduleBlock> findByProfessional_IdAndDateStartTimeGreaterThanEqual(Long professionalId, Instant from);
+    List<ScheduleBlock> findByProfessional_IdAndStartTimeGreaterThanEqual(Long professionalId, Instant from);
 
     List<ScheduleBlock> findByProfessional_Id(Long professionalId);
 
     @Query("SELECT sb FROM ScheduleBlock sb WHERE sb.professional.id = :prof " +
-            "AND sb.dateStartTime < :end AND sb.dateEndTime > :start")
+            "AND sb.startTime < :end AND sb.endTime > :start")
     List<ScheduleBlock> findBusyBlocksInRange(@Param("prof") Long professionalId,
                                               @Param("start") Instant startRange,
                                               @Param("end") Instant endRange);

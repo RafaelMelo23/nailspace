@@ -12,8 +12,8 @@ public class TestScheduleBlockFactory {
     public static ScheduleBlock atSpecificTime(Instant start, Instant end, Professional professional) {
         return ScheduleBlock.builder()
                 .id(nextId())
-                .dateStartTime(start)
-                .dateEndTime(end)
+                .startTime(start)
+                .endTime(end)
                 .isWholeDayBlocked(false)
                 .reason("Test Block")
                 .professional(professional)
@@ -24,8 +24,8 @@ public class TestScheduleBlockFactory {
     public static ScheduleBlock wholeDay(Instant startOfDay, Professional professional) {
         return ScheduleBlock.builder()
                 .id(nextId())
-                .dateStartTime(startOfDay)
-                .dateEndTime(startOfDay.plus(24, ChronoUnit.HOURS))
+                .startTime(startOfDay)
+                .endTime(startOfDay.plus(24, ChronoUnit.HOURS))
                 .isWholeDayBlocked(true)
                 .reason("Day Off")
                 .professional(professional)

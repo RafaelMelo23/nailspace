@@ -13,9 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,20 +38,20 @@ public class ProfessionalScheduleBlockUseCase {
     }
 
     @Transactional(readOnly = true)
-    public List<ScheduleBlockOutDTO> getBlocks(UserPrincipal principal, LocalDateTime from) {
+    public List<ScheduleBlockOutDTO> getBlocks(UserPrincipal principal, ZonedDateTime from) {
         return getBlocks(principal.getUserId(), principal.getTenantId(), from);
     }
 
     @Transactional(readOnly = true)
-    public List<ScheduleBlockOutDTO> getBlocks(Long professionalId, String tenantId, LocalDateTime from) {
+    public List<ScheduleBlockOutDTO> getBlocks(Long professionalId, String tenantId, ZonedDateTime from) {
         ZoneId salonZoneId = salonProfileService.getSalonZoneId(tenantId);
 
         var fromInstant = Instant.EPOCH;
         if (from != null) {
-            fromInstant = from.atZone(salonZoneId).toInstant();
+            fromInstant = from.toInstant();
         }
 
-        return repository.findByProfessional_IdAndDateStartTimeGreaterThanEqual(professionalId, fromInstant)
+        return repository.findByProfessional_IdAndStartTimeGreaterThanEqual(professionalId, fromInstant)
                 .stream()
                 .map(sb -> ScheduleBlockOutDTO.fromEntity(sb, salonZoneId))
                 .collect(Collectors.toList());

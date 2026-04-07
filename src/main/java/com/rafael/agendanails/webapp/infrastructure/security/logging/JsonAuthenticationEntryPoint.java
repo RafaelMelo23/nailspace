@@ -34,6 +34,18 @@ public class JsonAuthenticationEntryPoint implements AuthenticationEntryPoint {
         log.warn("401 Unauthorized: method={} path={} traceId={} reason={}",
                 request.getMethod(), request.getRequestURI(), traceId, authException.getMessage());
 
+        String accept = request.getHeader("Accept");
+        if (accept != null && accept.contains("text/html")) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            try {
+                request.getRequestDispatcher("/error").forward(request, response);
+            } catch (Exception e) {
+                log.error("Error forwarding to /error", e);
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
+            }
+            return;
+        }
+
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
         objectMapper.writeValue(response.getOutputStream(), Map.of(

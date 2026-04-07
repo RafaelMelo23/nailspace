@@ -39,6 +39,18 @@ public class JsonAccessDeniedHandler implements AccessDeniedHandler {
         log.warn("403 Forbidden: method={} path={} user={} traceId={} reason={}",
                 request.getMethod(), request.getRequestURI(), principal, traceId, ex.getMessage());
 
+        String accept = request.getHeader("Accept");
+        if (accept != null && accept.contains("text/html")) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            try {
+                request.getRequestDispatcher("/error").forward(request, response);
+            } catch (Exception e) {
+                log.error("Error forwarding to /error", e);
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, ex.getMessage());
+            }
+            return;
+        }
+
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setContentType("application/json");
         objectMapper.writeValue(response.getOutputStream(), Map.of(

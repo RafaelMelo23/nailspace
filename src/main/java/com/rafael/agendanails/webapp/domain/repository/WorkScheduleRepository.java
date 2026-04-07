@@ -21,11 +21,11 @@ public interface WorkScheduleRepository extends JpaRepository<WorkSchedule, Long
             FROM WorkSchedule ws
             WHERE ws.professional.externalId = :externalId
             AND ws.dayOfWeek = :day
-            AND ws.workStart < :startTime
-            AND ws.workEnd > :endTime
+            AND ws.workStart <= :startTime
+            AND ws.workEnd >= :endTime
             AND (
-                :endTime < ws.lunchBreakStartTime OR
-                :startTime > ws.lunchBreakEndTime
+                :endTime <= ws.lunchBreakStartTime OR
+                :startTime >= ws.lunchBreakEndTime
                 )""")
     boolean checkIfProfessionalIsAvailable(@Param("externalId") UUID professionalId,
                                            @Param("startTime") LocalTime startTime,

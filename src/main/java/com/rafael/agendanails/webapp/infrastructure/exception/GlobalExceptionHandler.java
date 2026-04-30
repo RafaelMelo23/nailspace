@@ -25,6 +25,11 @@ public class GlobalExceptionHandler {
         return buildResponse(e, request, HttpStatus.BAD_REQUEST, "Erro de validação", List.of(e.getMessage()));
     }
 
+    @ExceptionHandler(DemoFeatureException.class)
+    public Object demoRestriction(DemoFeatureException e, HttpServletRequest request) {
+        return buildResponse(e, request, HttpStatus.FORBIDDEN, "Ambiente de demonstração", List.of(e.getMessage()));
+    }
+
     @ExceptionHandler(TokenRefreshException.class)
     public Object auth(TokenRefreshException e, HttpServletRequest request) {
         return buildResponse(e, request, HttpStatus.UNAUTHORIZED, "Erro de autenticação", List.of(e.getMessage()));

@@ -9,10 +9,7 @@ import com.rafael.agendanails.webapp.domain.repository.*;
 import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
 import com.rafael.agendanails.webapp.shared.tenant.TenantContext;
 import com.rafael.agendanails.webapp.support.BaseIntegrationTest;
-import com.rafael.agendanails.webapp.support.factory.TestAppointmentFactory;
-import com.rafael.agendanails.webapp.support.factory.TestClientFactory;
-import com.rafael.agendanails.webapp.support.factory.TestProfessionalFactory;
-import com.rafael.agendanails.webapp.support.factory.TestSalonServiceFactory;
+import com.rafael.agendanails.webapp.support.factory.*;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +51,7 @@ class CancelAppointmentUseCaseIT extends BaseIntegrationTest {
         var client = clientRepository.save(TestClientFactory.standardForIt());
         var professional = professionalRepository.save(TestProfessionalFactory.standardForIt());
         var service = salonServiceRepository.save(TestSalonServiceFactory.standardForIt());
+        var salon = salonProfileRepository.save(TestSalonProfileFactory.standardForIT(professional, "tenant-test"));
 
         return new PreparationData(client, professional, service);
     }

@@ -1,5 +1,6 @@
 package com.rafael.agendanails.webapp.application.appointment.booking;
 
+import com.rafael.agendanails.webapp.domain.BusyIntervalService;
 import com.rafael.agendanails.webapp.domain.model.Appointment;
 import com.rafael.agendanails.webapp.domain.model.UserPrincipal;
 import com.rafael.agendanails.webapp.domain.repository.AppointmentRepository;
@@ -16,6 +17,7 @@ public class BookingAppointmentUseCase {
     private final AppointmentRepository repository;
     private final BookingContextLoader contextLoader;
     private final BookingValidator validator;
+    private final BusyIntervalService busyIntervalService;
 
     @Transactional
     public void bookAppointment(
@@ -39,6 +41,8 @@ public class BookingAppointmentUseCase {
         repository.save(appointment);
         repository.flush();
 
+        busyIntervalService.evictCacheForAppointment(appointment, context.salonProfile().getZoneId());
+
         applyAppointmentConfirmationPolicy(context, appointment);
     }
 
@@ -48,6 +52,7 @@ public class BookingAppointmentUseCase {
         if (context.salonProfile().isAutoConfirmationAppointment()) {
             appointment.confirm();
             repository.save(appointment);
+            busyIntervalService.evictCacheForAppointment(appointment, context.salonProfile().getZoneId());
         }
     }
 }

@@ -2,6 +2,7 @@ package com.rafael.agendanails.webapp.application.appointment.booking;
 
 import com.rafael.agendanails.webapp.application.salon.business.SalonProfileService;
 import com.rafael.agendanails.webapp.domain.AvailabilityDomainService;
+import com.rafael.agendanails.webapp.domain.model.AvailabilityQuery;
 import com.rafael.agendanails.webapp.domain.model.Professional;
 import com.rafael.agendanails.webapp.domain.model.SalonProfile;
 import com.rafael.agendanails.webapp.domain.model.SalonService;
@@ -51,8 +52,14 @@ public class FindProfessionalAvailabilityUseCase {
 
         AppointmentTimeWindow appointmentTimeWindow = bookingPolicyManager.calculateAllowedWindow(services, tenantId, userId);
 
-        List<AppointmentTimesDTO> availableTimes = availabilityDomainService.findAvailableTimes(
-                professional, appointmentTimeWindow, salonProfile, dto.serviceDurationInSeconds());
+        AvailabilityQuery query = AvailabilityQuery.builder()
+                .professional(professional)
+                .window(appointmentTimeWindow)
+                .salonProfile(salonProfile)
+                .serviceDurationInSeconds(dto.serviceDurationInSeconds())
+                .build();
+
+        List<AppointmentTimesDTO> availableTimes = availabilityDomainService.findAvailableTimes(query);
 
         log.debug("Found {} available slots for Professional={}", availableTimes.size(), dto.professionalExternalId());
 

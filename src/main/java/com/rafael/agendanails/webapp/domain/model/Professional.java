@@ -24,10 +24,6 @@ import org.hibernate.annotations.Filter;
 @Filter(name = "deletedFilter")
 public class Professional extends User {
 
-    @Builder.Default
-    @Column(name = "deleted", nullable = false)
-    private boolean deleted = false;
-
     private String professionalPicture;
 
     @Column

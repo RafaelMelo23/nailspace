@@ -12,7 +12,7 @@ services:
       # --- API ---
       - JWT_SECRET=${JWT_SECRET}
       - APP_HTTP_PROTOCOL=http
-      - UPLOADS_PATH=/var/nailspro/uploads
+      - UPLOADS_PATH=/var/nailspace/uploads
       - RESEND_API_KEY=${RESEND_API_KEY}
       - RESEND_EMAIL_ADDRESS=
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
@@ -58,7 +58,7 @@ services:
     volumes:
       - ./src/main/resources/static:/app/static
       - ./src/main/resources/templates:/app/templates
-      - uploads_volume:/var/nailspro/uploads
+      - uploads_volume:/var/nailspace/uploads
 
   db:
     image: postgres:15-alpine

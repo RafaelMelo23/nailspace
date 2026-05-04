@@ -1,6 +1,7 @@
 package com.rafael.agendanails.webapp.application.professional;
 
 import com.rafael.agendanails.webapp.domain.model.Professional;
+import com.rafael.agendanails.webapp.domain.model.SalonProfile;
 import com.rafael.agendanails.webapp.domain.model.ScheduleBlock;
 import com.rafael.agendanails.webapp.domain.model.UserPrincipal;
 import com.rafael.agendanails.webapp.infrastructure.dto.professional.schedule.block.ScheduleBlockDTO;
@@ -9,6 +10,7 @@ import com.rafael.agendanails.webapp.shared.tenant.TenantContext;
 import com.rafael.agendanails.webapp.support.BaseIntegrationTest;
 import com.rafael.agendanails.webapp.support.factory.TestProfessionalFactory;
 import com.rafael.agendanails.webapp.support.factory.TestSalonProfileFactory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,11 +24,22 @@ class ProfessionalScheduleBlockUseCaseIT extends BaseIntegrationTest {
     @Autowired
     private ProfessionalScheduleBlockUseCase useCase;
 
+    private Professional professional;
+    private SalonProfile salonProfile;
+
+    @BeforeEach
+    void setUp() {
+        salon(TestProfessionalFactory.builder().build(), "tenant-test");
+    }
+
+    private void salon(Professional pro, String tenant) {
+        TenantContext.setTenant(tenant);
+        this.professional = professionalRepository.save(pro);
+        this.salonProfile = salonProfileRepository.save(TestSalonProfileFactory.standardForIT(professional, tenant));
+    }
+
     @Test
     void shouldCreateBlock() {
-        Professional pro = professionalRepository.save(TestProfessionalFactory.builder().build());
-        salonProfileRepository.save(TestSalonProfileFactory.standardForIT(pro));
-        
         ZonedDateTime now = ZonedDateTime.now();
         ScheduleBlockDTO dto = new ScheduleBlockDTO(
                 null,
@@ -36,19 +49,18 @@ class ProfessionalScheduleBlockUseCaseIT extends BaseIntegrationTest {
                 "Lunch"
         );
 
-        useCase.createBlock(dto, pro.getId());
+        useCase.createBlock(dto, professional.getId());
 
-        List<ScheduleBlock> blocks = scheduleBlockRepository.findByProfessional_Id(pro.getId());
+        List<ScheduleBlock> blocks = scheduleBlockRepository.findByProfessional_Id(professional.getId());
         assertThat(blocks).hasSize(1);
         assertThat(blocks.get(0).getReason()).isEqualTo("Lunch");
     }
 
     @Test
     void shouldDeleteBlock() {
-        Professional pro = professionalRepository.save(TestProfessionalFactory.builder().build());
         ZonedDateTime now = ZonedDateTime.now();
         ScheduleBlock block = scheduleBlockRepository.save(ScheduleBlock.builder()
-                .professional(pro)
+                .professional(professional)
                 .startTime(now.toInstant())
                 .endTime(now.plusHours(1).toInstant())
                 .isWholeDayBlocked(false)
@@ -56,32 +68,28 @@ class ProfessionalScheduleBlockUseCaseIT extends BaseIntegrationTest {
                 .tenantId("tenant-test")
                 .build());
 
-        useCase.deleteBlock(block.getId(), pro.getId());
+        useCase.deleteBlock(block.getId(), professional.getId());
 
         assertThat(scheduleBlockRepository.findById(block.getId())).isEmpty();
     }
 
     @Test
     void shouldGetBlocksWithTenantIsolation() {
-        String tenantA = "tenant-a";
-        String tenantB = "tenant-b";
-
-        TenantContext.setTenant(tenantA);
-        Professional proA = professionalRepository.save(TestProfessionalFactory.builder().tenantId(tenantA).build());
-        salonProfileRepository.save(TestSalonProfileFactory.standardForIT(proA, tenantA));
         ZonedDateTime now = ZonedDateTime.now();
         scheduleBlockRepository.save(ScheduleBlock.builder()
-                .professional(proA)
+                .professional(professional)
                 .startTime(now.toInstant())
                 .endTime(now.plusHours(1).toInstant())
                 .isWholeDayBlocked(false)
                 .reason("Test")
-                .tenantId(tenantA)
+                .tenantId("tenant-test")
                 .build());
 
+        String tenantB = "tenant-b";
         TenantContext.setTenant(tenantB);
         Professional proB = professionalRepository.save(TestProfessionalFactory.builder().tenantId(tenantB).build());
         salonProfileRepository.save(TestSalonProfileFactory.standardForIT(proB, tenantB));
+
         scheduleBlockRepository.save(ScheduleBlock.builder()
                 .professional(proB)
                 .startTime(now.toInstant())
@@ -91,15 +99,16 @@ class ProfessionalScheduleBlockUseCaseIT extends BaseIntegrationTest {
                 .tenantId(tenantB)
                 .build());
 
-        TenantContext.setTenant(tenantA);
-        UserPrincipal principalA = UserPrincipal.builder()
-                .userId(proA.getId())
-                .tenantId(tenantA)
-                .email(proA.getEmail())
-                .userRole(proA.getEffectiveRoles())
+        TenantContext.setTenant("tenant-test");
+        UserPrincipal principal = UserPrincipal.builder()
+                .userId(professional.getId())
+                .tenantId("tenant-test")
+                .email(professional.getEmail())
+                .userRole(professional.getEffectiveRoles())
                 .build();
-        List<ScheduleBlockOutDTO> blocksA = useCase.getBlocks(principalA, null);
 
-        assertThat(blocksA).hasSize(1);
+        List<ScheduleBlockOutDTO> blocks = useCase.getBlocks(principal, null);
+
+        assertThat(blocks).hasSize(1);
     }
 }

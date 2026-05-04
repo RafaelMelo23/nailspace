@@ -1,5 +1,7 @@
 package com.rafael.agendanails.webapp.application.professional;
 
+import com.rafael.agendanails.webapp.application.salon.business.SalonProfileService;
+import com.rafael.agendanails.webapp.domain.BusyIntervalService;
 import com.rafael.agendanails.webapp.domain.model.Appointment;
 import com.rafael.agendanails.webapp.domain.repository.AppointmentRepository;
 import com.rafael.agendanails.webapp.infrastructure.dto.appointment.booking.event.AppointmentCancelledEvent;
@@ -17,11 +19,14 @@ public class ProfessionalAppointmentStatusUseCase {
 
     private final AppointmentRepository appointmentRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final BusyIntervalService busyIntervalService;
+    private final SalonProfileService salonProfileService;
 
     @Transactional
     public void confirm(Long appointmentId, Long professionalId) {
         Appointment appointment = getAppointmentAndProfessionalOwnership(appointmentId, professionalId);
         appointment.confirm();
+        evictCache(appointment);
     }
 
     @Transactional
@@ -29,6 +34,7 @@ public class ProfessionalAppointmentStatusUseCase {
         Appointment appointment = getAppointmentAndProfessionalOwnership(appointmentId, professionalId);
 
         appointment.finish();
+        evictCache(appointment);
 
         eventPublisher.publishEvent(
                 new AppointmentFinishedEvent(
@@ -46,6 +52,7 @@ public class ProfessionalAppointmentStatusUseCase {
         Appointment appointment = getAppointmentAndProfessionalOwnership(appointmentId, professionalId);
 
         appointment.cancel();
+        evictCache(appointment);
 
         eventPublisher.publishEvent(
                 new AppointmentCancelledEvent(
@@ -61,6 +68,7 @@ public class ProfessionalAppointmentStatusUseCase {
         Appointment appointment = getAppointmentAndProfessionalOwnership(appointmentId, professionalId);
 
         appointment.miss();
+        evictCache(appointment);
 
         eventPublisher.publishEvent(
                 new AppointmentMissedEvent(
@@ -69,6 +77,10 @@ public class ProfessionalAppointmentStatusUseCase {
                         appointment.getClient().getId()
                 )
         );
+    }
+
+    private void evictCache(Appointment appointment) {
+        busyIntervalService.evictCacheForAppointment(appointment, salonProfileService.getSalonZoneId(appointment.getTenantId()));
     }
 
     private Appointment getAppointmentAndProfessionalOwnership(Long appointmentId, Long professionalId) {

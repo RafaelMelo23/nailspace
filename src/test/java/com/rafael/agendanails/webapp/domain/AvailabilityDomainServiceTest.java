@@ -2,24 +2,29 @@ package com.rafael.agendanails.webapp.domain;
 
 import com.rafael.agendanails.webapp.domain.enums.appointment.AppointmentStatus;
 import com.rafael.agendanails.webapp.domain.model.*;
-import com.rafael.agendanails.webapp.domain.repository.AppointmentRepository;
 import com.rafael.agendanails.webapp.domain.repository.ProfessionalRepository;
-import com.rafael.agendanails.webapp.domain.repository.ScheduleBlockRepository;
+import com.rafael.agendanails.webapp.infrastructure.config.CacheConfig;
 import com.rafael.agendanails.webapp.infrastructure.dto.appointment.AppointmentTimesDTO;
 import com.rafael.agendanails.webapp.infrastructure.dto.appointment.booking.AppointmentTimeWindow;
 import com.rafael.agendanails.webapp.infrastructure.dto.appointment.contract.BusyInterval;
+import com.rafael.agendanails.webapp.infrastructure.dto.appointment.date.SimpleBusyInterval;
 import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
 import com.rafael.agendanails.webapp.support.factory.*;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 
 import java.time.*;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -32,13 +37,10 @@ import static org.mockito.Mockito.when;
 class AvailabilityDomainServiceTest {
 
     @Mock
-    private AppointmentRepository appointmentRepository;
-
-    @Mock
-    private ScheduleBlockRepository scheduleBlockRepository;
-
-    @Mock
     private ProfessionalRepository professionalRepository;
+
+    @Mock
+    private BusyIntervalService busyIntervalService;
 
     @InjectMocks
     private AvailabilityDomainService availabilityDomainService;
@@ -46,7 +48,10 @@ class AvailabilityDomainServiceTest {
     private static final ZoneId ZONE = ZoneId.of("America/Sao_Paulo");
 
     private static final LocalDate FRIDAY = LocalDate.of(2026, 3, 20);
-    private static final LocalDate SATURDAY = FRIDAY.plusDays(1);
+
+    private Cache cache;
+    private CacheManager cacheManager;
+
 
     private Professional professionalWithFridaySchedule() {
         Professional professional = TestProfessionalFactory.standard();
@@ -91,21 +96,8 @@ class AvailabilityDomainServiceTest {
                 .toInstant();
     }
 
-    private void mockAppointments(List<Appointment> appointments) {
-        when(appointmentRepository.findBusyAppointmentsInRange(
-                any(),
-                any(),
-                any(),
-                eq(List.of(AppointmentStatus.CONFIRMED, AppointmentStatus.FINISHED))
-        )).thenReturn(appointments);
-    }
-
-    private void mockBlocks(List<ScheduleBlock> blocks) {
-        when(scheduleBlockRepository.findBusyBlocksInRange(
-                any(),
-                any(),
-                any()
-        )).thenReturn(blocks);
+    private void mockBusyIntervals(LocalDate date, List<BusyInterval> intervals) {
+        when(busyIntervalService.getIntervalsWithCaching(any())).thenReturn(Map.of(date, intervals));
     }
 
     @Test
@@ -149,29 +141,6 @@ class AvailabilityDomainServiceTest {
     }
 
     @Test
-    void getProfessionalBusyIntervals_EmptyRepositories_ReturnsEmptyList() {
-        Professional professional = professionalWithFridaySchedule();
-
-        LocalDate startRange = FRIDAY;
-        LocalDate endRange = SATURDAY;
-
-        SalonProfile salonProfile = TestSalonProfileFactory.standard();
-
-        mockAppointments(List.of());
-        mockBlocks(List.of());
-
-        List<BusyInterval> result =
-                availabilityDomainService.getProfessionalBusyIntervals(
-                        professional,
-                        startRange,
-                        endRange,
-                        salonProfile
-                );
-
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
     void findAvailableTimes_CompletelyFreeDay_ReturnsAllSlotsGenerated() {
 
         Professional professional = professionalWithFridaySchedule();
@@ -181,16 +150,17 @@ class AvailabilityDomainServiceTest {
 
         SalonProfile salonProfile = TestSalonProfileFactory.standard();
 
-        mockAppointments(List.of());
-        mockBlocks(List.of());
+        mockBusyIntervals(date, List.of());
+
+        AvailabilityQuery query = AvailabilityQuery.builder()
+                .professional(professional)
+                .window(window)
+                .salonProfile(salonProfile)
+                .serviceDurationInSeconds(3600)
+                .build();
 
         List<AppointmentTimesDTO> result =
-                availabilityDomainService.findAvailableTimes(
-                        professional,
-                        window,
-                        salonProfile,
-                        3600
-                );
+                availabilityDomainService.findAvailableTimes(query);
 
         assertFalse(result.isEmpty());
         assertTrue(result.stream().noneMatch(day -> day.availableTimes().contains(LocalTime.of(12, 0))));
@@ -201,44 +171,44 @@ class AvailabilityDomainServiceTest {
         Professional professional = professionalWithFridaySchedule();
         LocalDate date = FRIDAY;
         AppointmentTimeWindow window = windowFor(date);
-
         SalonProfile salonProfile = TestSalonProfileFactory.standard();
 
-        mockAppointments(List.of(
-                TestAppointmentFactory.atSpecificTime(
-                        atTime(date, 10, 0),
-                        atTime(date, 11, 0),
-                        professional,
-                        AppointmentStatus.CONFIRMED
-                ),
-                TestAppointmentFactory.atSpecificTime(
-                        atTime(date, 13, 0),
-                        atTime(date, 14, 0),
-                        professional,
-                        AppointmentStatus.CONFIRMED
-                )
-        ));
+        List<BusyInterval> busy = new ArrayList<>();
+        busy.add(SimpleBusyInterval.builder()
+                .start(LocalTime.of(10, 0))
+                .end(LocalTime.of(11, 0))
+                .date(date)
+                .build());
 
-        mockBlocks(List.of(
-                TestScheduleBlockFactory.atSpecificTime(
-                        atTime(date, 15, 0),
-                        atTime(date, 16, 0),
-                        professional
-                )
-        ));
+        busy.add(SimpleBusyInterval.builder()
+                .start(LocalTime.of(13, 0))
+                .end(LocalTime.of(14, 0))
+                .date(date)
+                .build());
+        busy.add(SimpleBusyInterval.builder()
+                .start(LocalTime.of(15, 0))
+                .end(LocalTime.of(16, 0))
+                .date(date)
+                .build());
+
+        mockBusyIntervals(date, busy);
+
+        AvailabilityQuery query = AvailabilityQuery.builder()
+                .professional(professional)
+                .window(window)
+                .salonProfile(salonProfile)
+                .serviceDurationInSeconds(3600)
+                .build();
 
         List<AppointmentTimesDTO> result =
-                availabilityDomainService.findAvailableTimes(
-                        professional,
-                        window,
-                        salonProfile,
-                        3600
-                );
+                availabilityDomainService.findAvailableTimes(query);
 
         assertFalse(result.isEmpty());
 
         List<LocalTime> expected = List.of(
                 LocalTime.of(9, 0),
+                LocalTime.of(11, 0),
+                LocalTime.of(14, 0),
                 LocalTime.of(16, 0),
                 LocalTime.of(16, 30),
                 LocalTime.of(17, 0)
@@ -266,30 +236,29 @@ class AvailabilityDomainServiceTest {
 
         SalonProfile salonProfile = TestSalonProfileFactory.withCustomBuffer(0);
 
-        mockAppointments(List.of(
-                TestAppointmentFactory.atSpecificTime(
-                        atTime(date, 10, 0),
-                        atTime(date, 11, 0),
-                        professional,
-                        AppointmentStatus.CONFIRMED
-                ),
-                TestAppointmentFactory.atSpecificTime(
-                        atTime(date, 12, 0),
-                        atTime(date, 13, 0),
-                        professional,
-                        AppointmentStatus.CONFIRMED
-                )
-        ));
+        List<BusyInterval> busy = new ArrayList<>();
+        busy.add(SimpleBusyInterval.builder()
+                .start(LocalTime.of(10, 0))
+                .end(LocalTime.of(11, 0))
+                .date(date)
+                .build());
+        busy.add(SimpleBusyInterval.builder()
+                .start(LocalTime.of(12, 0))
+                .end(LocalTime.of(13, 0))
+                .date(date)
+                .build());
 
-        mockBlocks(List.of());
+        mockBusyIntervals(date, busy);
+
+        AvailabilityQuery query = AvailabilityQuery.builder()
+                .professional(professional)
+                .window(window)
+                .salonProfile(salonProfile)
+                .serviceDurationInSeconds(3600)
+                .build();
 
         List<AppointmentTimesDTO> result =
-                availabilityDomainService.findAvailableTimes(
-                        professional,
-                        window,
-                        salonProfile,
-                        3600
-                );
+                availabilityDomainService.findAvailableTimes(query);
 
         assertEquals(1, result.size());
         assertEquals(List.of(LocalTime.of(11, 0)), result.getFirst().availableTimes());
@@ -313,22 +282,24 @@ class AvailabilityDomainServiceTest {
 
         SalonProfile salonProfile = TestSalonProfileFactory.standard();
 
-        mockAppointments(List.of(
-                TestAppointmentFactory.atSpecificTime(
-                        atTime(date, 9, 30),
-                        atTime(date, 9, 50),
-                        professional,
-                        AppointmentStatus.CONFIRMED
-                )
-        ));
+        List<BusyInterval> busy = new ArrayList<>();
+        busy.add(SimpleBusyInterval.builder()
+                .start(LocalTime.of(9, 30))
+                .end(LocalTime.of(9, 50))
+                .date(date)
+                .build());
+
+        mockBusyIntervals(date, busy);
+
+        AvailabilityQuery query = AvailabilityQuery.builder()
+                .professional(professional)
+                .window(window)
+                .salonProfile(salonProfile)
+                .serviceDurationInSeconds(3600)
+                .build();
 
         List<AppointmentTimesDTO> result =
-                availabilityDomainService.findAvailableTimes(
-                        professional,
-                        window,
-                        salonProfile,
-                        3600
-                );
+                availabilityDomainService.findAvailableTimes(query);
 
         assertNotNull(result);
         assertTrue(result.getFirst().availableTimes().isEmpty());
@@ -352,26 +323,21 @@ class AvailabilityDomainServiceTest {
 
         SalonProfile salonProfile = TestSalonProfileFactory.standard();
 
-        mockAppointments(List.of(
-                TestAppointmentFactory.atSpecificTime(
-                        atTime(date, 10, 0),
-                        atTime(date, 10, 45),
-                        professional,
-                        AppointmentStatus.FINISHED
-                )
-        ));
+        // The logic for filtering CONFIRMED/FINISHED is now in BusyIntervalService.
+        // In this test, we mock that service, so we decide what it returns.
+        mockBusyIntervals(date, List.of());
+
+        AvailabilityQuery query = AvailabilityQuery.builder()
+                .professional(professional)
+                .window(window)
+                .salonProfile(salonProfile)
+                .serviceDurationInSeconds(3600)
+                .build();
 
         List<AppointmentTimesDTO> result =
-                availabilityDomainService.findAvailableTimes(
-                        professional,
-                        window,
-                        salonProfile,
-                        3600
-                );
-
-        System.out.println(result);
+                availabilityDomainService.findAvailableTimes(query);
 
         assertNotNull(result);
-
+        assertFalse(result.getFirst().availableTimes().isEmpty());
     }
 }

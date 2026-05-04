@@ -1,14 +1,8 @@
 package com.rafael.agendanails.webapp.domain;
 
-import com.rafael.agendanails.webapp.domain.model.Professional;
-import com.rafael.agendanails.webapp.domain.model.SalonProfile;
-import com.rafael.agendanails.webapp.domain.model.TimeInterval;
-import com.rafael.agendanails.webapp.domain.model.WorkSchedule;
-import com.rafael.agendanails.webapp.domain.repository.AppointmentRepository;
+import com.rafael.agendanails.webapp.domain.model.*;
 import com.rafael.agendanails.webapp.domain.repository.ProfessionalRepository;
-import com.rafael.agendanails.webapp.domain.repository.ScheduleBlockRepository;
 import com.rafael.agendanails.webapp.infrastructure.dto.appointment.AppointmentTimesDTO;
-import com.rafael.agendanails.webapp.infrastructure.dto.appointment.booking.AppointmentTimeWindow;
 import com.rafael.agendanails.webapp.infrastructure.dto.appointment.contract.BusyInterval;
 import com.rafael.agendanails.webapp.infrastructure.dto.appointment.date.SimpleBusyInterval;
 import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
@@ -20,7 +14,6 @@ import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.rafael.agendanails.webapp.domain.enums.appointment.AppointmentStatus.CONFIRMED;
 import static com.rafael.agendanails.webapp.domain.enums.appointment.AppointmentStatus.FINISHED;
@@ -31,61 +24,57 @@ import static com.rafael.agendanails.webapp.domain.enums.appointment.Appointment
 public class AvailabilityDomainService {
 
     public static final int TIME_SLOT_GAPS = 30;
-    private final AppointmentRepository appointmentRepository;
-    private final ScheduleBlockRepository scheduleBlockRepository;
     private final ProfessionalRepository professionalRepository;
+    private final BusyIntervalService busyIntervalService;
 
-    public List<AppointmentTimesDTO> findAvailableTimes(Professional professional,
-                                                        AppointmentTimeWindow window,
-                                                        SalonProfile salonProfile,
-                                                        int serviceDurationInSeconds) {
-        log.debug("Finding available times for professional: {}, window: {} to {}, duration: {}", 
-                professional.getId(), window.start(), window.end(), serviceDurationInSeconds);
+    public List<AppointmentTimesDTO> findAvailableTimes(AvailabilityQuery query) {
+        log.debug("Finding available times for professional: {}, window: {} to {}, duration: {}",
+                query.professional().getId(), query.window().start(), query.window().end(), query.serviceDurationInSeconds());
 
-        if (serviceDurationInSeconds <= 0) {
+        if (query.serviceDurationInSeconds() <= 0) {
             return List.of();
         }
 
-        Map<LocalDate, List<BusyInterval>> intervalsByDate = groupBusyIntervalsByDate(professional, window, salonProfile);
-        log.debug("Busy intervals count by date: {}", intervalsByDate.size());
+        Map<LocalDate, List<BusyInterval>> intervalsByDate = busyIntervalService.getIntervalsWithCaching(query);
+        Map<DayOfWeek, WorkSchedule> weeklySchedules = mapWeeklySchedulesByDay(query.professional());
 
-        Map<DayOfWeek, WorkSchedule> weeklySchedules = mapWeeklySchedulesByDay(professional);
-        log.debug("Weekly schedules days: {}", weeklySchedules.keySet());
-
-        return window.start().datesUntil(window.end())
+        return query.window().start().datesUntil(query.window().end())
                 .map(date -> {
-                    log.debug("Checking date: {}, hasSchedule: {}", date, weeklySchedules.containsKey(date.getDayOfWeek()));
-                    return buildDailyAvailability(
-                        date,
-                        weeklySchedules.get(date.getDayOfWeek()),
-                        intervalsByDate.getOrDefault(date, List.of()),
-                        serviceDurationInSeconds);
-                }
-                )
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                    DailyWorkContext context = new DailyWorkContext(date, weeklySchedules.get(date.getDayOfWeek()));
+                    return buildDailyAvailability(context, intervalsByDate.getOrDefault(date, List.of()), query.serviceDurationInSeconds());
+                })
+                .flatMap(Optional::stream)
                 .toList();
     }
 
-    private Optional<AppointmentTimesDTO> buildDailyAvailability(LocalDate date,
-                                                                 WorkSchedule workSchedule,
+    private Optional<AppointmentTimesDTO> buildDailyAvailability(DailyWorkContext context,
                                                                  List<BusyInterval> existingBusyIntervals,
                                                                  int serviceDurationInSeconds) {
-        if (workSchedule == null) {
+        if (context.schedule() == null) {
             return Optional.empty();
         }
 
-        List<BusyInterval> dailyBusy = buildCompleteDailyBusyIntervals(date, existingBusyIntervals, workSchedule);
-        List<LocalTime> dailyAvailableTimes = calculateAvailableSlots(workSchedule, dailyBusy, serviceDurationInSeconds);
+        List<BusyInterval> dailyBusy = buildCompleteDailyBusyIntervals(context, existingBusyIntervals);
+        List<LocalTime> dailyAvailableTimes = calculateAvailableSlots(context.schedule(), dailyBusy, serviceDurationInSeconds);
 
-        return Optional.of(new AppointmentTimesDTO(date, dailyAvailableTimes));
+        return Optional.of(new AppointmentTimesDTO(context.date(), dailyAvailableTimes));
     }
 
-    private List<BusyInterval> buildCompleteDailyBusyIntervals(LocalDate date,
-                                                               List<BusyInterval> existingBusyIntervals,
-                                                               WorkSchedule workSchedule) {
+    private List<BusyInterval> buildCompleteDailyBusyIntervals(DailyWorkContext context,
+                                                               List<BusyInterval> existingBusyIntervals) {
+
         List<BusyInterval> dailyBusy = new ArrayList<>(existingBusyIntervals);
 
+        addLunchBreakToBusyIntervals(context, dailyBusy);
+
+        dailyBusy.sort(Comparator.comparing(BusyInterval::getStart));
+        return dailyBusy;
+    }
+
+    private void addLunchBreakToBusyIntervals(DailyWorkContext context,
+                                              List<BusyInterval> dailyBusy) {
+
+        WorkSchedule workSchedule = context.schedule();
         if (workSchedule.getLunchBreakStartTime() != null && workSchedule.getLunchBreakEndTime() != null) {
             LocalTime lunchStart = workSchedule.getLunchBreakStartTime();
             LocalTime lunchEnd = workSchedule.getLunchBreakEndTime();
@@ -94,24 +83,22 @@ public class AvailabilityDomainService {
                 dailyBusy.add(SimpleBusyInterval.builder()
                         .start(lunchStart.isBefore(workSchedule.getWorkStart()) ? workSchedule.getWorkStart() : lunchStart)
                         .end(lunchEnd.isAfter(workSchedule.getWorkEnd()) ? workSchedule.getWorkEnd() : lunchEnd)
-                        .date(date)
+                        .date(context.date())
                         .build());
             }
         }
-
-        dailyBusy.sort(Comparator.comparing(BusyInterval::getStart));
-        return dailyBusy;
     }
 
     private List<LocalTime> calculateAvailableSlots(WorkSchedule workSchedule,
                                                     List<BusyInterval> dailyBusy,
                                                     int serviceDurationInSeconds) {
+
         List<LocalTime> availableTimes = new ArrayList<>();
         LocalTime cursor = workSchedule.getWorkStart();
 
         for (BusyInterval interval : dailyBusy) {
             if (cursor.isBefore(interval.getStart())) {
-                processTimeSlotGaps(cursor, interval.getStart(), serviceDurationInSeconds, availableTimes);
+                availableTimes.addAll(findGapSlots(cursor, interval.getStart(), serviceDurationInSeconds));
             }
 
             if (interval.getEnd().isAfter(cursor)) {
@@ -120,94 +107,27 @@ public class AvailabilityDomainService {
         }
 
         if (cursor.isBefore(workSchedule.getWorkEnd())) {
-            processTimeSlotGaps(cursor, workSchedule.getWorkEnd(), serviceDurationInSeconds, availableTimes);
+            availableTimes.addAll(findGapSlots(cursor, workSchedule.getWorkEnd(), serviceDurationInSeconds));
         }
 
         return availableTimes;
     }
 
-    private Map<LocalDate, List<BusyInterval>> groupBusyIntervalsByDate(Professional professional,
-                                                                        AppointmentTimeWindow window,
-                                                                        SalonProfile salonProfile) {
-        return getProfessionalBusyIntervals(professional, window.start(), window.end(), salonProfile)
-                .stream()
-                .collect(Collectors.groupingBy(BusyInterval::getDate));
-    }
+    private List<LocalTime> findGapSlots(LocalTime gapStart,
+                                         LocalTime gapEnd,
+                                         int duration) {
 
-    public List<BusyInterval> getProfessionalBusyIntervals(Professional professional,
-                                                           LocalDate startRange,
-                                                           LocalDate endRange,
-                                                           SalonProfile salonProfile) {
-        ZoneId zoneId = salonProfile.getZoneId();
-        Instant instantStart = startRange.atStartOfDay(zoneId).toInstant();
-        Instant instantEnd = endRange.atStartOfDay(zoneId).toInstant();
-
-        Stream<BusyInterval> appointments = appointmentRepository
-                .findBusyAppointmentsInRange(professional.getId(), instantStart, instantEnd, List.of(CONFIRMED, FINISHED))
-                .stream()
-                .flatMap(app -> mapToDailyIntervals(app.getStartDate(), app.getEndDate(), zoneId, salonProfile.getAppointmentBufferMinutes()));
-
-        Stream<BusyInterval> blocks = scheduleBlockRepository
-                .findBusyBlocksInRange(professional.getId(), instantStart, instantEnd)
-                .stream()
-                .flatMap(block -> mapToDailyIntervals(block.getStartTime(), block.getEndTime(), zoneId, 0));
-
-        return Stream.concat(appointments, blocks)
-                .sorted(Comparator.comparing(BusyInterval::getStart))
-                .toList();
-    }
-
-    private Stream<BusyInterval> mapToDailyIntervals(Instant start, Instant end, ZoneId zoneId, int bufferMinutes) {
-        ZonedDateTime zStart = start.atZone(zoneId);
-        ZonedDateTime zEnd = end.atZone(zoneId).plusMinutes(bufferMinutes);
-
-        List<BusyInterval> intervals = new ArrayList<>();
-        LocalDate current = zStart.toLocalDate();
-        LocalDate last = zEnd.toLocalDate();
-
-        while (!current.isAfter(last)) {
-            LocalTime dailyStart = (current.equals(zStart.toLocalDate())) ? zStart.toLocalTime() : LocalTime.MIN;
-            LocalTime dailyEnd;
-
-            if (current.isBefore(last)) {
-                dailyEnd = LocalTime.MAX;
-            } else {
-                if (zEnd.toLocalTime().equals(LocalTime.MIN) && !current.equals(zStart.toLocalDate())) {
-                    break;
-                }
-                dailyEnd = zEnd.toLocalTime();
-            }
-
-            intervals.add(SimpleBusyInterval.builder()
-                    .date(current)
-                    .start(dailyStart)
-                    .end(dailyEnd)
-                    .build());
-
-            current = current.plusDays(1);
-        }
-
-        return intervals.stream();
-    }
-
-    private void processTimeSlotGaps(LocalTime gapStart,
-                                     LocalTime gapEnd,
-                                     int duration,
-                                     List<LocalTime> suggestions) {
         if (duration <= 0 || ChronoUnit.SECONDS.between(gapStart, gapEnd) < duration) {
-            return;
+            return List.of();
         }
 
+        List<LocalTime> slots = new ArrayList<>();
         LocalTime candidate = gapStart;
         while (!candidate.plusSeconds(duration).isAfter(gapEnd)) {
-            if (!suggestions.contains(candidate)) {
-                suggestions.add(candidate);
-            }
-            if (candidate.plusMinutes(TIME_SLOT_GAPS).isBefore(candidate)) {
-                break;
-            }
+            slots.add(candidate);
             candidate = candidate.plusMinutes(TIME_SLOT_GAPS);
         }
+        return slots;
     }
 
     private static Map<DayOfWeek, WorkSchedule> mapWeeklySchedulesByDay(Professional professional) {

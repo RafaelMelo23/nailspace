@@ -36,6 +36,10 @@ public abstract class User extends BaseEntity implements UserDetails {
     @GeneratedValue
     private Long id;
 
+    @Builder.Default
+    @Column(name = "deleted", nullable = false)
+    private boolean deleted = false;
+
     private String fullName;
     private String email;
     private String password;

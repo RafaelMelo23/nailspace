@@ -1,6 +1,7 @@
 package com.rafael.agendanails.webapp.application.professional;
 
 import com.rafael.agendanails.webapp.application.salon.business.SalonProfileService;
+import com.rafael.agendanails.webapp.domain.BusyIntervalService;
 import com.rafael.agendanails.webapp.domain.model.Professional;
 import com.rafael.agendanails.webapp.domain.model.ScheduleBlock;
 import com.rafael.agendanails.webapp.domain.model.UserPrincipal;
@@ -24,17 +25,24 @@ public class ProfessionalScheduleBlockUseCase {
     private final ScheduleBlockRepository repository;
     private final ProfessionalRepository professionalRepository;
     private final SalonProfileService salonProfileService;
+    private final BusyIntervalService busyIntervalService;
 
     public void createBlock(ScheduleBlockDTO blockDTO, Long professionalId) {
         Professional professional = professionalRepository.findById(professionalId)
                 .orElseThrow(() -> new BusinessException("Profissional não encontrado(a)"));
 
-        repository.save(ScheduleBlock.createBlock(blockDTO, professional));
+        ScheduleBlock block = ScheduleBlock.createBlock(blockDTO, professional);
+        repository.save(block);
+
+        busyIntervalService.evictCacheForBlock(block, salonProfileService.getSalonZoneId(professional.getTenantId()));
     }
 
     @Transactional
     public void deleteBlock(Long blockId, Long professionalId) {
-        repository.deleteByIdAndProfessionalId(blockId, professionalId);
+        repository.findById(blockId).ifPresent(block -> {
+            busyIntervalService.evictCacheForBlock(block, salonProfileService.getSalonZoneId(block.getProfessional().getTenantId()));
+            repository.deleteByIdAndProfessionalId(blockId, professionalId);
+        });
     }
 
     @Transactional(readOnly = true)

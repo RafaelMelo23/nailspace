@@ -91,7 +91,7 @@ const Auth = {
         const payload = this.getPayload();
         if (payload && payload.tenantId) return payload.tenantId;
         
-        return localStorage.getItem('nails_pro_tenant');
+        return null;
     },
 
     refreshToken: async function() {

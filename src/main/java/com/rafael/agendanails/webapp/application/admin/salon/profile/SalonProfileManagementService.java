@@ -1,13 +1,12 @@
 package com.rafael.agendanails.webapp.application.admin.salon.profile;
 
+import com.rafael.agendanails.webapp.application.salon.business.SalonProfileService;
 import com.rafael.agendanails.webapp.domain.enums.salon.OperationalStatus;
 import com.rafael.agendanails.webapp.domain.model.SalonProfile;
 import com.rafael.agendanails.webapp.domain.repository.SalonProfileRepository;
-import com.rafael.agendanails.webapp.infrastructure.config.CacheConfig;
 import com.rafael.agendanails.webapp.infrastructure.dto.admin.salon.profile.SalonProfileDTO;
 import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +17,7 @@ import java.util.function.Consumer;
 public class SalonProfileManagementService {
 
     private final SalonProfileRepository repository;
+    private final SalonProfileService salonProfileService;
 
     @Transactional(readOnly = true)
     public SalonProfileDTO getProfile(String tenantId) {
@@ -43,7 +43,6 @@ public class SalonProfileManagementService {
                 .build();
     }
 
-    @CacheEvict(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
     @Transactional
     public void updateProfile(String tenantId, SalonProfileDTO profileDTO) {
         SalonProfile salonProfile = repository.findByTenantId(tenantId)
@@ -68,7 +67,7 @@ public class SalonProfileManagementService {
 
         validateLoyalClientFeature(profileDTO);
 
-        repository.save(salonProfile);
+        salonProfileService.save(salonProfile);
     }
 
     private static void removeWarningMessageIfSalonIsOpen(SalonProfileDTO profileDTO, SalonProfile salonProfile) {

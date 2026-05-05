@@ -5,7 +5,15 @@
 [![PostgreSQL 15](https://img.shields.io/badge/PostgreSQL-15-blue?style=for-the-badge&logo=postgresql)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)](https://www.docker.com/)
 
-Plataforma SaaS multi-tenant para gestão de agendamentos e automação de retenção, desenvolvida especificamente para estúdios de unhas e salões de beleza. O sistema integra um motor de disponibilidade de alta performance com automação via WhatsApp para otimizar a operação e a fidelização de clientes.
+Plataforma SaaS multi-tenant para gestão de agendamentos 
+e automação de retenção, desenvolvida especificamente 
+para estúdios de unhas.
+O sistema integra um motor de disponibilidade 
+de alta performance com automação via WhatsApp 
+para otimizar a operação e a fidelização de clientes.
+O sistema foi desenvolvido como um MVP, a escolha de abordagens e tecnologias foi feita
+com esse propósito em mente, dimensionando as escolhas para um produto mínimo, mas também
+levando em mente futuras incrementações e mudanças de paradigma (como tornar a aplicação distribuída).
 
 ---
 
@@ -69,7 +77,7 @@ Plataforma SaaS multi-tenant para gestão de agendamentos e automação de reten
 - **Multi-Tenancy Nativa:** Isolamento rigoroso de dados em nível de repositório utilizando filtros Hibernate e Spring AOP (`TenantAspect`). A resolução de contexto suporta claims de JWT e roteamento por subdomínios.
 - **Motor de Disponibilidade:** Cálculo de slots em janelas de 30 minutos com suporte a múltiplos serviços (add-ons) e trava pessimista para evitar conflitos de reserva.
 - **Comunicação Orientada a Eventos:** Uso de `@TransactionalEventListener` e processamento assíncrono para pipelines de mensageria, garantindo que a experiência do usuário não seja afetada pelo tempo de resposta de APIs externas.
-- **Caffeine Cache:** Implementação de cache de segundo nível para a API de perfil do salão (White-Label), reduzindo a latência e o consumo de recursos ao servir configurações de marca e cores em janelas de 10 minutos.
+- **Caffeine Cache:** Implementação de cache de segundo nível para a API, reduzindo a latência e o consumo de recursos ao servir configurações do salão e horários disponíveis através de caching.
 - **Strategy Pattern para Webhooks:** Processamento modular de eventos da Evolution API, permitindo fácil extensão para novos tipos de mensagens e notificações.
 
 ### Stack
@@ -87,13 +95,13 @@ Plataforma SaaS multi-tenant para gestão de agendamentos e automação de reten
 
 ## 📊 Arquitetura de Fluxo
 
-| Origem | Destino | Meio / Protocolo | Finalidade |
-| :--- | :--- | :--- | :--- |
-| Navegador (Cliente) | Backend (Spring) | REST / SSE | Operações de interface e notificações live |
-| Backend (Spring) | PostgreSQL | Hibernate Filter | Persistência com isolamento multi-tenant |
-| Backend (Spring) | Evolution API | Webhooks / HTTP | Sincronização e disparos via WhatsApp |
-| Backend (Spring) | Sentry / Actuator | Logs Estruturados | Observabilidade e métricas de saúde |
-| Agendador (Cron) | Motor de Retenção | Spring Scheduling | Cálculo preditivo e gatilhos de mensagens |
+| Origem             | Destino           | Meio / Protocolo | Finalidade |
+|:-------------------|:------------------| :--- | :--- |
+| Navegador          | Backend           | REST / SSE | Operações de interface e notificações live |
+| Backend            | PostgreSQL        | Hibernate Filter | Persistência com isolamento multi-tenant |
+| Backend            | Evolution API     | Webhooks / HTTP | Sincronização e disparos via WhatsApp |
+| Backend            | Sentry / Actuator | Logs Estruturados | Observabilidade e métricas de saúde |
+| Agendador          | Motor de Retenção | Spring Scheduling | Cálculo preditivo e gatilhos de mensagens |
 
 ---
 

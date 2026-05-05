@@ -134,21 +134,13 @@ const App = {
         const urlTenant = getTenantIdFromUrl();
         if (urlTenant) {
             this.activeTenant = urlTenant;
-            localStorage.setItem('nails_pro_tenant', urlTenant);
             return urlTenant;
         }
 
         const tokenTenant = Auth.getTenantId();
         if (tokenTenant) {
             this.activeTenant = tokenTenant;
-            localStorage.setItem('nails_pro_tenant', tokenTenant);
             return tokenTenant;
-        }
-
-        const savedTenant = localStorage.getItem('nails_pro_tenant');
-        if (savedTenant) {
-            this.activeTenant = savedTenant;
-            return savedTenant;
         }
 
         return null;

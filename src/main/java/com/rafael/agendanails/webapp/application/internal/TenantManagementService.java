@@ -1,12 +1,11 @@
 package com.rafael.agendanails.webapp.application.internal;
 
+import com.rafael.agendanails.webapp.application.salon.business.SalonProfileService;
 import com.rafael.agendanails.webapp.domain.enums.appointment.TenantStatus;
 import com.rafael.agendanails.webapp.domain.repository.SalonProfileRepository;
-import com.rafael.agendanails.webapp.infrastructure.config.CacheConfig;
 import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
 import com.rafael.agendanails.webapp.shared.tenant.IgnoreTenantFilter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,14 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class TenantManagementService {
 
     private final SalonProfileRepository salonProfileRepository;
+    private final SalonProfileService salonProfileService;
 
-    @CacheEvict(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
     @Transactional
     public boolean updateTenantStatus(String tenantId, TenantStatus status) {
         return salonProfileRepository.findByTenantId(tenantId)
                 .map(salon -> {
                     salon.setTenantStatus(status);
-                    salonProfileRepository.save(salon);
+                    salonProfileService.save(salon);
                     return true;
                 })
                 .orElseThrow(() -> new BusinessException("Tenant não encontrado."));

@@ -18,17 +18,25 @@ import java.util.Optional;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, Long>, JpaSpecificationExecutor<Appointment> {
 
-    @Query("SELECT ap FROM Appointment ap WHERE ap.client.id = :id")
+    @Query(value = """
+            SELECT ap
+            FROM Appointment ap
+            LEFT JOIN FETCH ap.professional
+            LEFT JOIN FETCH ap.mainSalonService
+            WHERE ap.client.id = :id
+            """,
+            countQuery = "SELECT COUNT(ap) FROM Appointment ap WHERE ap.client.id = :id")
     Page<Appointment> getClientAppointmentsById(@Param("id") Long id, Pageable pageable);
 
-    @Query("""
+    @Query(value = """
             SELECT a
             FROM Appointment a
             LEFT JOIN FETCH a.mainSalonService
-            LEFT JOIN FETCH a.addOns
             LEFT JOIN FETCH a.professional
+            LEFT JOIN FETCH a.client
             WHERE a.client.id = :userId
-            """)
+            """,
+            countQuery = "SELECT COUNT(a) FROM Appointment a WHERE a.client.id = :userId")
     Page<Appointment> findByClientId(@Param("userId") Long userId, Pageable pageable);
 
     @Query("""

@@ -28,13 +28,25 @@ public interface WhatsappMessageRepository extends JpaRepository<WhatsappMessage
 
     @IgnoreTenantFilter
     @Query("""
-    SELECT wm FROM WhatsappMessage wm
+    SELECT wm.appointment.id FROM WhatsappMessage wm
     WHERE wm.attempts <= :maxRetries
     AND wm.messageStatus = :status
-    AND wm.messageType = :type""")
-    List<WhatsappMessage> findRetriableMessages(@Param("maxRetries") int maxRetries,
-                                                @Param("status") WhatsappMessageStatus status,
-                                                @Param("type") WhatsappMessageType type);
+    AND wm.messageType = :type
+    AND wm.appointment IS NOT NULL""")
+    List<Long> findRetriableAppointmentIds(@Param("maxRetries") int maxRetries,
+                                           @Param("status") WhatsappMessageStatus status,
+                                           @Param("type") WhatsappMessageType type);
+
+    @IgnoreTenantFilter
+    @Query("""
+    SELECT wm.retentionForecast.id FROM WhatsappMessage wm
+    WHERE wm.attempts <= :maxRetries
+    AND wm.messageStatus = :status
+    AND wm.messageType = :type
+    AND wm.retentionForecast IS NOT NULL""")
+    List<Long> findRetriableRetentionForecastIds(@Param("maxRetries") int maxRetries,
+                                                 @Param("status") WhatsappMessageStatus status,
+                                                 @Param("type") WhatsappMessageType type);
 
     Optional<WhatsappMessage> findByAppointmentIdAndMessageType(Long appointmentId, WhatsappMessageType type);
 

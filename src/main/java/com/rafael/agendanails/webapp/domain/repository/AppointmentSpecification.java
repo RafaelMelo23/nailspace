@@ -39,6 +39,17 @@ public class AppointmentSpecification {
         );
     }
 
+    public static Specification<Appointment> fetchSummaryRelationships() {
+        return (root, query, cb) -> {
+            if (Long.class != query.getResultType()) {
+                root.fetch("client", JoinType.LEFT);
+                root.fetch("professional", JoinType.LEFT);
+                root.fetch("mainSalonService", JoinType.LEFT);
+            }
+            return null;
+        };
+    }
+
     public static Specification<Appointment> fetchRelationships() {
         return (root, query, cb) -> {
             if (Long.class != query.getResultType()) {

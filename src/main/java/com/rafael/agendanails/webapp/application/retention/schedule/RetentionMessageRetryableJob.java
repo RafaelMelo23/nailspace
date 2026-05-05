@@ -1,7 +1,6 @@
 package com.rafael.agendanails.webapp.application.retention.schedule;
 
 import com.rafael.agendanails.webapp.application.retention.VisitPredictionService;
-import com.rafael.agendanails.webapp.domain.model.WhatsappMessage;
 import com.rafael.agendanails.webapp.domain.repository.WhatsappMessageRepository;
 import com.rafael.agendanails.webapp.shared.tenant.IgnoreTenantFilter;
 import lombok.RequiredArgsConstructor;
@@ -25,14 +24,9 @@ public class RetentionMessageRetryableJob {
     public void retryFailedRetentionMessages() {
         final int MAX_RETRIES = 3;
 
-        List<WhatsappMessage> messages =
-                messageRepository.findRetriableMessages(MAX_RETRIES, FAILED, RETENTION_MAINTENANCE);
+        List<Long> retentionForecastIds =
+                messageRepository.findRetriableRetentionForecastIds(MAX_RETRIES, FAILED, RETENTION_MAINTENANCE);
 
-        messages.forEach(message -> {
-            if (message.getRetentionForecast() == null) {
-                return;
-            }
-            visitPredictionService.sendRetentionMaintenanceMessage(message.getRetentionForecast().getId());
-        });
+        retentionForecastIds.forEach(visitPredictionService::sendRetentionMaintenanceMessage);
     }
 }

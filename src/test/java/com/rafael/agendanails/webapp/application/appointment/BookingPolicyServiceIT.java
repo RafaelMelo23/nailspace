@@ -4,7 +4,8 @@ import com.rafael.agendanails.webapp.application.appointment.booking.BookingPoli
 import com.rafael.agendanails.webapp.domain.enums.appointment.AppointmentStatus;
 import com.rafael.agendanails.webapp.domain.model.UserPrincipal;
 import com.rafael.agendanails.webapp.infrastructure.dto.appointment.booking.AppointmentTimeWindow;
-import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
+
+import com.rafael.agendanails.webapp.infrastructure.exception.TenantNotFoundException;
 import com.rafael.agendanails.webapp.shared.tenant.TenantContext;
 import com.rafael.agendanails.webapp.support.BaseIntegrationTest;
 import com.rafael.agendanails.webapp.support.TestClockConfig;
@@ -74,7 +75,7 @@ class BookingPolicyServiceIT extends BaseIntegrationTest {
                 .build();
 
         var bookingDate = Instant.now(clock).plus(3, ChronoUnit.DAYS);
-        assertThrows(BusinessException.class,
+        assertThrows(TenantNotFoundException.class,
                 () -> bookingPolicyService.enforceBookingHorizon(
                         LocalDateTime.ofInstant(bookingDate, ZoneId.of("America/Sao_Paulo")),
                         principal));

@@ -29,7 +29,7 @@ public class AppointmentAuditService {
     public Page<AdminUserAppointmentDTO> searchAppointments(Long professionalId, AppointmentStatus status, LocalDate date, Pageable pageable) {
         ZoneId salonZoneId = salonProfileService.getSalonZoneIdByContext();
 
-        Specification<Appointment> spec = AppointmentSpecification.fetchRelationships()
+        Specification<Appointment> spec = AppointmentSpecification.fetchSummaryRelationships()
                 .and(AppointmentSpecification.withProfessionalId(professionalId))
                 .and(AppointmentSpecification.withStatus(status))
                 .and(AppointmentSpecification.withDate(date, salonZoneId));

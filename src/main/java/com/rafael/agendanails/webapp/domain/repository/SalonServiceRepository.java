@@ -19,9 +19,9 @@ public interface SalonServiceRepository extends JpaRepository<SalonService, Long
     void changeSalonServiceVisibility(@Param("id") Long id,
                                       @Param("active") Boolean active);
 
-    @Query("SELECT ss FROM SalonService ss WHERE ss.active = TRUE")
+    @Query("SELECT DISTINCT ss FROM SalonService ss LEFT JOIN FETCH ss.professionals WHERE ss.active = TRUE")
     Set<SalonService> findAllServices();
 
-    @Query("SELECT ss FROM SalonService ss")
+    @Query("SELECT DISTINCT ss FROM SalonService ss LEFT JOIN FETCH ss.professionals")
     List<SalonService> findAllWithInactive();
 }

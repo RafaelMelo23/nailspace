@@ -1,7 +1,6 @@
 package com.rafael.agendanails.webapp.application.appointment.message.schedule;
 
 import com.rafael.agendanails.webapp.application.appointment.message.AppointmentMessagingUseCase;
-import com.rafael.agendanails.webapp.domain.model.WhatsappMessage;
 import com.rafael.agendanails.webapp.domain.repository.WhatsappMessageRepository;
 import com.rafael.agendanails.webapp.shared.tenant.IgnoreTenantFilter;
 import lombok.RequiredArgsConstructor;
@@ -28,11 +27,11 @@ public class AppointmentConfirmationRetryableJob {
     public void retryFailedConfirmationMessages() {
         final int MAX_RETRIES = 3;
         try {
-            List<WhatsappMessage> messages =
-                    messageRepository.findRetriableMessages(MAX_RETRIES, FAILED, CONFIRMATION);
+            List<Long> appointmentIds =
+                    messageRepository.findRetriableAppointmentIds(MAX_RETRIES, FAILED, CONFIRMATION);
 
-            messages.forEach(message ->
-                    messagingUseCase.processNotification(message.getAppointment().getId(), CONFIRMATION));
+            appointmentIds.forEach(appointmentId ->
+                    messagingUseCase.processNotification(appointmentId, CONFIRMATION));
         } catch (Exception e) {
             log.error("Failed to batch process failed confirmation messages");
         }

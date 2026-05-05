@@ -38,7 +38,7 @@ public class AppointmentMessagingUseCase {
             var messageBody = buildMessage(appointment, type);
 
             SentMessageResult sentMessageResult = dispatchMessage(
-                    message.getAppointment().getTenantId(),
+                    appointment.getTenantId(),
                     messageBody,
                     message.getDestinationNumber()
             );

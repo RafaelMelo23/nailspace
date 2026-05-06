@@ -42,7 +42,7 @@ public class ProfessionalWorkScheduleController {
     public ResponseEntity<Set<WorkScheduleRecordDTO>> getSchedules(@AuthenticationPrincipal
                                                                        UserPrincipal userPrincipal) {
 
-        return ResponseEntity.ok(professionalWorkScheduleUseCase.getWorkSchedules(userPrincipal.getUserId()));
+        return ResponseEntity.ok(professionalWorkScheduleUseCase.getWorkSchedules(userPrincipal.getId()));
     }
 
     @Operation(summary = "Create work schedules", description = "Creates work schedules for the professional.")
@@ -62,7 +62,7 @@ public class ProfessionalWorkScheduleController {
     public ResponseEntity<List<WorkSchedule>> createWorkSchedule(@Valid @RequestBody List<WorkScheduleRecordDTO> workScheduleRecordDTO,
                                                                 @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        return ResponseEntity.ok(professionalWorkScheduleUseCase.createSchedules(workScheduleRecordDTO, userPrincipal.getUserId()));
+        return ResponseEntity.ok(professionalWorkScheduleUseCase.createSchedules(workScheduleRecordDTO, userPrincipal.getId()));
     }
 
     @Operation(summary = "Modify work schedules", description = "Modifies the professional's weekly schedule.")
@@ -82,7 +82,7 @@ public class ProfessionalWorkScheduleController {
     public ResponseEntity<Void> modifySchedules(@Valid @RequestBody List<WorkScheduleRecordDTO> workScheduleRecordDTO,
                                                 @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        professionalWorkScheduleUseCase.modifyWeekSchedule(workScheduleRecordDTO, userPrincipal.getUserId());
+        professionalWorkScheduleUseCase.modifyWeekSchedule(workScheduleRecordDTO, userPrincipal.getId());
         return ResponseEntity.noContent().build();
     }
 
@@ -99,7 +99,7 @@ public class ProfessionalWorkScheduleController {
                                                @PathVariable Long scheduleId,
                                                @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        professionalWorkScheduleUseCase.deleteSchedule(scheduleId, userPrincipal.getUserId());
+        professionalWorkScheduleUseCase.deleteSchedule(scheduleId, userPrincipal.getId());
         return ResponseEntity.noContent().build();
     }
 }

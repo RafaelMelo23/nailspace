@@ -40,7 +40,7 @@ public class BookingContextLoader {
                 .map(s -> AppointmentAddOn.create(s, professional))
                 .toList();
 
-        Client client = clientRepository.findById(principal.getUserId())
+        Client client = clientRepository.findById(principal.getId())
                 .orElseThrow(() -> new BusinessException("Cliente não encontrado"));
         client.validateCanBook();
 

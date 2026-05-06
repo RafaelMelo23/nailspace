@@ -28,7 +28,7 @@ public class ClientController {
                                                                         direction = Sort.Direction.DESC)
                                                                 Pageable pageable) {
         return ResponseEntity.ok(
-                clientAppointmentAuditingUseCase.getClientsAppointments(userPrincipal.getUserId(), pageable)
+                clientAppointmentAuditingUseCase.getClientsAppointments(userPrincipal.getId(), pageable)
         );
     }
 }

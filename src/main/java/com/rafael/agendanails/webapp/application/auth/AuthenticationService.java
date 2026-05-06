@@ -1,32 +1,18 @@
 package com.rafael.agendanails.webapp.application.auth;
 
-import com.rafael.agendanails.webapp.domain.enums.user.UserRole;
 import com.rafael.agendanails.webapp.domain.enums.user.UserStatus;
 import com.rafael.agendanails.webapp.domain.model.Client;
-import com.rafael.agendanails.webapp.domain.model.RefreshToken;
-import com.rafael.agendanails.webapp.domain.model.User;
 import com.rafael.agendanails.webapp.domain.repository.ClientRepository;
 import com.rafael.agendanails.webapp.domain.repository.UserRepository;
-import com.rafael.agendanails.webapp.infrastructure.dto.auth.AuthResultDTO;
-import com.rafael.agendanails.webapp.infrastructure.dto.auth.LoginDTO;
 import com.rafael.agendanails.webapp.infrastructure.dto.auth.RegisterDTO;
-import com.rafael.agendanails.webapp.infrastructure.dto.auth.TokenRefreshResponseDTO;
-import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
-import com.rafael.agendanails.webapp.infrastructure.exception.LoginException;
-import com.rafael.agendanails.webapp.infrastructure.exception.TokenRefreshException;
 import com.rafael.agendanails.webapp.infrastructure.exception.UserAlreadyExistsException;
-import com.rafael.agendanails.webapp.infrastructure.security.token.JwtTokenService;
 import com.rafael.agendanails.webapp.infrastructure.security.token.RefreshTokenService;
 import com.rafael.agendanails.webapp.shared.tenant.IgnoreTenantFilter;
-import com.rafael.agendanails.webapp.shared.tenant.TenantContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
-import static com.rafael.agendanails.webapp.domain.enums.user.UserStatus.BANNED;
 import static com.rafael.agendanails.webapp.infrastructure.helper.PhoneNumberHelper.formatPhoneNumber;
 
 @Service
@@ -36,7 +22,6 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final ClientRepository clientRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenService jwtTokenService;
     private final RefreshTokenService refreshTokenService;
 
     @Transactional
@@ -69,77 +54,7 @@ public class AuthenticationService {
 
     @Transactional
     @IgnoreTenantFilter
-    public AuthResultDTO login(LoginDTO loginDTO) {
-        Optional<User> userOptional = userRepository.findByEmailIgnoreCase(loginDTO.email());
-        User user;
-
-        if (userOptional.isPresent()) {
-            user = userOptional.get();
-
-            checkUserPassword(loginDTO, user);
-            checkUserStatus(user);
-            checkUsersTenant(user);
-        } else {
-            passwordEncoder.matches(loginDTO.password(), "$2a$12$p1DeDmHwMBRxNGAJ7II9JefEvHnrPDxCw72YF0nh1Modhwv67y1hK");
-            throw new BusinessException("Os dados informados são inválidos");
-        }
-
-        String jwt = jwtTokenService.generateAuthToken(user);
-        String refresh = refreshTokenService.createRefreshToken(user).getToken();
-
-        return AuthResultDTO.builder()
-                .jwtToken(jwt)
-                .refreshToken(refresh).build();
-    }
-
-    protected static void checkUsersTenant(User user) {
-        if (user.getUserRole().equals(UserRole.SUPER_ADMIN)) return;
-
-        String currentTenant = TenantContext.getTenant();
-        if (currentTenant != null && !user.getTenantId().equals(currentTenant)) {
-            throw new LoginException("Acesso negado para este estabelecimento.");
-        }
-    }
-
-    void checkUserPassword(LoginDTO loginDTO, User user) {
-        if (!passwordEncoder.matches(loginDTO.password(), user.getPassword())) {
-            throw new BusinessException("Os dados informados são inválidos");
-        }
-    }
-
-    protected static void checkUserStatus(User user) {
-        if (user.getStatus().equals(BANNED)) {
-            throw new LoginException("Você foi banido deste estabelecimento");
-        }
-    }
-
-    @Transactional
-    @IgnoreTenantFilter
     public void logout(String refreshToken, Long userId) {
         refreshTokenService.revokeUserToken(refreshToken, userId);
-    }
-
-    @Transactional(noRollbackFor = TokenRefreshException.class)
-    @IgnoreTenantFilter
-    public TokenRefreshResponseDTO refreshToken(String refreshToken) {
-        return refreshTokenService.findByToken(refreshToken)
-                .map(token -> {
-                    if (token.isRevoked()) {
-                        refreshTokenService.revokeAllForUser(token.getUser().getId());
-                        throw new TokenRefreshException("Este token já foi utilizado.");
-                    }
-                    return token;
-                })
-                .map(refreshTokenService::verifyExpiration)
-                .map(token -> {
-                    User user = token.getUser();
-                    token.setRevoked(true);
-
-                    RefreshToken newRefresh = refreshTokenService.createRefreshTokenWithExpiry(user, token.getExpiryDate());
-                    String newJwt = jwtTokenService.generateAuthToken(user);
-
-                    return new TokenRefreshResponseDTO(newJwt, newRefresh.getToken());
-                })
-                .orElseThrow(() -> new TokenRefreshException("Token não encontrado"));
     }
 }

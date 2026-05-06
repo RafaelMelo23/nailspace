@@ -46,7 +46,7 @@ class BookingPolicyServiceIT extends BaseIntegrationTest {
 
         var client = clientRepository.save(TestClientFactory.standardForIt());
         var principal = UserPrincipal.builder()
-                .userId(client.getId())
+                .id(client.getId())
                 .userRole(client.getEffectiveRoles())
                 .email(client.getEmail())
                 .tenantId(client.getTenantId())
@@ -68,7 +68,7 @@ class BookingPolicyServiceIT extends BaseIntegrationTest {
         TenantContext.setTenant("tenant-test");
         var client = clientRepository.save(TestClientFactory.standardForIt("tenant-test"));
         var principal = UserPrincipal.builder()
-                .userId(client.getId())
+                .id(client.getId())
                 .userRole(client.getEffectiveRoles())
                 .email(client.getEmail())
                 .tenantId(client.getTenantId())
@@ -89,7 +89,7 @@ class BookingPolicyServiceIT extends BaseIntegrationTest {
 
         var client = clientRepository.save(TestClientFactory.standardForIt());
         var principal = UserPrincipal.builder()
-                .userId(client.getId())
+                .id(client.getId())
                 .userRole(client.getEffectiveRoles())
                 .email(client.getEmail())
                 .tenantId(client.getTenantId())
@@ -105,7 +105,7 @@ class BookingPolicyServiceIT extends BaseIntegrationTest {
                 service,
                 AppointmentStatus.FINISHED));
 
-        AppointmentTimeWindow result = bookingPolicyService.calculateAllowedWindow(List.of(service), principal.getTenantId(), principal.getUserId());
+        AppointmentTimeWindow result = bookingPolicyService.calculateAllowedWindow(List.of(service), principal.getTenantId(), principal.getId());
 
         LocalDate expectedStart = LocalDate.ofInstant(
                 app.getEndDate().plus(service.getMaintenanceIntervalDays() - 3, ChronoUnit.DAYS),

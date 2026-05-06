@@ -47,7 +47,7 @@ public class ProfessionalScheduleBlockUseCase {
 
     @Transactional(readOnly = true)
     public List<ScheduleBlockOutDTO> getBlocks(UserPrincipal principal, ZonedDateTime from) {
-        return getBlocks(principal.getUserId(), principal.getTenantId(), from);
+        return getBlocks(principal.getId(), principal.getTenantId(), from);
     }
 
     @Transactional(readOnly = true)

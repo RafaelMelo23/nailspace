@@ -60,7 +60,7 @@ public class UserStatusInterceptorTest {
                 .email(activeClient.getEmail())
                 .tenantId(activeClient.getTenantId())
                 .userRole(List.of(activeClient.getUserRole()))
-                .userId(activeClient.getId()).build();
+                .id(activeClient.getId()).build();
 
         var authentication = new UsernamePasswordAuthenticationToken(
                 userPrincipal,
@@ -87,7 +87,7 @@ public class UserStatusInterceptorTest {
                 .email(activeClient.getEmail())
                 .tenantId(activeClient.getTenantId())
                 .userRole(List.of(activeClient.getUserRole()))
-                .userId(activeClient.getId()).build();
+                .id(activeClient.getId()).build();
 
         var authentication = new UsernamePasswordAuthenticationToken(
                 userPrincipal,

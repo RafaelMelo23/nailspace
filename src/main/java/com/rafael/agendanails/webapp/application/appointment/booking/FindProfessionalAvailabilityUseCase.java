@@ -42,7 +42,7 @@ public class FindProfessionalAvailabilityUseCase {
                 .orElseThrow(() -> new BusinessException("Professional not found"));
 
         String tenantId = professional.getTenantId();
-        Long userId = userPrincipal != null ? userPrincipal.getUserId() : null;
+        Long userId = userPrincipal != null ? userPrincipal.getId() : null;
 
         log.debug("Searching availability: Professional={}, Client={}", dto.professionalExternalId(), userId);
 

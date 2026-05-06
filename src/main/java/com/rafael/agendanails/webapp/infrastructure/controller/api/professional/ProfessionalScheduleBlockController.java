@@ -23,7 +23,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -53,7 +52,7 @@ public class ProfessionalScheduleBlockController {
     public ResponseEntity<Void> createBlock(@Valid @RequestBody ScheduleBlockDTO blockDTO,
                                             @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        professionalScheduleBlockUseCase.createBlock(blockDTO, userPrincipal.getUserId());
+        professionalScheduleBlockUseCase.createBlock(blockDTO, userPrincipal.getId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -69,7 +68,7 @@ public class ProfessionalScheduleBlockController {
                                             @PathVariable @Positive(message = "O identificador do bloqueio deve ser positivo") Long blockId,
                                             @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        professionalScheduleBlockUseCase.deleteBlock(blockId, userPrincipal.getUserId());
+        professionalScheduleBlockUseCase.deleteBlock(blockId, userPrincipal.getId());
         return ResponseEntity.noContent().build();
     }
 

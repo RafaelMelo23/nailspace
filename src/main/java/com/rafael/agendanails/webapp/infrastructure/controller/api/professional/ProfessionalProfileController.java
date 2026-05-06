@@ -49,7 +49,7 @@ public class ProfessionalProfileController {
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @Valid @RequestBody UpdateProfilePictureDTO dto
     ) throws IOException {
-        profileService.updateProfilePicture(userPrincipal.getUserId(), dto.pictureBase64());
+        profileService.updateProfilePicture(userPrincipal.getId(), dto.pictureBase64());
         return ResponseEntity.noContent().build();
     }
 }

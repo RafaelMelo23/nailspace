@@ -5,6 +5,8 @@ import com.rafael.agendanails.webapp.domain.model.UserPrincipal;
 import com.rafael.agendanails.webapp.infrastructure.config.SwaggerExamples;
 import com.rafael.agendanails.webapp.infrastructure.dto.auth.*;
 import com.rafael.agendanails.webapp.infrastructure.security.token.CookieService;
+import com.rafael.agendanails.webapp.infrastructure.security.token.JwtTokenService;
+import com.rafael.agendanails.webapp.infrastructure.security.token.RefreshTokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -21,6 +23,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +41,11 @@ import java.util.Optional;
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenService jwtTokenService;
+    private final RefreshTokenService refreshTokenService;
     private final CookieService cookieService;
+    private final org.springframework.security.core.userdetails.UserDetailsService userDetailsService;
 
     @Operation(
             summary = "Login",
@@ -56,13 +65,19 @@ public class AuthenticationController {
     )
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginDTO loginDTO,
-                                        HttpServletResponse response) {
+                                                  HttpServletResponse response) {
 
-        AuthResultDTO authResultDTO = authenticationService.login(loginDTO);
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginDTO.email(), loginDTO.password()));
 
-        cookieService.addRefreshTokenCookie(response, authResultDTO.refreshToken());
+        var user = (UserPrincipal) authentication.getPrincipal();
 
-        return ResponseEntity.ok(new LoginResponseDTO(authResultDTO.jwtToken()));
+        String jwtToken = jwtTokenService.generateAuthToken(user);
+        String refreshToken = refreshTokenService.createRefreshToken(user.getId()).getToken();
+
+        cookieService.addRefreshTokenCookie(response, refreshToken);
+
+        return ResponseEntity.ok(new LoginResponseDTO(jwtToken));
     }
 
     @Operation(
@@ -84,7 +99,7 @@ public class AuthenticationController {
                     .findFirst();
 
             if (refreshToken.isPresent()) {
-                Long userId = userPrincipal != null ? userPrincipal.getUserId() : null;
+                Long userId = userPrincipal != null ? userPrincipal.getId() : null;
                 authenticationService.logout(refreshToken.get().getValue(), userId);
                 cookieService.deleteRefreshTokenCookie(response);
             }
@@ -128,13 +143,18 @@ public class AuthenticationController {
     @PostMapping("/refresh")
     public ResponseEntity<String> refresh(
             @Parameter(in = ParameterIn.COOKIE, name = "refresh_token", required = true, example = "refresh-token-exemplo")
-            @CookieValue(name = "refresh_token") String refreshToken,
-                                          HttpServletResponse response) {
+            @CookieValue(name = "refresh_token")
+            String refreshToken,
+            HttpServletResponse response) {
 
-        TokenRefreshResponseDTO tokenRefreshResponseDTO = authenticationService.refreshToken(refreshToken);
+        var rotatedToken = refreshTokenService.rotateAndGetRefreshToken(refreshToken);
+        
+        var principal = (UserPrincipal) userDetailsService.loadUserByUsername(rotatedToken.getUser().getEmail());
 
-        cookieService.addRefreshTokenCookie(response, tokenRefreshResponseDTO.refreshToken());
+        String newJwtToken = jwtTokenService.generateAuthToken(principal);
 
-        return ResponseEntity.ok(tokenRefreshResponseDTO.jwtToken());
+        cookieService.addRefreshTokenCookie(response, rotatedToken.getToken());
+
+        return ResponseEntity.ok(newJwtToken);
     }
 }

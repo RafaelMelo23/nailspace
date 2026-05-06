@@ -24,7 +24,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -48,7 +47,7 @@ class BookingAppointmentUseCaseIT extends BaseIntegrationTest {
                 TestClientFactory.standardForIt()
         );
         this.principal = UserPrincipal.builder()
-                .userId(client.getId())
+                .id(client.getId())
                 .email(client.getEmail())
                 .tenantId(tenantId)
                 .userRole(List.of(UserRole.CLIENT))
@@ -180,7 +179,7 @@ class BookingAppointmentUseCaseIT extends BaseIntegrationTest {
 
         Client client2 = clientRepository.save(TestClientFactory.standardForIt());
         UserPrincipal principal2 = UserPrincipal.builder()
-                .userId(client2.getId())
+                .id(client2.getId())
                 .email(client2.getEmail())
                 .tenantId(tenantId)
                 .userRole(List.of(UserRole.CLIENT))

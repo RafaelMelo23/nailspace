@@ -24,7 +24,7 @@ public class SentryUserProviderImpl implements SentryUserProvider {
             if (principal instanceof UserPrincipal userPrincipal) {
                 User user = new User();
 
-                user.setId(String.valueOf(userPrincipal.getUserId()));
+                user.setId(String.valueOf(userPrincipal.getId()));
                 user.setEmail(userPrincipal.getEmail());
 
                 Map<String, String> data = new HashMap<>();

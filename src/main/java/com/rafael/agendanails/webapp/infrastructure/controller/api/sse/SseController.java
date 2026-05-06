@@ -35,7 +35,7 @@ public class SseController {
     })
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribe(@AuthenticationPrincipal UserPrincipal principal) {
-        Long userId = principal.getUserId();
+        Long userId = principal.getId();
 
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
 

@@ -74,7 +74,7 @@ public class ClientBookingController {
                                                   @PathVariable Long appointmentId,
                                                   @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        cancelAppointmentUseCase.cancelAppointment(appointmentId, userPrincipal.getUserId());
+        cancelAppointmentUseCase.cancelAppointment(appointmentId, userPrincipal.getId());
         return ResponseEntity.noContent().build();
     }
 

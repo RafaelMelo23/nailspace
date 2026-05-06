@@ -8,8 +8,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.rafael.agendanails.webapp.domain.enums.security.TokenClaim;
 import com.rafael.agendanails.webapp.domain.enums.security.TokenPurpose;
-import com.rafael.agendanails.webapp.domain.model.Professional;
-import com.rafael.agendanails.webapp.domain.model.User;
+import com.rafael.agendanails.webapp.domain.model.UserPrincipal;
 import com.rafael.agendanails.webapp.infrastructure.dto.auth.ResetPasswordDTO;
 import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
 import jakarta.servlet.ServletRequest;
@@ -27,22 +26,22 @@ public class JwtTokenService {
 
     @Value("${api.security.jwt.secret}")
     private String secret;
-    private static final String ISSUER_CLAIM = "agendanails-api";
+    private static final String ISSUER_CLAIM = "nailspace-api";
 
-    public String generateAuthToken(User user) {
+    public String generateAuthToken(UserPrincipal user) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
 
             boolean isFirstLogin = false;
-            if (user instanceof Professional prof) {
-                isFirstLogin = prof.getIsFirstLogin();
+            if (user.isProfessional()) {
+                isFirstLogin = user.isFirstLogin();
             }
 
             return JWT.create()
                     .withIssuer(ISSUER_CLAIM)
                     .withSubject(user.getId().toString())
                     .withClaim(TokenClaim.EMAIL.getValue(), user.getEmail())
-                    .withClaim(TokenClaim.ROLE.getValue(), user.getEffectiveRoles()
+                    .withClaim(TokenClaim.ROLE.getValue(), user.getUserRole()
                             .stream()
                             .map(Enum::name)
                             .toList())

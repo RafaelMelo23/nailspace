@@ -31,7 +31,7 @@ import java.util.List;
                         name = "uk_professional_external_id_per_tenant",
                         columnNames = {"tenant_id", "external_id"})
         })
-public abstract class User extends BaseEntity implements UserDetails {
+public abstract class User extends BaseEntity {
     @Id
     @GeneratedValue
     private Long id;
@@ -56,11 +56,6 @@ public abstract class User extends BaseEntity implements UserDetails {
         super.prePersist();
     }
 
-    @Override
-    public String getUsername() {
-        return this.email;
-    }
-
     public List<UserRole> getEffectiveRoles() {
         return switch (this.userRole) {
             case SUPER_ADMIN -> List.of(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.PROFESSIONAL);
@@ -68,43 +63,5 @@ public abstract class User extends BaseEntity implements UserDetails {
             case PROFESSIONAL -> List.of(UserRole.PROFESSIONAL);
             case CLIENT -> List.of(UserRole.CLIENT);
         };
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-
-        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-
-        authorities.add(new SimpleGrantedAuthority("ROLE_" + userRole.name()));
-
-        if (userRole == UserRole.SUPER_ADMIN) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-            authorities.add(new SimpleGrantedAuthority("ROLE_PROFESSIONAL"));
-        } else if (userRole == UserRole.ADMIN) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_PROFESSIONAL"));
-        }
-        return authorities;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
     }
 }

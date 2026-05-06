@@ -101,7 +101,7 @@ class ProfessionalScheduleBlockUseCaseIT extends BaseIntegrationTest {
 
         TenantContext.setTenant("tenant-test");
         UserPrincipal principal = UserPrincipal.builder()
-                .userId(professional.getId())
+                .id(professional.getId())
                 .tenantId("tenant-test")
                 .email(professional.getEmail())
                 .userRole(professional.getEffectiveRoles())

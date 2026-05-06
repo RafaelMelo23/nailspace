@@ -6,11 +6,9 @@ import com.rafael.agendanails.webapp.domain.model.UserPrincipal;
 import com.rafael.agendanails.webapp.infrastructure.config.SwaggerExamples;
 import com.rafael.agendanails.webapp.infrastructure.dto.auth.ChangeEmailRequestDTO;
 import com.rafael.agendanails.webapp.infrastructure.dto.auth.ChangePhoneRequestDTO;
-import com.rafael.agendanails.webapp.infrastructure.dto.auth.ResetPasswordDTO;
 import com.rafael.agendanails.webapp.infrastructure.dto.user.profile.ChangePasswordRequestDTO;
 import com.rafael.agendanails.webapp.infrastructure.dto.user.profile.UserProfileDto;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,8 +17,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -44,7 +40,7 @@ public class UserController {
     })
     @GetMapping
     public ResponseEntity<UserProfileDto> getProfile(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        return ResponseEntity.ok(userService.getProfile(userPrincipal.getUserId()));
+        return ResponseEntity.ok(userService.getProfile(userPrincipal.getId()));
     }
 
     @Operation(summary = "Update email", description = "Updates the authenticated user's email.")
@@ -63,7 +59,7 @@ public class UserController {
     public ResponseEntity<Void> updateEmail(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                             @Valid @RequestBody ChangeEmailRequestDTO dto) {
 
-        userService.updateEmail(userPrincipal.getUserId(), dto);
+        userService.updateEmail(userPrincipal.getId(), dto);
         return ResponseEntity.noContent().build();
     }
 
@@ -83,7 +79,7 @@ public class UserController {
     public ResponseEntity<Void> updatePhone(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                             @Valid @RequestBody ChangePhoneRequestDTO dto) {
 
-        userService.updatePhone(userPrincipal.getUserId(), dto);
+        userService.updatePhone(userPrincipal.getId(), dto);
         return ResponseEntity.noContent().build();
     }
 
@@ -95,7 +91,7 @@ public class UserController {
     @PatchMapping("/password")
     public ResponseEntity<Void> changePassword(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                @RequestBody ChangePasswordRequestDTO dto) {
-        userService.changePassword(userPrincipal.getUserId(), dto.email(), dto.newPassword());
+        userService.changePassword(userPrincipal.getId(), dto.email(), dto.newPassword());
         return ResponseEntity.noContent().build();
     }
 }

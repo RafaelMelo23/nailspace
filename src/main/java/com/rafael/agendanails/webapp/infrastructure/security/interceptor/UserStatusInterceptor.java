@@ -6,7 +6,6 @@ import com.rafael.agendanails.webapp.domain.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -25,7 +24,7 @@ public class UserStatusInterceptor implements HandlerInterceptor {
         if (authentication != null && authentication.isAuthenticated() &&
                 authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
 
-            boolean isUserBanned = userRepository.existsByIdAndStatus(userPrincipal.getUserId(), UserStatus.BANNED);
+            boolean isUserBanned = userRepository.existsByIdAndStatus(userPrincipal.getId(), UserStatus.BANNED);
 
             if (isUserBanned) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

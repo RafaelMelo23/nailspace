@@ -33,7 +33,7 @@ public class BookingPolicyService {
             return;
         }
 
-        boolean isLoyalClient = isClientLoyal(userPrincipal.getUserId());
+        boolean isLoyalClient = isClientLoyal(userPrincipal.getId());
 
         int allowedDays = bookingPolicy.resolveAllowedWindowDays(
                 profile.isLoyalClientelePrioritized(),

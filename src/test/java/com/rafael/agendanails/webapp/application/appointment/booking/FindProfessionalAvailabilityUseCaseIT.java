@@ -70,7 +70,7 @@ class FindProfessionalAvailabilityUseCaseIT extends BaseIntegrationTest {
 
         Client client = clientRepository.save(TestClientFactory.standardForIt(tenantId));
         UserPrincipal principal = UserPrincipal.builder()
-                .userId(client.getId())
+                .id(client.getId())
                 .tenantId(tenantId)
                 .userRole(List.of(client.getUserRole()))
                 .email(client.getEmail())

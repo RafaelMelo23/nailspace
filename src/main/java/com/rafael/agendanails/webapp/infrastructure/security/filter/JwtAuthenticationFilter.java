@@ -71,7 +71,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     }
 
                     UserPrincipal userPrincipal = UserPrincipal.builder()
-                            .userId(userId)
+                            .id(userId)
                             .email(userEmail)
                             .userRole(userRoles)
                             .tenantId(tokenTenantId)

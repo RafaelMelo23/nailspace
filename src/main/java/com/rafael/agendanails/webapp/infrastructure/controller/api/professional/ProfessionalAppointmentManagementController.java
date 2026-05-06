@@ -15,7 +15,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -55,7 +54,7 @@ public class ProfessionalAppointmentManagementController {
             @RequestParam(required = false) LocalDate date,
             @PageableDefault(sort = "startDate", direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable
     ) {
-        return ResponseEntity.ok(appointmentAuditService.searchAppointments(userPrincipal.getUserId(), status, date, pageable));
+        return ResponseEntity.ok(appointmentAuditService.searchAppointments(userPrincipal.getId(), status, date, pageable));
     }
 
     @Operation(summary = "List appointments by day", description = "Returns appointments for the professional in a date range.")
@@ -82,7 +81,7 @@ public class ProfessionalAppointmentManagementController {
 
         return ResponseEntity.ok(
                 professionalScheduleQueryUseCase.findProfessionalAppointmentsByDay(
-                        principal.getUserId(),
+                        principal.getId(),
                         start,
                         end
                 )
@@ -102,7 +101,7 @@ public class ProfessionalAppointmentManagementController {
             @PathVariable @Positive(message = "O identificador do agendamento deve ser positivo") Long appointmentId,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        professionalAppointmentStatusUseCase.confirm(appointmentId, principal.getUserId());
+        professionalAppointmentStatusUseCase.confirm(appointmentId, principal.getId());
         return ResponseEntity.noContent().build();
     }
 
@@ -119,7 +118,7 @@ public class ProfessionalAppointmentManagementController {
             @PathVariable @Positive(message = "O identificador do agendamento deve ser positivo") Long appointmentId,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        professionalAppointmentStatusUseCase.finish(appointmentId, principal.getUserId());
+        professionalAppointmentStatusUseCase.finish(appointmentId, principal.getId());
         return ResponseEntity.noContent().build();
     }
 
@@ -136,7 +135,7 @@ public class ProfessionalAppointmentManagementController {
             @PathVariable @Positive(message = "O identificador do agendamento deve ser positivo") Long appointmentId,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        professionalAppointmentStatusUseCase.cancel(appointmentId, principal.getUserId());
+        professionalAppointmentStatusUseCase.cancel(appointmentId, principal.getId());
         return ResponseEntity.noContent().build();
     }
 
@@ -153,7 +152,7 @@ public class ProfessionalAppointmentManagementController {
             @PathVariable @Positive(message = "O identificador do agendamento deve ser positivo") Long appointmentId,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        professionalAppointmentStatusUseCase.miss(appointmentId, principal.getUserId());
+        professionalAppointmentStatusUseCase.miss(appointmentId, principal.getId());
         return ResponseEntity.noContent().build();
     }
 }

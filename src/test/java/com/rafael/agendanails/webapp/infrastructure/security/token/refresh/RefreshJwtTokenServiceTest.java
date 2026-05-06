@@ -4,6 +4,7 @@ import com.rafael.agendanails.webapp.domain.model.Client;
 import com.rafael.agendanails.webapp.domain.model.RefreshToken;
 import com.rafael.agendanails.webapp.domain.repository.RefreshTokenRepository;
 import com.rafael.agendanails.webapp.infrastructure.exception.TokenRefreshException;
+import com.rafael.agendanails.webapp.infrastructure.security.token.RefreshTokenService;
 import com.rafael.agendanails.webapp.support.factory.TestClientFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class RefreshTokenServiceTest {
+class RefreshJwtTokenServiceTest {
 
     @Mock
     private RefreshTokenRepository repository;

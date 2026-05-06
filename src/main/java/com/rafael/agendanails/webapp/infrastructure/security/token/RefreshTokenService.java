@@ -1,4 +1,4 @@
-package com.rafael.agendanails.webapp.infrastructure.security.token.refresh;
+package com.rafael.agendanails.webapp.infrastructure.security.token;
 
 import com.rafael.agendanails.webapp.domain.model.RefreshToken;
 import com.rafael.agendanails.webapp.domain.model.User;

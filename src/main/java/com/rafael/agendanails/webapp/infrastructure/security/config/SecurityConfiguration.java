@@ -1,9 +1,10 @@
-package com.rafael.agendanails.webapp.infrastructure.security.filter;
+package com.rafael.agendanails.webapp.infrastructure.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rafael.agendanails.webapp.infrastructure.security.logging.JsonAccessDeniedHandler;
-import com.rafael.agendanails.webapp.infrastructure.security.logging.JsonAuthenticationEntryPoint;
-import com.rafael.agendanails.webapp.infrastructure.security.token.TokenService;
+import com.rafael.agendanails.webapp.infrastructure.security.filter.JwtAuthenticationFilter;
+import com.rafael.agendanails.webapp.infrastructure.security.handler.ApiAccessDeniedHandler;
+import com.rafael.agendanails.webapp.infrastructure.security.handler.ApiAuthenticationEntryPoint;
+import com.rafael.agendanails.webapp.infrastructure.security.token.JwtTokenService;
 import com.rafael.agendanails.webapp.shared.tenant.TenantResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,13 +43,13 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public JsonAuthenticationEntryPoint authenticationEntryPoint() {
-        return new JsonAuthenticationEntryPoint(mapper);
+    public ApiAuthenticationEntryPoint authenticationEntryPoint() {
+        return new ApiAuthenticationEntryPoint(mapper);
     }
 
     @Bean
-    public JsonAccessDeniedHandler accessDeniedHandler() {
-        return new JsonAccessDeniedHandler(mapper);
+    public ApiAccessDeniedHandler accessDeniedHandler() {
+        return new ApiAccessDeniedHandler(mapper);
     }
 
     @Bean
@@ -96,12 +97,12 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   TokenService tokenService,
+                                                   JwtTokenService jwtTokenService,
                                                    TenantResolver tenantResolver,
-                                                   JsonAuthenticationEntryPoint authenticationEntryPoint,
-                                                   JsonAccessDeniedHandler accessDeniedHandler
+                                                   ApiAuthenticationEntryPoint authenticationEntryPoint,
+                                                   ApiAccessDeniedHandler accessDeniedHandler
     ) throws Exception {
-        SecurityFilter securityFilter = new SecurityFilter(tokenService, tenantResolver);
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtTokenService, tenantResolver);
         http.cors(cors -> {
                 })
                 .csrf(AbstractHttpConfigurer::disable)
@@ -189,7 +190,7 @@ public class SecurityConfiguration {
 
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authenticationEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler));

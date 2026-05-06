@@ -22,24 +22,24 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class TokenServiceTest {
+class JwtTokenServiceTest {
 
-    private TokenService tokenService;
+    private JwtTokenService jwtTokenService;
     private static final String ISSUER_CLAIM = "agendanails-api";
     private static final String TENANT_CLAIM = "tenantId";
     private static final String PURPOSE_CLAIM = "purpose";
 
     @BeforeEach
     void setup() {
-        tokenService = new TokenService();
-        ReflectionTestUtils.setField(tokenService, "secret", "test-secret");
+        jwtTokenService = new JwtTokenService();
+        ReflectionTestUtils.setField(jwtTokenService, "secret", "test-secret");
     }
 
     @Test
     void generateAuthToken_createsJwt() {
         Client user = TestClientFactory.standard();
 
-        String token = tokenService.generateAuthToken(user);
+        String token = jwtTokenService.generateAuthToken(user);
 
         assertNotNull(token);
     }
@@ -48,7 +48,7 @@ class TokenServiceTest {
     void generateAuthToken_createsCorrectClaims() {
         Client user = TestClientFactory.standard();
 
-        String token = tokenService.generateAuthToken(user);
+        String token = jwtTokenService.generateAuthToken(user);
         DecodedJWT decodedJWT = JWT.decode(token);
 
         assertEquals(ISSUER_CLAIM, decodedJWT.getIssuer());
@@ -80,22 +80,22 @@ class TokenServiceTest {
     void recover_successfullyExtractsToken() {
         HttpServletRequest request = mock(HttpServletRequest.class);
         Client user = TestClientFactory.standard();
-        String token = tokenService.generateAuthToken(user);
+        String token = jwtTokenService.generateAuthToken(user);
 
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
 
-        assertEquals(token, tokenService.recover(request));
+        assertEquals(token, jwtTokenService.recover(request));
     }
 
     @Test
     void recover_returnsNullIfAuthNotBearer() {
         HttpServletRequest request = mock(HttpServletRequest.class);
         Client user = TestClientFactory.standard();
-        String token = tokenService.generateAuthToken(user);
+        String token = jwtTokenService.generateAuthToken(user);
 
         when(request.getHeader("Authorization")).thenReturn(token);
 
-        assertNull(tokenService.recover(request));
+        assertNull(jwtTokenService.recover(request));
     }
 
     @Test
@@ -104,22 +104,22 @@ class TokenServiceTest {
 
         when(request.getHeader("Authorization")).thenReturn(null);
 
-        assertNull(tokenService.recover(request));
+        assertNull(jwtTokenService.recover(request));
     }
 
     @Test
     void recover_returnsNullIfRequestNotInstanceOfHttpServlet() {
         ServletRequest request = mock(ServletRequest.class);
 
-        assertNull(tokenService.recover(request));
+        assertNull(jwtTokenService.recover(request));
     }
 
     @Test
     void validateAndDecode_returnsDecodedJwtWhenValid() {
         Client user = TestClientFactory.standard();
-        String token = tokenService.generateAuthToken(user);
+        String token = jwtTokenService.generateAuthToken(user);
 
-        DecodedJWT decodedJWT = tokenService.validateAndDecode(token);
+        DecodedJWT decodedJWT = jwtTokenService.validateAndDecode(token);
 
         assertNotNull(decodedJWT);
         assertEquals(user.getId().toString(), decodedJWT.getSubject());
@@ -127,19 +127,19 @@ class TokenServiceTest {
 
     @Test
     void validateAndDecode_returnsNullWhenInvalidToken() {
-        assertNull(tokenService.validateAndDecode("invalid-token"));
+        assertNull(jwtTokenService.validateAndDecode("invalid-token"));
     }
 
     @Test
     void validateAndDecode_returnsNullWhenNullToken() {
-        assertNull(tokenService.validateAndDecode(null));
+        assertNull(jwtTokenService.validateAndDecode(null));
     }
 
     @Test
     void generateResetPasswordToken_createsCorrectClaims() {
         Long userId = 1L;
 
-        String token = tokenService.generateResetPasswordToken(userId);
+        String token = jwtTokenService.generateResetPasswordToken(userId);
         DecodedJWT decodedJWT = JWT.decode(token);
 
         assertEquals(ISSUER_CLAIM, decodedJWT.getIssuer());
@@ -151,24 +151,24 @@ class TokenServiceTest {
     @Test
     void validateResetPasswordToken_passesWhenValid() {
         Long userId = 1L;
-        String token = tokenService.generateResetPasswordToken(userId);
+        String token = jwtTokenService.generateResetPasswordToken(userId);
         ResetPasswordDTO dto = mock(ResetPasswordDTO.class);
 
         when(dto.resetToken()).thenReturn(token);
 
-        assertDoesNotThrow(() -> tokenService.validateResetPasswordToken(dto));
+        assertDoesNotThrow(() -> jwtTokenService.validateResetPasswordToken(dto));
     }
 
     @Test
     void validateResetPasswordToken_throwsBusinessExceptionWhenWrongPurpose() {
         Client user = TestClientFactory.standard();
-        String token = tokenService.generateAuthToken(user);
+        String token = jwtTokenService.generateAuthToken(user);
         ResetPasswordDTO dto = mock(ResetPasswordDTO.class);
 
         when(dto.resetToken()).thenReturn(token);
 
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> tokenService.validateResetPasswordToken(dto));
+                () -> jwtTokenService.validateResetPasswordToken(dto));
 
         assertEquals("Informações inválidas. Tente novamente", exception.getMessage());
     }
@@ -177,10 +177,10 @@ class TokenServiceTest {
     void recoverAndValidate_returnsDecodedJwtWhenValid() {
         HttpServletRequest request = mock(HttpServletRequest.class);
         Client user = TestClientFactory.standard();
-        String token = tokenService.generateAuthToken(user);
+        String token = jwtTokenService.generateAuthToken(user);
 
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
-        DecodedJWT decodedJWT = tokenService.recoverAndValidate(request);
+        DecodedJWT decodedJWT = jwtTokenService.recoverAndValidate(request);
 
         assertNotNull(decodedJWT);
         assertEquals(user.getId().toString(), decodedJWT.getSubject());

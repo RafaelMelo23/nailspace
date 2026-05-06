@@ -1,4 +1,4 @@
-package com.rafael.agendanails.webapp.infrastructure.security.logging;
+package com.rafael.agendanails.webapp.infrastructure.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,12 +14,12 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-public class JsonAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class ApiAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-    private static final Logger log = LoggerFactory.getLogger(JsonAuthenticationEntryPoint.class);
+    private static final Logger log = LoggerFactory.getLogger(ApiAuthenticationEntryPoint.class);
     private final ObjectMapper objectMapper;
 
-    public JsonAuthenticationEntryPoint(ObjectMapper objectMapper) {
+    public ApiAuthenticationEntryPoint(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 

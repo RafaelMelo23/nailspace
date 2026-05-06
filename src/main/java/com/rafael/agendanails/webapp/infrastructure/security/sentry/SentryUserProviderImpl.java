@@ -1,4 +1,4 @@
-package com.rafael.agendanails.webapp.infrastructure.security;
+package com.rafael.agendanails.webapp.infrastructure.security.sentry;
 
 import com.rafael.agendanails.webapp.domain.model.UserPrincipal;
 import io.sentry.protocol.User;
@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class SpringSecurityUserProvider implements SentryUserProvider {
+public class SentryUserProviderImpl implements SentryUserProvider {
 
     @Override
     public User provideUser() {

@@ -2,7 +2,7 @@ package com.rafael.agendanails.webapp.infrastructure.security.interceptor;
 
 import com.rafael.agendanails.webapp.application.salon.business.SalonProfileService;
 import com.rafael.agendanails.webapp.domain.enums.appointment.TenantStatus;
-import com.rafael.agendanails.webapp.infrastructure.security.RequestPolicyManager;
+import com.rafael.agendanails.webapp.infrastructure.security.util.SecurityPathManager;
 import com.rafael.agendanails.webapp.shared.tenant.TenantContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,7 +15,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 public class TenantStatusInterceptor implements HandlerInterceptor {
 
     private final SalonProfileService salonProfileService;
-    private final RequestPolicyManager requestPolicyManager;
+    private final SecurityPathManager securityPathManager;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -43,7 +43,7 @@ public class TenantStatusInterceptor implements HandlerInterceptor {
     }
 
     private boolean isWhiteListed(String path) {
-        return requestPolicyManager.isInfrastructure(path) ||
-                requestPolicyManager.isPublicAccess(path);
+        return securityPathManager.isInfrastructure(path) ||
+                securityPathManager.isPublicAccess(path);
     }
 }

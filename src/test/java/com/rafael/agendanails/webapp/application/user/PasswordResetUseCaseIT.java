@@ -4,7 +4,7 @@ import com.rafael.agendanails.webapp.domain.email.EmailNotifier;
 import com.rafael.agendanails.webapp.domain.model.Client;
 import com.rafael.agendanails.webapp.domain.model.User;
 import com.rafael.agendanails.webapp.infrastructure.dto.auth.ResetPasswordDTO;
-import com.rafael.agendanails.webapp.infrastructure.security.token.TokenService;
+import com.rafael.agendanails.webapp.infrastructure.security.token.JwtTokenService;
 import com.rafael.agendanails.webapp.support.BaseIntegrationTest;
 import com.rafael.agendanails.webapp.support.factory.TestClientFactory;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ class PasswordResetUseCaseIT extends BaseIntegrationTest {
     private PasswordResetUseCase passwordResetUseCase;
 
     @Autowired
-    private TokenService tokenService;
+    private JwtTokenService jwtTokenService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -39,7 +39,7 @@ class PasswordResetUseCaseIT extends BaseIntegrationTest {
         client.setPassword(passwordEncoder.encode("oldPassword123"));
         userRepository.save(client);
 
-        String resetToken = tokenService.generateResetPasswordToken(client.getId());
+        String resetToken = jwtTokenService.generateResetPasswordToken(client.getId());
         ResetPasswordDTO dto = new ResetPasswordDTO(client.getEmail(), "newSecurePassword123", resetToken);
 
         passwordResetUseCase.resetPassword(dto);
@@ -64,7 +64,7 @@ class PasswordResetUseCaseIT extends BaseIntegrationTest {
         Client client = TestClientFactory.standardForIt();
         userRepository.save(client);
 
-        String wrongToken = tokenService.generateAuthToken(client);
+        String wrongToken = jwtTokenService.generateAuthToken(client);
         ResetPasswordDTO dto = new ResetPasswordDTO(client.getEmail(), "newPassword123", wrongToken);
 
         assertThatThrownBy(() -> passwordResetUseCase.resetPassword(dto))

@@ -1,4 +1,4 @@
-package com.rafael.agendanails.webapp.infrastructure.security.filter;
+package com.rafael.agendanails.webapp.infrastructure.security.resolver;
 
 import com.rafael.agendanails.webapp.domain.model.UserPrincipal;
 import org.springframework.core.MethodParameter;
@@ -36,7 +36,6 @@ public class UserPrincipalArgumentResolver implements HandlerMethodArgumentResol
         if (principal instanceof String s && s.equals("anonymousUser")) {
             return null;
         }
-
         return null;
     }
 }

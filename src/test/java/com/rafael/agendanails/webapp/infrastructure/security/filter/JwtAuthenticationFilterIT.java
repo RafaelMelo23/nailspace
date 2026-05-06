@@ -1,6 +1,6 @@
 package com.rafael.agendanails.webapp.infrastructure.security.filter;
 
-import com.rafael.agendanails.webapp.infrastructure.security.token.TokenService;
+import com.rafael.agendanails.webapp.infrastructure.security.token.JwtTokenService;
 import com.rafael.agendanails.webapp.support.BaseIntegrationTest;
 import com.rafael.agendanails.webapp.support.factory.TestClientFactory;
 import com.rafael.agendanails.webapp.support.factory.TestProfessionalFactory;
@@ -10,17 +10,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class SecurityFilterIT extends BaseIntegrationTest {
+class JwtAuthenticationFilterIT extends BaseIntegrationTest {
 
     @Autowired
-    private TokenService tokenService;
+    private JwtTokenService jwtTokenService;
     @Autowired
     private MockMvc mvc;
 
@@ -30,7 +29,7 @@ class SecurityFilterIT extends BaseIntegrationTest {
         salonProfileRepository.save(TestSalonProfileFactory.standardForIT(professional, "tenant-test"));
         var client = clientRepository.save(TestClientFactory.standardForIt());
 
-        String token = tokenService.generateAuthToken(client);
+        String token = jwtTokenService.generateAuthToken(client);
 
         mvc.perform(get("/api/v1/professional/simplified")
                         .header("X-Tenant-Id", "tenant-test")
@@ -68,7 +67,7 @@ class SecurityFilterIT extends BaseIntegrationTest {
         salonProfileRepository.save(TestSalonProfileFactory.standardForIT(professional, "tenant-test"));
         var client = clientRepository.save(TestClientFactory.standardForIt());
 
-        String token = tokenService.generateResetPasswordToken(client.getId());
+        String token = jwtTokenService.generateResetPasswordToken(client.getId());
 
         mvc.perform(get("/api/v1/user")
                         .header("X-Tenant-Id", "tenant-test")
@@ -82,7 +81,7 @@ class SecurityFilterIT extends BaseIntegrationTest {
         salonProfileRepository.save(TestSalonProfileFactory.standardForIT(professional, "tenant-test"));
         var client = clientRepository.save(TestClientFactory.standardForIt());
 
-        String token = tokenService.generateAuthToken(client);
+        String token = jwtTokenService.generateAuthToken(client);
 
         mvc.perform(get("/api/v1/admin/appointments/users/" + client.getId())
                         .header("X-Tenant-Id", "tenant-test")
@@ -95,7 +94,7 @@ class SecurityFilterIT extends BaseIntegrationTest {
         var professional = professionalRepository.save(TestProfessionalFactory.standardForIt());
         salonProfileRepository.save(TestSalonProfileFactory.standardForIT(professional));
 
-        String token = tokenService.generateAuthToken(professional);
+        String token = jwtTokenService.generateAuthToken(professional);
 
         mvc.perform(get("/api/v1/professional/schedule/block")
                         .param("dateAndTime", ZonedDateTime.now().toString())

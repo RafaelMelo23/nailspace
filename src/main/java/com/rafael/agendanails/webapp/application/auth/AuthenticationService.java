@@ -15,8 +15,8 @@ import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
 import com.rafael.agendanails.webapp.infrastructure.exception.LoginException;
 import com.rafael.agendanails.webapp.infrastructure.exception.TokenRefreshException;
 import com.rafael.agendanails.webapp.infrastructure.exception.UserAlreadyExistsException;
-import com.rafael.agendanails.webapp.infrastructure.security.token.TokenService;
-import com.rafael.agendanails.webapp.infrastructure.security.token.refresh.RefreshTokenService;
+import com.rafael.agendanails.webapp.infrastructure.security.token.JwtTokenService;
+import com.rafael.agendanails.webapp.infrastructure.security.token.RefreshTokenService;
 import com.rafael.agendanails.webapp.shared.tenant.IgnoreTenantFilter;
 import com.rafael.agendanails.webapp.shared.tenant.TenantContext;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +36,7 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final ClientRepository clientRepository;
     private final PasswordEncoder passwordEncoder;
-    private final TokenService tokenService;
+    private final JwtTokenService jwtTokenService;
     private final RefreshTokenService refreshTokenService;
 
     @Transactional
@@ -84,7 +84,7 @@ public class AuthenticationService {
             throw new BusinessException("Os dados informados são inválidos");
         }
 
-        String jwt = tokenService.generateAuthToken(user);
+        String jwt = jwtTokenService.generateAuthToken(user);
         String refresh = refreshTokenService.createRefreshToken(user).getToken();
 
         return AuthResultDTO.builder()
@@ -136,7 +136,7 @@ public class AuthenticationService {
                     token.setRevoked(true);
 
                     RefreshToken newRefresh = refreshTokenService.createRefreshTokenWithExpiry(user, token.getExpiryDate());
-                    String newJwt = tokenService.generateAuthToken(user);
+                    String newJwt = jwtTokenService.generateAuthToken(user);
 
                     return new TokenRefreshResponseDTO(newJwt, newRefresh.getToken());
                 })

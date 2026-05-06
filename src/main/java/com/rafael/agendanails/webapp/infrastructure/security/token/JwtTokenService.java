@@ -23,7 +23,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
 @Service
-public class TokenService {
+public class JwtTokenService {
 
     @Value("${api.security.jwt.secret}")
     private String secret;

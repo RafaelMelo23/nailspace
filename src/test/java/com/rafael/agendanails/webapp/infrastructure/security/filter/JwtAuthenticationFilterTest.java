@@ -3,7 +3,7 @@ package com.rafael.agendanails.webapp.infrastructure.security.filter;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.rafael.agendanails.webapp.domain.enums.security.TokenClaim;
-import com.rafael.agendanails.webapp.infrastructure.security.token.TokenService;
+import com.rafael.agendanails.webapp.infrastructure.security.token.JwtTokenService;
 import com.rafael.agendanails.webapp.shared.tenant.TenantResolver;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,10 +28,10 @@ import com.rafael.agendanails.webapp.shared.tenant.TenantContext;
 import org.slf4j.MDC;
 
 @ExtendWith(MockitoExtension.class)
-class SecurityFilterTest {
+class JwtAuthenticationFilterTest {
 
     @Mock
-    private TokenService tokenService;
+    private JwtTokenService jwtTokenService;
     @Mock
     private TenantResolver tenantResolver;
     @Mock
@@ -43,7 +43,7 @@ class SecurityFilterTest {
     @Mock
     private DecodedJWT decodedJWT;
     @InjectMocks
-    private SecurityFilter securityFilter;
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @BeforeEach
     void setUp() {
@@ -63,7 +63,7 @@ class SecurityFilterTest {
     void shouldReturnTrueWhenPathIsWebhook() {
         when(request.getRequestURI()).thenReturn("/api/v1/webhook/events");
 
-        boolean result = securityFilter.shouldNotFilter(request);
+        boolean result = jwtAuthenticationFilter.shouldNotFilter(request);
 
         assertThat(result).isTrue();
     }
@@ -75,7 +75,7 @@ class SecurityFilterTest {
         String role = "ADMIN";
         String tenantId = "tenant-001";
 
-        when(tokenService.recoverAndValidate(request)).thenReturn(decodedJWT);
+        when(jwtTokenService.recoverAndValidate(request)).thenReturn(decodedJWT);
         when(tenantResolver.resolve(request)).thenReturn(tenantId);
 
         Claim purposeClaim = mock(Claim.class);
@@ -95,7 +95,7 @@ class SecurityFilterTest {
         when(firstLoginClaim.asBoolean()).thenReturn(false);
         when(decodedJWT.getClaim(TokenClaim.FIRST_LOGIN.getValue())).thenReturn(firstLoginClaim);
 
-        securityFilter.doFilterInternal(request, response, filterChain);
+        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
 
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         assertThat(authentication).isNotNull();
@@ -113,7 +113,7 @@ class SecurityFilterTest {
         String role = "ADMIN";
         String tenantId = "tenant-001";
 
-        when(tokenService.recoverAndValidate(request)).thenReturn(decodedJWT);
+        when(jwtTokenService.recoverAndValidate(request)).thenReturn(decodedJWT);
         when(tenantResolver.resolve(request)).thenReturn(tenantId);
 
         Claim purposeClaim = mock(Claim.class);
@@ -139,7 +139,7 @@ class SecurityFilterTest {
             return null;
         }).when(filterChain).doFilter(request, response);
 
-        securityFilter.doFilterInternal(request, response, filterChain);
+        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
 
         assertThat(TenantContext.getTenant()).isNull();
         assertThat(MDC.get("tenant")).isNull();
@@ -147,9 +147,9 @@ class SecurityFilterTest {
 
     @Test
     void shouldContinueChainWithoutAuthWhenTokenIsNull() throws ServletException, IOException {
-        when(tokenService.recoverAndValidate(request)).thenReturn(null);
+        when(jwtTokenService.recoverAndValidate(request)).thenReturn(null);
 
-        securityFilter.doFilterInternal(request, response, filterChain);
+        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
 
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
         verify(filterChain).doFilter(request, response);
@@ -157,13 +157,13 @@ class SecurityFilterTest {
 
     @Test
     void shouldContinueChainWithoutAuthWhenPurposeIsInvalid() throws ServletException, IOException {
-        when(tokenService.recoverAndValidate(request)).thenReturn(decodedJWT);
+        when(jwtTokenService.recoverAndValidate(request)).thenReturn(decodedJWT);
 
         Claim purposeClaim = mock(Claim.class);
         when(purposeClaim.asString()).thenReturn("RECOVERY");
         when(decodedJWT.getClaim("purpose")).thenReturn(purposeClaim);
 
-        securityFilter.doFilterInternal(request, response, filterChain);
+        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
 
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
         verify(filterChain).doFilter(request, response);

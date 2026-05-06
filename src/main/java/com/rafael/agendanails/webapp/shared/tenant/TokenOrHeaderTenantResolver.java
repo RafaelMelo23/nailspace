@@ -1,7 +1,7 @@
 package com.rafael.agendanails.webapp.shared.tenant;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.rafael.agendanails.webapp.infrastructure.security.token.TokenService;
+import com.rafael.agendanails.webapp.infrastructure.security.token.JwtTokenService;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class TokenOrHeaderTenantResolver implements TenantResolver {
 
-    private final TokenService tokenService;
+    private final JwtTokenService jwtTokenService;
 
     private static final Set<String> RESERVED_PATHS = java.util.Set.of(
             "api", "js", "css", "assets", "pages", "favicon.svg", "favicon.ico",
@@ -25,7 +25,7 @@ public class TokenOrHeaderTenantResolver implements TenantResolver {
 
     @Override
     public String resolve(ServletRequest servletRequest) {
-        DecodedJWT token = tokenService.recoverAndValidate(servletRequest);
+        DecodedJWT token = jwtTokenService.recoverAndValidate(servletRequest);
 
         String tenantFromToken = (token != null)
                 ? token.getClaim("tenantId").asString()

@@ -8,7 +8,7 @@ import com.rafael.agendanails.webapp.infrastructure.dto.auth.ResetPasswordDTO;
 import com.rafael.agendanails.webapp.infrastructure.dto.email.ForgotPasswordEmailDTO;
 import com.rafael.agendanails.webapp.infrastructure.email.template.AuthEmailFactory;
 import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
-import com.rafael.agendanails.webapp.infrastructure.security.token.TokenService;
+import com.rafael.agendanails.webapp.infrastructure.security.token.JwtTokenService;
 import com.rafael.agendanails.webapp.shared.tenant.TenantContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +24,7 @@ public class PasswordResetUseCase {
     private final UserRepository userRepository;
     private final AuthEmailFactory authEmailFactory;
     private final EmailNotifier emailNotifier;
-    private final TokenService tokenService;
+    private final JwtTokenService jwtTokenService;
     private final PasswordEncoder passwordEncoder;
     @Value("${domain.url}")
     private String domainUrl;
@@ -33,7 +33,7 @@ public class PasswordResetUseCase {
         User user = userRepository.findByEmailIgnoreCase(userEmail)
                 .orElseThrow(() -> new BusinessException("Usuário não encontrado"));
 
-        String resetToken = tokenService.generateResetPasswordToken(user.getId());
+        String resetToken = jwtTokenService.generateResetPasswordToken(user.getId());
         String passwordResetLink = buildResetPasswordUrl(resetToken);
 
         ForgotPasswordEmailDTO emailDTO = buildForgotPasswordEmailDTO(
@@ -70,7 +70,7 @@ public class PasswordResetUseCase {
 
     @Transactional
     public void resetPassword(ResetPasswordDTO resetPasswordDTO) {
-        tokenService.validateResetPasswordToken(resetPasswordDTO);
+        jwtTokenService.validateResetPasswordToken(resetPasswordDTO);
 
         userRepository.updatePassword(
                 resetPasswordDTO.userEmail(),

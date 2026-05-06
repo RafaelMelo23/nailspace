@@ -2,7 +2,7 @@ package com.rafael.agendanails.webapp.shared.tenant;
 
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.rafael.agendanails.webapp.infrastructure.security.token.TokenService;
+import com.rafael.agendanails.webapp.infrastructure.security.token.JwtTokenService;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 class TokenOrHeaderTenantResolverTest {
 
     @Mock
-    private TokenService tokenService;
+    private JwtTokenService jwtTokenService;
 
     @InjectMocks
     private TokenOrHeaderTenantResolver resolver;
@@ -40,7 +40,7 @@ class TokenOrHeaderTenantResolverTest {
     void shouldResolveTenantFromHeaderWhenTokenIsNull() {
         HttpServletRequest request = mock(HttpServletRequest.class);
 
-        when(tokenService.recoverAndValidate(request)).thenReturn(null);
+        when(jwtTokenService.recoverAndValidate(request)).thenReturn(null);
         when(request.getHeader("X-Tenant-Id")).thenReturn("tenantA");
 
         String tenant = resolver.resolve(request);
@@ -53,7 +53,7 @@ class TokenOrHeaderTenantResolverTest {
         HttpServletRequest request = mock(HttpServletRequest.class);
         DecodedJWT jwt = mockToken("tenantA");
 
-        when(tokenService.recoverAndValidate(request)).thenReturn(jwt);
+        when(jwtTokenService.recoverAndValidate(request)).thenReturn(jwt);
         when(request.getHeader("X-Tenant-Id")).thenReturn("tenantA");
 
         String tenant = resolver.resolve(request);
@@ -66,7 +66,7 @@ class TokenOrHeaderTenantResolverTest {
         HttpServletRequest request = mock(HttpServletRequest.class);
         DecodedJWT jwt = mockToken("tenantA");
 
-        when(tokenService.recoverAndValidate(request)).thenReturn(jwt);
+        when(jwtTokenService.recoverAndValidate(request)).thenReturn(jwt);
         when(request.getHeader("X-Tenant-Id")).thenReturn(null);
 
         String tenant = resolver.resolve(request);
@@ -79,7 +79,7 @@ class TokenOrHeaderTenantResolverTest {
         ServletRequest request = mock(ServletRequest.class);
         DecodedJWT jwt = mockToken("tenantA");
 
-        when(tokenService.recoverAndValidate(request)).thenReturn(jwt);
+        when(jwtTokenService.recoverAndValidate(request)).thenReturn(jwt);
 
         String tenant = resolver.resolve(request);
 
@@ -91,7 +91,7 @@ class TokenOrHeaderTenantResolverTest {
         HttpServletRequest request = mock(HttpServletRequest.class);
         DecodedJWT jwt = mockToken("tenantA");
 
-        when(tokenService.recoverAndValidate(request)).thenReturn(jwt);
+        when(jwtTokenService.recoverAndValidate(request)).thenReturn(jwt);
         when(request.getHeader("X-Tenant-Id")).thenReturn("TENANTA");
 
         String tenant = resolver.resolve(request);
@@ -104,7 +104,7 @@ class TokenOrHeaderTenantResolverTest {
         HttpServletRequest request = mock(HttpServletRequest.class);
         DecodedJWT jwt = mockToken("tenantA");
 
-        when(tokenService.recoverAndValidate(request)).thenReturn(jwt);
+        when(jwtTokenService.recoverAndValidate(request)).thenReturn(jwt);
         when(request.getHeader("X-Tenant-Id")).thenReturn("tenantB");
 
         String tenant = resolver.resolve(request);
@@ -125,7 +125,7 @@ class TokenOrHeaderTenantResolverTest {
         when(jwt.getClaim("roles")).thenReturn(rolesClaim);
         when(rolesClaim.asList(String.class)).thenReturn(List.of("SUPER_ADMIN"));
 
-        when(tokenService.recoverAndValidate(request)).thenReturn(jwt);
+        when(jwtTokenService.recoverAndValidate(request)).thenReturn(jwt);
         when(request.getHeader("X-Tenant-Id")).thenReturn("tenantA");
 
         String tenant = resolver.resolve(request);
@@ -137,7 +137,7 @@ class TokenOrHeaderTenantResolverTest {
     void shouldReturnNullWhenTokenAndHeaderAreNull() {
         HttpServletRequest request = mock(HttpServletRequest.class);
 
-        when(tokenService.recoverAndValidate(request)).thenReturn(null);
+        when(jwtTokenService.recoverAndValidate(request)).thenReturn(null);
         when(request.getHeader("X-Tenant-Id")).thenReturn(null);
 
         String tenant = resolver.resolve(request);

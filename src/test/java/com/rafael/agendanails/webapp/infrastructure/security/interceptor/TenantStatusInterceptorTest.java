@@ -2,7 +2,7 @@ package com.rafael.agendanails.webapp.infrastructure.security.interceptor;
 
 import com.rafael.agendanails.webapp.application.salon.business.SalonProfileService;
 import com.rafael.agendanails.webapp.domain.enums.appointment.TenantStatus;
-import com.rafael.agendanails.webapp.infrastructure.security.RequestPolicyManager;
+import com.rafael.agendanails.webapp.infrastructure.security.util.SecurityPathManager;
 import com.rafael.agendanails.webapp.shared.tenant.TenantContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,7 +27,7 @@ class TenantStatusInterceptorTest {
     private SalonProfileService salonProfileService;
 
     @Mock
-    private RequestPolicyManager requestPolicyManager;
+    private SecurityPathManager securityPathManager;
 
     @Mock
     private HttpServletRequest request;
@@ -56,8 +56,8 @@ class TenantStatusInterceptorTest {
 
         when(request.getRequestURI()).thenReturn(path);
 
-        when(requestPolicyManager.isInfrastructure(path)).thenReturn(false);
-        when(requestPolicyManager.isPublicAccess(path)).thenReturn(false);
+        when(securityPathManager.isInfrastructure(path)).thenReturn(false);
+        when(securityPathManager.isPublicAccess(path)).thenReturn(false);
         when(salonProfileService.getStatusByTenantId(tenantId)).thenReturn(TenantStatus.ACTIVE);
 
         boolean result = interceptor.preHandle(request, response, new Object());
@@ -73,8 +73,8 @@ class TenantStatusInterceptorTest {
         String path = "/api/appointments";
 
         when(request.getRequestURI()).thenReturn(path);
-        when(requestPolicyManager.isInfrastructure(path)).thenReturn(false);
-        when(requestPolicyManager.isPublicAccess(path)).thenReturn(false);
+        when(securityPathManager.isInfrastructure(path)).thenReturn(false);
+        when(securityPathManager.isPublicAccess(path)).thenReturn(false);
         when(salonProfileService.getStatusByTenantId(tenantId)).thenReturn(TenantStatus.SUSPENDED);
 
         StringWriter stringWriter = new StringWriter();
@@ -93,7 +93,7 @@ class TenantStatusInterceptorTest {
     void shouldReturnTrueWhenPathIsInfrastructure() throws Exception {
         String path = "/css/style.css";
         when(request.getRequestURI()).thenReturn(path);
-        when(requestPolicyManager.isInfrastructure(path)).thenReturn(true);
+        when(securityPathManager.isInfrastructure(path)).thenReturn(true);
 
         boolean result = interceptor.preHandle(request, response, new Object());
 
@@ -105,8 +105,8 @@ class TenantStatusInterceptorTest {
     void shouldReturnTrueWhenPathIsPublicAccess() throws Exception {
         String path = "/entrar";
         when(request.getRequestURI()).thenReturn(path);
-        when(requestPolicyManager.isInfrastructure(path)).thenReturn(false);
-        when(requestPolicyManager.isPublicAccess(path)).thenReturn(true);
+        when(securityPathManager.isInfrastructure(path)).thenReturn(false);
+        when(securityPathManager.isPublicAccess(path)).thenReturn(true);
 
         boolean result = interceptor.preHandle(request, response, new Object());
 
@@ -118,8 +118,8 @@ class TenantStatusInterceptorTest {
     void shouldReturnTrueWhenNoTenantAndNotWhitelisted() throws Exception {
         String path = "/some-global-path";
         when(request.getRequestURI()).thenReturn(path);
-        when(requestPolicyManager.isInfrastructure(path)).thenReturn(false);
-        when(requestPolicyManager.isPublicAccess(path)).thenReturn(false);
+        when(securityPathManager.isInfrastructure(path)).thenReturn(false);
+        when(securityPathManager.isPublicAccess(path)).thenReturn(false);
 
         boolean result = interceptor.preHandle(request, response, new Object());
 

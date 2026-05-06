@@ -1,4 +1,4 @@
-package com.rafael.agendanails.webapp.infrastructure.security.logging;
+package com.rafael.agendanails.webapp.infrastructure.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,11 +18,11 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class JsonAccessDeniedHandler implements AccessDeniedHandler {
-    private static final Logger log = LoggerFactory.getLogger(JsonAccessDeniedHandler.class);
+public class ApiAccessDeniedHandler implements AccessDeniedHandler {
+    private static final Logger log = LoggerFactory.getLogger(ApiAccessDeniedHandler.class);
     private final ObjectMapper objectMapper;
 
-    public JsonAccessDeniedHandler(ObjectMapper objectMapper) {
+    public ApiAccessDeniedHandler(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 

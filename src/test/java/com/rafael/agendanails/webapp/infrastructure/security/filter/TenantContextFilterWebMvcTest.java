@@ -22,8 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@Import(TenantIdFilter.class)
-class TenantIdFilterWebMvcTest {
+@Import(TenantContextFilter.class)
+class TenantContextFilterWebMvcTest {
 
     @Mock
     private TenantResolver tenantResolver;
@@ -34,7 +34,7 @@ class TenantIdFilterWebMvcTest {
     @Mock
     private FilterChain filterChain;
     @InjectMocks
-    private TenantIdFilter filter;
+    private TenantContextFilter filter;
 
     @BeforeEach
     void setUp() {

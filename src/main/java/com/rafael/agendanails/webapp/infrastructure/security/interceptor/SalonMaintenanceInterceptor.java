@@ -1,7 +1,7 @@
 package com.rafael.agendanails.webapp.infrastructure.security.interceptor;
 
 import com.rafael.agendanails.webapp.application.salon.business.SalonProfileService;
-import com.rafael.agendanails.webapp.infrastructure.security.RequestPolicyManager;
+import com.rafael.agendanails.webapp.infrastructure.security.util.SecurityPathManager;
 import com.rafael.agendanails.webapp.shared.tenant.TenantContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,14 +14,14 @@ import org.springframework.web.servlet.HandlerInterceptor;
 public class SalonMaintenanceInterceptor implements HandlerInterceptor {
 
     private final SalonProfileService salonProfileService;
-    private final RequestPolicyManager requestPolicyManager;
+    private final SecurityPathManager securityPathManager;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String path = request.getRequestURI();
         String tenantId = TenantContext.getTenant();
 
-        var isWhiteListed = requestPolicyManager.shouldIgnoreMaintenance(path);
+        var isWhiteListed = securityPathManager.shouldIgnoreMaintenance(path);
 
         if (tenantId != null && !isWhiteListed) {
             if (!salonProfileService.isSalonOpenByTenantId(tenantId)) {

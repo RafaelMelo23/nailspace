@@ -8,7 +8,7 @@ import com.rafael.agendanails.webapp.infrastructure.dto.auth.ResetPasswordDTO;
 import com.rafael.agendanails.webapp.infrastructure.dto.email.ForgotPasswordEmailDTO;
 import com.rafael.agendanails.webapp.infrastructure.email.template.AuthEmailFactory;
 import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
-import com.rafael.agendanails.webapp.infrastructure.security.token.TokenService;
+import com.rafael.agendanails.webapp.infrastructure.security.token.JwtTokenService;
 import com.rafael.agendanails.webapp.support.factory.TestClientFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +35,7 @@ class PasswordResetUseCaseTest {
     @Mock
     private EmailNotifier emailNotifier;
     @Mock
-    private TokenService tokenService;
+    private JwtTokenService jwtTokenService;
     @Mock
     private PasswordEncoder passwordEncoder;
 
@@ -51,7 +51,7 @@ class PasswordResetUseCaseTest {
     void shouldSendEmailWhenForgotPasswordIsRequested() {
         Client client = TestClientFactory.standard();
         when(userRepository.findByEmailIgnoreCase(client.getEmail())).thenReturn(Optional.of(client));
-        when(tokenService.generateResetPasswordToken(client.getId())).thenReturn("token123");
+        when(jwtTokenService.generateResetPasswordToken(client.getId())).thenReturn("token123");
         
         EmailMessage emailMessage = EmailMessage.builder()
                 .to(client.getEmail())
@@ -83,7 +83,7 @@ class PasswordResetUseCaseTest {
 
         passwordResetUseCase.resetPassword(dto);
 
-        verify(tokenService).validateResetPasswordToken(dto);
+        verify(jwtTokenService).validateResetPasswordToken(dto);
         verify(userRepository).updatePassword(dto.userEmail(), "encodedPassword");
     }
 }

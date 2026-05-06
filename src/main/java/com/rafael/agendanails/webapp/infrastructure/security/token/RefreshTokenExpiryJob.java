@@ -1,4 +1,4 @@
-package com.rafael.agendanails.webapp.infrastructure.security.token.refresh;
+package com.rafael.agendanails.webapp.infrastructure.security.token;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;

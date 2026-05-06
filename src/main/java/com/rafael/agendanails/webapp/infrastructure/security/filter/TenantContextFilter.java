@@ -16,7 +16,7 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class TenantIdFilter implements Filter {
+public class TenantContextFilter implements Filter {
 
     private final TenantResolver tenantResolver;
 

@@ -3,7 +3,7 @@ package com.rafael.agendanails.webapp.infrastructure.security.filter;
 import com.rafael.agendanails.webapp.domain.enums.security.TokenClaim;
 import com.rafael.agendanails.webapp.domain.enums.user.UserRole;
 import com.rafael.agendanails.webapp.domain.model.UserPrincipal;
-import com.rafael.agendanails.webapp.infrastructure.security.token.TokenService;
+import com.rafael.agendanails.webapp.infrastructure.security.token.JwtTokenService;
 import com.rafael.agendanails.webapp.shared.tenant.TenantContext;
 import com.rafael.agendanails.webapp.shared.tenant.TenantResolver;
 import jakarta.servlet.FilterChain;
@@ -24,9 +24,9 @@ import static com.rafael.agendanails.webapp.domain.enums.security.TokenPurpose.A
 
 @Slf4j
 @RequiredArgsConstructor
-public class SecurityFilter extends OncePerRequestFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final TokenService tokenService;
+    private final JwtTokenService jwtTokenService;
     private final TenantResolver tenantResolver;
 
     @Override
@@ -43,7 +43,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         boolean isTenantContextSetByThisFilter = false;
 
         try {
-            var token = tokenService.recoverAndValidate(request);
+            var token = jwtTokenService.recoverAndValidate(request);
 
             if (token != null) {
                 String tokenPurposeClaim = token.getClaim("purpose").asString();

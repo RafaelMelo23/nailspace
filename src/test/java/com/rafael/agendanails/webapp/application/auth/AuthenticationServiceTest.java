@@ -14,8 +14,8 @@ import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
 import com.rafael.agendanails.webapp.infrastructure.exception.LoginException;
 import com.rafael.agendanails.webapp.infrastructure.exception.TokenRefreshException;
 import com.rafael.agendanails.webapp.infrastructure.exception.UserAlreadyExistsException;
-import com.rafael.agendanails.webapp.infrastructure.security.token.TokenService;
-import com.rafael.agendanails.webapp.infrastructure.security.token.refresh.RefreshTokenService;
+import com.rafael.agendanails.webapp.infrastructure.security.token.JwtTokenService;
+import com.rafael.agendanails.webapp.infrastructure.security.token.RefreshTokenService;
 import com.rafael.agendanails.webapp.shared.tenant.TenantContext;
 import com.rafael.agendanails.webapp.support.factory.TestClientFactory;
 import org.junit.jupiter.api.AfterEach;
@@ -27,7 +27,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +45,7 @@ class AuthenticationServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
     @Mock
-    private TokenService tokenService;
+    private JwtTokenService jwtTokenService;
     @Mock
     private RefreshTokenService refreshTokenService;
 
@@ -113,7 +112,7 @@ class AuthenticationServiceTest {
 
         when(userRepository.findByEmailIgnoreCase(loginDTO.email())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(loginDTO.password(), user.getPassword())).thenReturn(true);
-        when(tokenService.generateAuthToken(user)).thenReturn("jwt-token");
+        when(jwtTokenService.generateAuthToken(user)).thenReturn("jwt-token");
         
         RefreshToken refreshToken = RefreshToken.builder().token("refresh-token").build();
         when(refreshTokenService.createRefreshToken(user)).thenReturn(refreshToken);
@@ -190,7 +189,7 @@ class AuthenticationServiceTest {
 
         when(userRepository.findByEmailIgnoreCase(loginDTO.email())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(loginDTO.password(), user.getPassword())).thenReturn(true);
-        when(tokenService.generateAuthToken(user)).thenReturn("jwt-token");
+        when(jwtTokenService.generateAuthToken(user)).thenReturn("jwt-token");
         when(refreshTokenService.createRefreshToken(user)).thenReturn(RefreshToken.builder().token("refresh-token").build());
 
         AuthResultDTO result = authenticationService.login(loginDTO);
@@ -217,7 +216,7 @@ class AuthenticationServiceTest {
         when(refreshTokenService.findByToken(oldTokenStr)).thenReturn(Optional.of(oldToken));
         when(refreshTokenService.verifyExpiration(oldToken)).thenReturn(oldToken);
         when(refreshTokenService.createRefreshTokenWithExpiry(eq(user), any())).thenReturn(RefreshToken.builder().token("new-refresh-token").build());
-        when(tokenService.generateAuthToken(user)).thenReturn("new-jwt-token");
+        when(jwtTokenService.generateAuthToken(user)).thenReturn("new-jwt-token");
 
         TokenRefreshResponseDTO result = authenticationService.refreshToken(oldTokenStr);
 

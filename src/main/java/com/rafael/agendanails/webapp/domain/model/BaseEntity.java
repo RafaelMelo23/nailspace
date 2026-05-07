@@ -7,8 +7,6 @@ import jakarta.persistence.PrePersist;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Filter;
-import org.hibernate.annotations.FilterDef;
-import org.hibernate.annotations.ParamDef;
 
 
 @NoArgsConstructor

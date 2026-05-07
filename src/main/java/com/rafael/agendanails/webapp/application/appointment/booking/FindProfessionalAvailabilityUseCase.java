@@ -2,11 +2,7 @@ package com.rafael.agendanails.webapp.application.appointment.booking;
 
 import com.rafael.agendanails.webapp.application.salon.business.SalonProfileService;
 import com.rafael.agendanails.webapp.domain.AvailabilityDomainService;
-import com.rafael.agendanails.webapp.domain.model.AvailabilityQuery;
-import com.rafael.agendanails.webapp.domain.model.Professional;
-import com.rafael.agendanails.webapp.domain.model.SalonProfile;
-import com.rafael.agendanails.webapp.domain.model.SalonService;
-import com.rafael.agendanails.webapp.domain.model.UserPrincipal;
+import com.rafael.agendanails.webapp.domain.model.*;
 import com.rafael.agendanails.webapp.domain.repository.ProfessionalRepository;
 import com.rafael.agendanails.webapp.domain.repository.SalonServiceRepository;
 import com.rafael.agendanails.webapp.infrastructure.dto.appointment.AppointmentTimesDTO;

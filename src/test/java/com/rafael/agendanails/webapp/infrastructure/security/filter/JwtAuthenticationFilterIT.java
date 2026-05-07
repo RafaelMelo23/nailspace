@@ -5,6 +5,7 @@ import com.rafael.agendanails.webapp.support.BaseIntegrationTest;
 import com.rafael.agendanails.webapp.support.factory.TestClientFactory;
 import com.rafael.agendanails.webapp.support.factory.TestProfessionalFactory;
 import com.rafael.agendanails.webapp.support.factory.TestSalonProfileFactory;
+import com.rafael.agendanails.webapp.support.factory.TestUserPrincipalFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -29,7 +30,7 @@ class JwtAuthenticationFilterIT extends BaseIntegrationTest {
         salonProfileRepository.save(TestSalonProfileFactory.standardForIT(professional, "tenant-test"));
         var client = clientRepository.save(TestClientFactory.standardForIt());
 
-        String token = jwtTokenService.generateAuthToken(client);
+        String token = jwtTokenService.generateAuthToken(TestUserPrincipalFactory.from(client));
 
         mvc.perform(get("/api/v1/professional/simplified")
                         .header("X-Tenant-Id", "tenant-test")
@@ -81,7 +82,7 @@ class JwtAuthenticationFilterIT extends BaseIntegrationTest {
         salonProfileRepository.save(TestSalonProfileFactory.standardForIT(professional, "tenant-test"));
         var client = clientRepository.save(TestClientFactory.standardForIt());
 
-        String token = jwtTokenService.generateAuthToken(client);
+        String token = jwtTokenService.generateAuthToken(TestUserPrincipalFactory.from(client));
 
         mvc.perform(get("/api/v1/admin/appointments/users/" + client.getId())
                         .header("X-Tenant-Id", "tenant-test")
@@ -94,7 +95,7 @@ class JwtAuthenticationFilterIT extends BaseIntegrationTest {
         var professional = professionalRepository.save(TestProfessionalFactory.standardForIt());
         salonProfileRepository.save(TestSalonProfileFactory.standardForIT(professional));
 
-        String token = jwtTokenService.generateAuthToken(professional);
+        String token = jwtTokenService.generateAuthToken(TestUserPrincipalFactory.from(professional));
 
         mvc.perform(get("/api/v1/professional/schedule/block")
                         .param("dateAndTime", ZonedDateTime.now().toString())

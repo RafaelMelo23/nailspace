@@ -105,10 +105,12 @@ class BookingAppointmentUseCaseIT extends BaseIntegrationTest {
     void bookAppointment_shouldSuccessfullyBookWhenEverythingIsValid() {
         PreparationData data = prepareData(15, 3600, List.of(900));
 
-        ZonedDateTime appointmentTime = ZonedDateTime.of(
-                2026, 5, 6, 10, 0, 0, 0,
-                ZoneId.of("America/Sao_Paulo")
-        );
+        ZonedDateTime appointmentTime = ZonedDateTime.now(ZoneId.of("America/Sao_Paulo"))
+                .plusDays(1)
+                .withHour(10)
+                .withMinute(0)
+                .withSecond(0)
+                .withNano(0);
         AppointmentCreateDTO dto = AppointmentCreateDTO.builder()
                 .professionalExternalId(data.professional().getExternalId().toString())
                 .mainServiceId(data.mainService().getId())
@@ -132,10 +134,12 @@ class BookingAppointmentUseCaseIT extends BaseIntegrationTest {
     void bookAppointment_shouldRollback_whenProfessionalIsBusy() {
         PreparationData data = prepareData(15, 3600, List.of(900));
 
-        ZonedDateTime appointmentTime = ZonedDateTime.of(
-                2026, 5, 6, 10, 0, 0, 0,
-                ZoneId.of("America/Sao_Paulo")
-        );
+        ZonedDateTime appointmentTime = ZonedDateTime.now(ZoneId.of("America/Sao_Paulo"))
+                .plusDays(1)
+                .withHour(10)
+                .withMinute(0)
+                .withSecond(0)
+                .withNano(0);
 
         var clientB = clientRepository.save(
                 TestClientFactory.standardForIt()
@@ -174,8 +178,10 @@ class BookingAppointmentUseCaseIT extends BaseIntegrationTest {
     void bookAppointment_shouldSucceedForBoth_whenConcurrentBookingOnDifferentSlots() throws InterruptedException {
         PreparationData data = prepareData(15, 3600, List.of());
 
-        ZonedDateTime time1 = ZonedDateTime.of(2026, 4, 6, 10, 0, 0, 0, ZoneId.of("America/Sao_Paulo"));
-        ZonedDateTime time2 = ZonedDateTime.of(2026, 4, 6, 11, 30, 0, 0, ZoneId.of("America/Sao_Paulo"));
+        ZonedDateTime baseTime = ZonedDateTime.now(ZoneId.of("America/Sao_Paulo"))
+                .plusDays(1);
+        ZonedDateTime time1 = baseTime.withHour(10).withMinute(0).withSecond(0).withNano(0);
+        ZonedDateTime time2 = baseTime.withHour(11).withMinute(30).withSecond(0).withNano(0);
 
         Client client2 = clientRepository.save(TestClientFactory.standardForIt());
         UserPrincipal principal2 = UserPrincipal.builder()
@@ -259,10 +265,12 @@ class BookingAppointmentUseCaseIT extends BaseIntegrationTest {
         data.salonProfile().setAutoConfirmationAppointment(true);
         salonProfileRepository.save(data.salonProfile());
 
-        ZonedDateTime appointmentTime = ZonedDateTime.of(
-                2026, 5, 6, 10, 0, 0, 0,
-                ZoneId.of("America/Sao_Paulo")
-        );
+        ZonedDateTime appointmentTime = ZonedDateTime.now(ZoneId.of("America/Sao_Paulo"))
+                .plusDays(1)
+                .withHour(10)
+                .withMinute(0)
+                .withSecond(0)
+                .withNano(0);
 
         AppointmentCreateDTO dto = AppointmentCreateDTO.builder()
                 .professionalExternalId(data.professional().getExternalId().toString())

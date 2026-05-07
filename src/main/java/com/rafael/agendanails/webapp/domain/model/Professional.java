@@ -7,12 +7,12 @@ import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.SQLDelete;
 
 import java.time.DayOfWeek;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Filter;
 
 @Entity
 @SuperBuilder

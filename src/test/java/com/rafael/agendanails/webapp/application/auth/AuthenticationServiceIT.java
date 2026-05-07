@@ -11,7 +11,6 @@ import com.rafael.agendanails.webapp.domain.repository.ProfessionalRepository;
 import com.rafael.agendanails.webapp.infrastructure.dto.auth.AuthResultDTO;
 import com.rafael.agendanails.webapp.infrastructure.dto.auth.LoginDTO;
 import com.rafael.agendanails.webapp.infrastructure.dto.auth.RegisterDTO;
-import com.rafael.agendanails.webapp.infrastructure.dto.auth.TokenRefreshResponseDTO;
 import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
 import com.rafael.agendanails.webapp.infrastructure.exception.LoginException;
 import com.rafael.agendanails.webapp.infrastructure.exception.TokenRefreshException;
@@ -65,47 +64,58 @@ class AuthenticationServiceIT extends BaseIntegrationTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenLoginPasswordIsIncorrect() {
+    void shouldThrowExceptionWhenLoginPasswordIsIncorrect() throws Exception {
         Client client = TestClientFactory.standardForIt();
         client.setPassword(passwordEncoder.encode("correct-password"));
         userRepository.save(client);
 
-        assertThatThrownBy(() -> authenticationService.login(new LoginDTO(client.getEmail(), "wrong-password")))
-                .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("Os dados informados são inválidos");
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsBytes(new LoginDTO(client.getEmail(), "wrong-password"))))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void shouldGenerateAndPersistTokensWhenLoginIsSuccessful() {
+    void shouldGenerateAndPersistTokensWhenLoginIsSuccessful() throws Exception {
         Client client = TestClientFactory.standardForIt();
         client.setPassword(passwordEncoder.encode("password123"));
         userRepository.save(client);
 
-        AuthResultDTO result = authenticationService.login(new LoginDTO(client.getEmail(), "password123"));
-        
-        assertThat(result.jwtToken()).isNotBlank();
-        assertThat(result.refreshToken()).isNotBlank();
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsBytes(new LoginDTO(client.getEmail(), "password123"))))
+                .andExpect(status().isOk())
+                .andExpect(result -> {
+                    String content = result.getResponse().getContentAsString();
+                    assertThat(content).contains("jwtToken");
+                    
+                    var cookie = result.getResponse().getCookie("refresh_token");
+                    assertThat(cookie).isNotNull();
+                    String refreshToken = cookie.getValue();
+                    assertThat(refreshToken).isNotBlank();
 
-        Optional<RefreshToken> refresh = refreshTokenRepository.findByToken(result.refreshToken());
-        assertThat(refresh).isPresent();
-        assertThat(refresh.get().getUser().getId()).isEqualTo(client.getId());
+                    TenantContext.setTenant("tenant-test");
+                    Optional<RefreshToken> refresh = refreshTokenRepository.findByToken(refreshToken);
+                    assertThat(refresh).isPresent();
+                    assertThat(refresh.get().getUser().getId()).isEqualTo(client.getId());
+                });
     }
 
     @Test
-    void shouldThrowExceptionWhenUserBelongsToDifferentTenant() {
+    void shouldThrowExceptionWhenUserBelongsToDifferentTenant() throws Exception {
         Client client = TestClientFactory.standardForIt("other-tenant");
         client.setPassword(passwordEncoder.encode("password123"));
         userRepository.save(client);
 
-        TenantContext.setTenant("my-tenant");
-
-        assertThatThrownBy(() -> authenticationService.login(new LoginDTO(client.getEmail(), "password123")))
-                .isInstanceOf(LoginException.class)
-                .hasMessageContaining("Acesso negado para este estabelecimento.");
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Tenant-Id", "my-tenant")
+                        .content(mapper.writeValueAsBytes(new LoginDTO(client.getEmail(), "password123"))))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void shouldAllowLoginWhenUserIsSuperAdminRegardlessOfTenant() {
+    void shouldAllowLoginWhenUserIsSuperAdminRegardlessOfTenant() throws Exception {
         var admin = TestProfessionalFactory.builder()
                 .userRole(UserRole.SUPER_ADMIN)
                 .tenantId("admin-tenant")
@@ -114,27 +124,29 @@ class AuthenticationServiceIT extends BaseIntegrationTest {
                 .build();
         userRepository.save(admin);
 
-        TenantContext.setTenant("some-salon-tenant");
-
-        AuthResultDTO result = authenticationService.login(new LoginDTO("super@admin.com", "admin123"));
-        assertThat(result.jwtToken()).isNotBlank();
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Tenant-Id", "some-salon-tenant")
+                        .content(mapper.writeValueAsBytes(new LoginDTO("super@admin.com", "admin123"))))
+                .andExpect(status().isOk());
     }
 
     @Test
-    void shouldRevokeAllTokensWhenRevokedTokenIsUsed() {
+    void shouldRevokeAllTokensWhenRevokedTokenIsUsed() throws Exception {
         Client client = TestClientFactory.standardForIt();
         userRepository.save(client);
 
-        RefreshToken t1 = RefreshToken.builder().token("t1").user(client).expiryDate(Instant.now().plusSeconds(1000)).isRevoked(false).build();
-        RefreshToken t2 = RefreshToken.builder().token("t2").user(client).expiryDate(Instant.now().plusSeconds(1000)).isRevoked(false).build();
-        RefreshToken t3 = RefreshToken.builder().token("t3").user(client).expiryDate(Instant.now().plusSeconds(1000)).isRevoked(true).build();
+        RefreshToken t1 = RefreshToken.builder().token("t1").user(client).expiryDate(Instant.now().plusSeconds(1000)).tenantId("tenant-test").isRevoked(false).build();
+        RefreshToken t2 = RefreshToken.builder().token("t2").user(client).expiryDate(Instant.now().plusSeconds(1000)).tenantId("tenant-test").isRevoked(false).build();
+        RefreshToken t3 = RefreshToken.builder().token("t3").user(client).expiryDate(Instant.now().plusSeconds(1000)).tenantId("tenant-test").isRevoked(true).build();
         refreshTokenRepository.saveAll(List.of(t1, t2, t3));
 
-        assertThatThrownBy(() -> authenticationService.refreshToken("t3"))
-                .isInstanceOf(TokenRefreshException.class)
-                .hasMessageContaining("Este token já foi utilizado.");
+        mockMvc.perform(post("/api/v1/auth/refresh")
+                        .cookie(new jakarta.servlet.http.Cookie("refresh_token", "t3")))
+                .andExpect(status().isUnauthorized());
 
         entityManager.flush();
+        TenantContext.setTenant("tenant-test");
         List<RefreshToken> all = refreshTokenRepository.findAll();
         assertThat(all).extracting(RefreshToken::isRevoked).containsOnly(true);
     }
@@ -156,7 +168,7 @@ class AuthenticationServiceIT extends BaseIntegrationTest {
     }
 
     @Test
-    void shouldRotateTokensWhenRefreshIsSuccessful() {
+    void shouldRotateTokensWhenRefreshIsSuccessful() throws Exception {
         Client client = TestClientFactory.standardForIt();
         userRepository.save(client);
 
@@ -165,18 +177,29 @@ class AuthenticationServiceIT extends BaseIntegrationTest {
                 .user(client)
                 .expiryDate(Instant.now().plusSeconds(1000))
                 .isRevoked(false)
+                .tenantId("tenant-test")
                 .build();
         refreshTokenRepository.save(oldToken);
 
-        TokenRefreshResponseDTO response = authenticationService.refreshToken("old-token");
+        mockMvc.perform(post("/api/v1/auth/refresh")
+                        .cookie(new jakarta.servlet.http.Cookie("refresh_token", "old-token")))
+                .andExpect(status().isOk())
+                .andExpect(result -> {
+                    String newJwt = result.getResponse().getContentAsString();
+                    assertThat(newJwt).isNotEmpty();
 
-        assertThat(response.jwtToken()).isNotEmpty();
-        assertThat(response.refreshToken()).isNotEqualTo("old-token");
+                    var cookie = result.getResponse().getCookie("refresh_token");
+                    assertThat(cookie).isNotNull();
+                    String newRefreshToken = cookie.getValue();
+                    assertThat(newRefreshToken).isNotEqualTo("old-token");
 
-        RefreshToken updatedOldToken = refreshTokenRepository.findByToken("old-token").orElseThrow();
-        assertThat(updatedOldToken.isRevoked()).isTrue();
+                    TenantContext.setTenant("tenant-test");
 
-        Optional<RefreshToken> persistedNewToken = refreshTokenRepository.findByToken(response.refreshToken());
-        assertThat(persistedNewToken).isPresent();
+                    RefreshToken updatedOldToken = refreshTokenRepository.findByToken("old-token").orElseThrow();
+                    assertThat(updatedOldToken.isRevoked()).isTrue();
+
+                    Optional<RefreshToken> persistedNewToken = refreshTokenRepository.findByToken(newRefreshToken);
+                    assertThat(persistedNewToken).isPresent();
+                });
     }
 }

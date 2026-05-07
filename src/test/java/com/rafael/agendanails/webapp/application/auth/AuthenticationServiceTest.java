@@ -1,20 +1,10 @@
 package com.rafael.agendanails.webapp.application.auth;
 
-import com.rafael.agendanails.webapp.domain.enums.user.UserRole;
-import com.rafael.agendanails.webapp.domain.enums.user.UserStatus;
 import com.rafael.agendanails.webapp.domain.model.Client;
-import com.rafael.agendanails.webapp.domain.model.RefreshToken;
 import com.rafael.agendanails.webapp.domain.repository.ClientRepository;
 import com.rafael.agendanails.webapp.domain.repository.UserRepository;
-import com.rafael.agendanails.webapp.infrastructure.dto.auth.AuthResultDTO;
-import com.rafael.agendanails.webapp.infrastructure.dto.auth.LoginDTO;
 import com.rafael.agendanails.webapp.infrastructure.dto.auth.RegisterDTO;
-import com.rafael.agendanails.webapp.infrastructure.dto.auth.TokenRefreshResponseDTO;
-import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
-import com.rafael.agendanails.webapp.infrastructure.exception.LoginException;
-import com.rafael.agendanails.webapp.infrastructure.exception.TokenRefreshException;
 import com.rafael.agendanails.webapp.infrastructure.exception.UserAlreadyExistsException;
-import com.rafael.agendanails.webapp.infrastructure.security.token.JwtTokenService;
 import com.rafael.agendanails.webapp.infrastructure.security.token.RefreshTokenService;
 import com.rafael.agendanails.webapp.shared.tenant.TenantContext;
 import com.rafael.agendanails.webapp.support.factory.TestClientFactory;
@@ -29,7 +19,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -44,8 +33,6 @@ class AuthenticationServiceTest {
     private ClientRepository clientRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
-    @Mock
-    private JwtTokenService jwtTokenService;
     @Mock
     private RefreshTokenService refreshTokenService;
 
@@ -102,154 +89,8 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    void shouldLoginSuccessfullyAndReturnTokensWhenCredentialsAreValid() {
-        LoginDTO loginDTO = new LoginDTO("email@test.com", "password");
-        Client user = TestClientFactory.builder()
-                .email(loginDTO.email())
-                .password("encodedPassword")
-                .tenantId(DEFAULT_TENANT)
-                .build();
-
-        when(userRepository.findByEmailIgnoreCase(loginDTO.email())).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches(loginDTO.password(), user.getPassword())).thenReturn(true);
-        when(jwtTokenService.generateAuthToken(user)).thenReturn("jwt-token");
-        
-        RefreshToken refreshToken = RefreshToken.builder().token("refresh-token").build();
-        when(refreshTokenService.createRefreshToken(user)).thenReturn(refreshToken);
-
-        AuthResultDTO result = authenticationService.login(loginDTO);
-
-        assertThat(result.jwtToken()).isEqualTo("jwt-token");
-        assertThat(result.refreshToken()).isEqualTo("refresh-token");
-    }
-
-    @Test
-    void shouldThrowExceptionWhenUserNotFoundDuringLogin() {
-        LoginDTO loginDTO = new LoginDTO("email@test.com", "password");
-        when(userRepository.findByEmailIgnoreCase(loginDTO.email())).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> authenticationService.login(loginDTO))
-                .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("Os dados informados são inválidos");
-
-        verify(passwordEncoder).matches(anyString(), anyString());
-    }
-
-    @Test
-    void shouldThrowExceptionWhenPasswordDoesNotMatchDuringLogin() {
-        LoginDTO loginDTO = new LoginDTO("email@test.com", "password");
-        Client user = TestClientFactory.standard();
-        
-        when(userRepository.findByEmailIgnoreCase(loginDTO.email())).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches(loginDTO.password(), user.getPassword())).thenReturn(false);
-
-        assertThatThrownBy(() -> authenticationService.login(loginDTO))
-                .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("Os dados informados são inválidos");
-    }
-
-    @Test
-    void shouldThrowExceptionWhenUserIsBannedDuringLogin() {
-        LoginDTO loginDTO = new LoginDTO("email@test.com", "password");
-        Client user = TestClientFactory.builder()
-                .status(UserStatus.BANNED)
-                .build();
-
-        when(userRepository.findByEmailIgnoreCase(loginDTO.email())).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches(loginDTO.password(), user.getPassword())).thenReturn(true);
-
-        assertThatThrownBy(() -> authenticationService.login(loginDTO))
-                .isInstanceOf(LoginException.class)
-                .hasMessageContaining("Você foi banido deste estabelecimento");
-    }
-
-    @Test
-    void shouldThrowExceptionWhenUserBelongsToDifferentTenantDuringLogin() {
-        LoginDTO loginDTO = new LoginDTO("email@test.com", "password");
-        Client user = TestClientFactory.builder()
-                .tenantId("other-tenant")
-                .userRole(UserRole.CLIENT)
-                .build();
-
-        when(userRepository.findByEmailIgnoreCase(loginDTO.email())).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches(loginDTO.password(), user.getPassword())).thenReturn(true);
-
-        assertThatThrownBy(() -> authenticationService.login(loginDTO))
-                .isInstanceOf(LoginException.class)
-                .hasMessageContaining("Acesso negado para este estabelecimento.");
-    }
-
-    @Test
-    void shouldAllowLoginForSuperAdminEvenWithDifferentTenant() {
-        LoginDTO loginDTO = new LoginDTO("admin@test.com", "password");
-        Client user = TestClientFactory.builder()
-                .tenantId("other-tenant")
-                .userRole(UserRole.SUPER_ADMIN)
-                .build();
-
-        when(userRepository.findByEmailIgnoreCase(loginDTO.email())).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches(loginDTO.password(), user.getPassword())).thenReturn(true);
-        when(jwtTokenService.generateAuthToken(user)).thenReturn("jwt-token");
-        when(refreshTokenService.createRefreshToken(user)).thenReturn(RefreshToken.builder().token("refresh-token").build());
-
-        AuthResultDTO result = authenticationService.login(loginDTO);
-
-        assertThat(result.jwtToken()).isEqualTo("jwt-token");
-    }
-
-    @Test
     void shouldRevokeTokenOnLogout() {
         authenticationService.logout("refresh-token", 1L);
         verify(refreshTokenService).revokeUserToken("refresh-token", 1L);
-    }
-
-    @Test
-    void shouldRefreshTokenSuccessfullyWhenTokenIsValid() {
-        String oldTokenStr = "old-refresh-token";
-        Client user = TestClientFactory.standard();
-        RefreshToken oldToken = RefreshToken.builder()
-                .token(oldTokenStr)
-                .user(user)
-                .isRevoked(false)
-                .build();
-
-        when(refreshTokenService.findByToken(oldTokenStr)).thenReturn(Optional.of(oldToken));
-        when(refreshTokenService.verifyExpiration(oldToken)).thenReturn(oldToken);
-        when(refreshTokenService.createRefreshTokenWithExpiry(eq(user), any())).thenReturn(RefreshToken.builder().token("new-refresh-token").build());
-        when(jwtTokenService.generateAuthToken(user)).thenReturn("new-jwt-token");
-
-        TokenRefreshResponseDTO result = authenticationService.refreshToken(oldTokenStr);
-
-        assertThat(result.jwtToken()).isEqualTo("new-jwt-token");
-        assertThat(result.refreshToken()).isEqualTo("new-refresh-token");
-        assertThat(oldToken.isRevoked()).isTrue();
-    }
-
-    @Test
-    void shouldRevokeAllTokensAndThrowExceptionIfTokenIsAlreadyRevoked() {
-        String tokenStr = "revoked-token";
-        Client user = TestClientFactory.builder().id(1L).build();
-        RefreshToken token = RefreshToken.builder()
-                .token(tokenStr)
-                .user(user)
-                .isRevoked(true)
-                .build();
-
-        when(refreshTokenService.findByToken(tokenStr)).thenReturn(Optional.of(token));
-
-        assertThatThrownBy(() -> authenticationService.refreshToken(tokenStr))
-                .isInstanceOf(TokenRefreshException.class)
-                .hasMessageContaining("Este token já foi utilizado.");
-
-        verify(refreshTokenService).revokeAllForUser(1L);
-    }
-
-    @Test
-    void shouldThrowExceptionWhenTokenIsNotFoundDuringRefresh() {
-        when(refreshTokenService.findByToken(anyString())).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> authenticationService.refreshToken("non-existent"))
-                .isInstanceOf(TokenRefreshException.class)
-                .hasMessageContaining("Token não encontrado");
     }
 }

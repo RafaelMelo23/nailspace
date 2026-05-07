@@ -1,8 +1,8 @@
 package com.rafael.agendanails.webapp.application.salon.business;
 
 import com.rafael.agendanails.webapp.domain.enums.appointment.TenantStatus;
-import com.rafael.agendanails.webapp.domain.enums.salon.OperationalStatus;
 import com.rafael.agendanails.webapp.domain.enums.evolution.EvolutionConnectionState;
+import com.rafael.agendanails.webapp.domain.enums.salon.OperationalStatus;
 import com.rafael.agendanails.webapp.domain.model.BaseEntity;
 import com.rafael.agendanails.webapp.domain.model.SalonProfile;
 import com.rafael.agendanails.webapp.domain.repository.SalonProfileRepository;

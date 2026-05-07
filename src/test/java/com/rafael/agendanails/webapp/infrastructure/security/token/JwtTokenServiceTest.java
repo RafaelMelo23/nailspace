@@ -6,9 +6,11 @@ import com.rafael.agendanails.webapp.domain.enums.security.TokenClaim;
 import com.rafael.agendanails.webapp.domain.enums.security.TokenPurpose;
 import com.rafael.agendanails.webapp.domain.enums.user.UserRole;
 import com.rafael.agendanails.webapp.domain.model.Client;
+import com.rafael.agendanails.webapp.domain.model.UserPrincipal;
 import com.rafael.agendanails.webapp.infrastructure.dto.auth.ResetPasswordDTO;
 import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
 import com.rafael.agendanails.webapp.support.factory.TestClientFactory;
+import com.rafael.agendanails.webapp.support.factory.TestUserPrincipalFactory;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +27,7 @@ import static org.mockito.Mockito.when;
 class JwtTokenServiceTest {
 
     private JwtTokenService jwtTokenService;
-    private static final String ISSUER_CLAIM = "agendanails-api";
+    private static final String ISSUER_CLAIM = "nailspace-api";
     private static final String TENANT_CLAIM = "tenantId";
     private static final String PURPOSE_CLAIM = "purpose";
 
@@ -37,7 +39,7 @@ class JwtTokenServiceTest {
 
     @Test
     void generateAuthToken_createsJwt() {
-        Client user = TestClientFactory.standard();
+        UserPrincipal user = TestUserPrincipalFactory.from(TestClientFactory.standard());
 
         String token = jwtTokenService.generateAuthToken(user);
 
@@ -46,7 +48,7 @@ class JwtTokenServiceTest {
 
     @Test
     void generateAuthToken_createsCorrectClaims() {
-        Client user = TestClientFactory.standard();
+        UserPrincipal user = TestUserPrincipalFactory.from(TestClientFactory.standard());
 
         String token = jwtTokenService.generateAuthToken(user);
         DecodedJWT decodedJWT = JWT.decode(token);
@@ -62,7 +64,7 @@ class JwtTokenServiceTest {
                 .asList(UserRole.class)
                 .getFirst();
 
-        assertTrue(user.getUserRole().equals(roleFromToken));
+        assertTrue(user.getUserRole().contains(roleFromToken));
 
         assertEquals(user.getTenantId(),
                 decodedJWT.getClaim(TokenClaim.TENANT_ID.getValue()).asString());
@@ -79,7 +81,7 @@ class JwtTokenServiceTest {
     @Test
     void recover_successfullyExtractsToken() {
         HttpServletRequest request = mock(HttpServletRequest.class);
-        Client user = TestClientFactory.standard();
+        UserPrincipal user = TestUserPrincipalFactory.from(TestClientFactory.standard());
         String token = jwtTokenService.generateAuthToken(user);
 
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
@@ -90,7 +92,7 @@ class JwtTokenServiceTest {
     @Test
     void recover_returnsNullIfAuthNotBearer() {
         HttpServletRequest request = mock(HttpServletRequest.class);
-        Client user = TestClientFactory.standard();
+        UserPrincipal user = TestUserPrincipalFactory.from(TestClientFactory.standard());
         String token = jwtTokenService.generateAuthToken(user);
 
         when(request.getHeader("Authorization")).thenReturn(token);
@@ -116,7 +118,7 @@ class JwtTokenServiceTest {
 
     @Test
     void validateAndDecode_returnsDecodedJwtWhenValid() {
-        Client user = TestClientFactory.standard();
+        UserPrincipal user = TestUserPrincipalFactory.from(TestClientFactory.standard());
         String token = jwtTokenService.generateAuthToken(user);
 
         DecodedJWT decodedJWT = jwtTokenService.validateAndDecode(token);
@@ -161,7 +163,7 @@ class JwtTokenServiceTest {
 
     @Test
     void validateResetPasswordToken_throwsBusinessExceptionWhenWrongPurpose() {
-        Client user = TestClientFactory.standard();
+        UserPrincipal user = TestUserPrincipalFactory.from(TestClientFactory.standard());
         String token = jwtTokenService.generateAuthToken(user);
         ResetPasswordDTO dto = mock(ResetPasswordDTO.class);
 
@@ -176,7 +178,7 @@ class JwtTokenServiceTest {
     @Test
     void recoverAndValidate_returnsDecodedJwtWhenValid() {
         HttpServletRequest request = mock(HttpServletRequest.class);
-        Client user = TestClientFactory.standard();
+        UserPrincipal user = TestUserPrincipalFactory.from(TestClientFactory.standard());
         String token = jwtTokenService.generateAuthToken(user);
 
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);

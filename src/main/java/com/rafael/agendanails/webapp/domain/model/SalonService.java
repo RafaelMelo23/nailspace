@@ -5,11 +5,11 @@ import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.SQLDelete;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Filter;
 
 @Entity
 @SuperBuilder

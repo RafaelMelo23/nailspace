@@ -7,6 +7,7 @@ import com.rafael.agendanails.webapp.infrastructure.dto.auth.ResetPasswordDTO;
 import com.rafael.agendanails.webapp.infrastructure.security.token.JwtTokenService;
 import com.rafael.agendanails.webapp.support.BaseIntegrationTest;
 import com.rafael.agendanails.webapp.support.factory.TestClientFactory;
+import com.rafael.agendanails.webapp.support.factory.TestUserPrincipalFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -64,10 +65,11 @@ class PasswordResetUseCaseIT extends BaseIntegrationTest {
         Client client = TestClientFactory.standardForIt();
         userRepository.save(client);
 
-        String wrongToken = jwtTokenService.generateAuthToken(client);
+        String wrongToken = jwtTokenService.generateAuthToken(TestUserPrincipalFactory.from(client));
         ResetPasswordDTO dto = new ResetPasswordDTO(client.getEmail(), "newPassword123", wrongToken);
 
         assertThatThrownBy(() -> passwordResetUseCase.resetPassword(dto))
                 .isInstanceOf(RuntimeException.class);
     }
 }
+

@@ -5,7 +5,6 @@ import com.rafael.agendanails.webapp.domain.model.Appointment;
 import com.rafael.agendanails.webapp.domain.model.UserPrincipal;
 import com.rafael.agendanails.webapp.domain.repository.AppointmentRepository;
 import com.rafael.agendanails.webapp.infrastructure.dto.appointment.AppointmentCreateDTO;
-import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,10 +1,10 @@
-package com.rafael.agendanails.webapp.infrastructure.security.token.refresh;
+package com.rafael.agendanails.webapp.infrastructure.security.token;
 
 import com.rafael.agendanails.webapp.domain.model.Client;
 import com.rafael.agendanails.webapp.domain.model.RefreshToken;
 import com.rafael.agendanails.webapp.domain.repository.RefreshTokenRepository;
+import com.rafael.agendanails.webapp.domain.repository.UserRepository;
 import com.rafael.agendanails.webapp.infrastructure.exception.TokenRefreshException;
-import com.rafael.agendanails.webapp.infrastructure.security.token.RefreshTokenService;
 import com.rafael.agendanails.webapp.support.factory.TestClientFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,8 +16,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,6 +29,9 @@ class RefreshJwtTokenServiceTest {
 
     @Mock
     private RefreshTokenRepository repository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @InjectMocks
     private RefreshTokenService refreshTokenService;
@@ -44,12 +47,14 @@ class RefreshJwtTokenServiceTest {
     @Test
     void createRefreshToken_successfullyCreatesToken() {
         Client user = TestClientFactory.standard();
+        user.setId(1L);
 
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(repository.save(any(RefreshToken.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         Instant before = Instant.now();
-        RefreshToken savedToken = refreshTokenService.createRefreshToken(user);
+        RefreshToken savedToken = refreshTokenService.createRefreshToken(user.getId());
         Instant after = Instant.now();
 
         Instant expiry = savedToken.getExpiryDate();
@@ -68,31 +73,57 @@ class RefreshJwtTokenServiceTest {
     }
 
     @Test
-    void verifyExpiration_returnTokenIfNotExpired() {
+    void rotateAndGetRefreshToken_returnTokenIfNotExpired() {
+        Client user = TestClientFactory.standard();
+        user.setId(1L);
         RefreshToken token = RefreshToken.builder()
+                .user(user)
                 .expiryDate(Instant.now().plusMillis(tokenDurationMs))
+                .isRevoked(false)
                 .build();
 
-        RefreshToken validToken = refreshTokenService.verifyExpiration(token);
-        assertNotNull(validToken);
-        assertEquals(token, validToken);
+        when(repository.findByToken("old-token")).thenReturn(Optional.of(token));
+        when(repository.save(any(RefreshToken.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        RefreshToken newToken = refreshTokenService.rotateAndGetRefreshToken("old-token");
+        
+        assertNotNull(newToken);
+        assertTrue(token.isRevoked());
+        assertEquals(user, newToken.getUser());
     }
 
     @Test
-    void verifyExpiration_throwsExceptionIfExpired() {
+    void rotateAndGetRefreshToken_throwsExceptionIfExpired() {
         RefreshToken token = RefreshToken.builder()
                 .expiryDate(Instant.now().minus(tokenDurationMs, ChronoUnit.MILLIS))
                 .build();
 
+        when(repository.findByToken("expired-token")).thenReturn(Optional.of(token));
+
         assertThrows(
                 TokenRefreshException.class,
-                () -> refreshTokenService.verifyExpiration(token));
+                () -> refreshTokenService.rotateAndGetRefreshToken("expired-token"));
+        
+        verify(repository).delete(token);
     }
 
-    @Test void verifyExpiration_tokenExpiringNow_isStillValid() {
-        ReflectionTestUtils.setField(refreshTokenService, "clock", Clock.fixed(Instant.parse("2026-03-18T18:00:00Z"), ZoneOffset.UTC));
-        RefreshToken token = RefreshToken.builder().expiryDate(Instant.now()).build();
-        assertDoesNotThrow(() -> refreshTokenService.verifyExpiration(token));
+    @Test
+    void rotateAndGetRefreshToken_throwsExceptionIfReused() {
+        Client user = TestClientFactory.standard();
+        user.setId(1L);
+        RefreshToken token = RefreshToken.builder()
+                .user(user)
+                .isRevoked(true)
+                .build();
+
+        when(repository.findByToken("reused-token")).thenReturn(Optional.of(token));
+
+        assertThrows(
+                TokenRefreshException.class,
+                () -> refreshTokenService.rotateAndGetRefreshToken("reused-token"));
+        
+        verify(repository).revokeAllUserTokens(user.getId());
     }
 
     @Test
@@ -132,19 +163,5 @@ class RefreshJwtTokenServiceTest {
         refreshTokenService.revokeUserToken(tokenStr, userId);
 
         verify(repository).revokeToken(tokenStr, userId);
-    }
-
-    @Test
-    void verifyExpiration_deletesTokenWhenExpired() {
-        RefreshToken token = RefreshToken.builder()
-                .expiryDate(Instant.now().minus(tokenDurationMs, ChronoUnit.MILLIS))
-                .build();
-
-        assertThrows(
-                TokenRefreshException.class,
-                () -> refreshTokenService.verifyExpiration(token)
-        );
-
-        verify(repository).delete(token);
     }
 }

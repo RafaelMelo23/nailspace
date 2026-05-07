@@ -43,11 +43,7 @@ public class RefreshTokenService {
         return saveRefreshToken(user, defaultExpiry());
     }
 
-    @Transactional
-    public RefreshToken createRefreshTokenWithExpiry(User user, Instant expiryDate) {
-        return saveRefreshToken(user, expiryDate);
-    }
-
+    @IgnoreTenantFilter
     private RefreshToken saveRefreshToken(User user, Instant expiryDate) {
         return repository.save(
                 RefreshToken.builder()
@@ -90,16 +86,16 @@ public class RefreshTokenService {
     @Transactional(noRollbackFor = TokenRefreshException.class)
     public RefreshToken rotateAndGetRefreshToken(String rawToken) {
 
-        RefreshToken token = repository.findByToken(rawToken)
+        RefreshToken oldToken = repository.findByToken(rawToken)
                 .orElseThrow(() -> new TokenRefreshException("Token não encontrado"));
 
-        validateNotReused(token);
-        validateNotExpired(token);
+        validateNotReused(oldToken);
+        validateNotExpired(oldToken);
 
-        User user = token.getUser();
-        token.setRevoked(true);
+        User user = oldToken.getUser();
+        oldToken.setRevoked(true);
 
-        return saveRefreshToken(user, token.getExpiryDate());
+        return saveRefreshToken(user, oldToken.getExpiryDate());
     }
 
     private void validateNotReused(RefreshToken token) {

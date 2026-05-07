@@ -4,11 +4,15 @@ import com.rafael.agendanails.webapp.application.salon.business.SalonServiceServ
 import com.rafael.agendanails.webapp.domain.enums.demo.DemoUserType;
 import com.rafael.agendanails.webapp.domain.model.Client;
 import com.rafael.agendanails.webapp.domain.model.Professional;
+import com.rafael.agendanails.webapp.domain.model.RefreshToken;
 import com.rafael.agendanails.webapp.domain.model.User;
+import com.rafael.agendanails.webapp.domain.model.UserPrincipal;
 import com.rafael.agendanails.webapp.domain.repository.UserRepository;
 import com.rafael.agendanails.webapp.infrastructure.dto.auth.AuthResultDTO;
-import com.rafael.agendanails.webapp.infrastructure.dto.auth.LoginDTO;
+import com.rafael.agendanails.webapp.infrastructure.security.token.JwtTokenService;
+import com.rafael.agendanails.webapp.infrastructure.security.token.RefreshTokenService;
 import com.rafael.agendanails.webapp.support.factory.TestSalonServiceFactory;
+import com.rafael.agendanails.webapp.support.factory.TestUserPrincipalFactory;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,10 +21,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,8 +39,6 @@ import static org.mockito.Mockito.*;
 class DemoAuthenticationServiceTest {
 
     @Mock
-    private AuthenticationService authenticationService;
-    @Mock
     private UserRepository userRepository;
     @Mock
     private EntityManager entityManager;
@@ -42,6 +46,12 @@ class DemoAuthenticationServiceTest {
     private PasswordEncoder passwordEncoder;
     @Mock
     private SalonServiceService salonService;
+    @Mock
+    private AuthenticationManager authenticationManager;
+    @Mock
+    private JwtTokenService jwtTokenService;
+    @Mock
+    private RefreshTokenService refreshTokenService;
 
     @InjectMocks
     private DemoAuthenticationService demoAuthenticationService;
@@ -57,10 +67,20 @@ class DemoAuthenticationServiceTest {
     void shouldCreateAndLoginDemoClient() {
         when(passwordEncoder.encode(anyString()))
                 .thenReturn("encodedPassword");
-        when(authenticationService.login(any(LoginDTO.class)))
-                .thenReturn(new AuthResultDTO("jwt", "refresh"));
         when(userRepository.save(any(User.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
+
+        Authentication authentication = mock(Authentication.class);
+        UserPrincipal principal = mock(UserPrincipal.class);
+        when(principal.getId()).thenReturn(1L);
+        when(authentication.getPrincipal()).thenReturn(principal);
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(authentication);
+
+        when(jwtTokenService.generateAuthToken(any(UserPrincipal.class))).thenReturn("jwt");
+        RefreshToken refreshToken = mock(RefreshToken.class);
+        when(refreshToken.getToken()).thenReturn("refresh");
+        when(refreshTokenService.createRefreshToken(anyLong())).thenReturn(refreshToken);
 
         AuthResultDTO result = demoAuthenticationService.createAndLoginDemoUser(DemoUserType.CLIENT);
 
@@ -73,8 +93,8 @@ class DemoAuthenticationServiceTest {
         assertThat(savedUser.getEmail()).contains("demo.client");
         
         verify(entityManager).flush();
-        verify(authenticationService).login(argThat(login -> 
-            login.email().equals(savedUser.getEmail()) && login.password().equals("123456")
+        verify(authenticationManager).authenticate(argThat(auth -> 
+            auth.getPrincipal().equals(savedUser.getEmail()) && auth.getCredentials().equals("123456")
         ));
         
         assertThat(result.jwtToken()).isEqualTo("jwt");
@@ -83,9 +103,21 @@ class DemoAuthenticationServiceTest {
     @Test
     void shouldCreateAndLoginDemoProfessional() {
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
-        when(authenticationService.login(any(LoginDTO.class)))
-                .thenReturn(new AuthResultDTO("jwt", "refresh"));
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
         when(salonService.findAll()).thenReturn(Set.of(TestSalonServiceFactory.standard()));
+
+        Authentication authentication = mock(Authentication.class);
+        UserPrincipal principal = mock(UserPrincipal.class);
+        when(principal.getId()).thenReturn(1L);
+        when(authentication.getPrincipal()).thenReturn(principal);
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(authentication);
+
+        when(jwtTokenService.generateAuthToken(any(UserPrincipal.class))).thenReturn("jwt");
+        RefreshToken refreshToken = mock(RefreshToken.class);
+        when(refreshToken.getToken()).thenReturn("refresh");
+        when(refreshTokenService.createRefreshToken(anyLong())).thenReturn(refreshToken);
 
         AuthResultDTO result = demoAuthenticationService.createAndLoginDemoUser(DemoUserType.PROFESSIONAL);
 
@@ -101,10 +133,11 @@ class DemoAuthenticationServiceTest {
         assertThat(professional.getWorkSchedules()).isNotEmpty();
         
         verify(entityManager).flush();
-        verify(authenticationService).login(argThat(login -> 
-            login.email().equals(savedUser.getEmail()) && login.password().equals("123456")
+        verify(authenticationManager).authenticate(argThat(auth -> 
+            auth.getPrincipal().equals(savedUser.getEmail()) && auth.getCredentials().equals("123456")
         ));
         
         assertThat(result.jwtToken()).isEqualTo("jwt");
     }
 }
+

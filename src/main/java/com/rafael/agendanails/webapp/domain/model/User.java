@@ -10,10 +10,9 @@ import java.util.List;
 
 @Entity
 @SuperBuilder
-@Setter
-@Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Table(name = "users",
         uniqueConstraints = {
@@ -31,7 +30,10 @@ public abstract class User extends BaseEntity {
     @GeneratedValue
     private Long id;
 
-    @Builder.Default
+    public void assignId(Long id) {
+        this.id = id;
+    }
+
     @Column(name = "deleted", nullable = false)
     private boolean deleted = false;
 
@@ -46,11 +48,58 @@ public abstract class User extends BaseEntity {
     @Column(name = "user_role", nullable = false)
     private UserRole userRole;
 
+    protected User(String fullName, String email, String password, UserStatus status, UserRole userRole) {
+        this.fullName = fullName;
+        this.email = email;
+        this.password = password;
+        this.status = status;
+        this.userRole = userRole;
+    }
+
+    public void updateEmail(String email) {
+        this.email = email;
+    }
+
+    public void changePassword(String password) {
+        this.password = password;
+    }
+
+    public void updateFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public void assignTenant(String tenantId) {
+        this.setTenantId(tenantId);
+    }
+
+    public void updateStatus(UserStatus status) {
+        this.status = status;
+    }
+
+    protected void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    protected void setEmail(String email) {
+        this.email = email;
+    }
+
+    protected void setPassword(String password) {
+        this.password = password;
+    }
+
+    protected void setStatus(UserStatus status) {
+        this.status = status;
+    }
+
+    protected void setUserRole(UserRole userRole) {
+        this.userRole = userRole;
+    }
+
     @Override
     public void prePersist() {
         super.prePersist();
     }
-
     public List<UserRole> getEffectiveRoles() {
         return switch (this.userRole) {
             case SUPER_ADMIN -> List.of(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.PROFESSIONAL);

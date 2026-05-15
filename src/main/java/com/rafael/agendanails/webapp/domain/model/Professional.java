@@ -15,11 +15,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
-@SuperBuilder
-@Setter
 @Getter
-@NoArgsConstructor
+@SuperBuilder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE users SET deleted = true WHERE id = ?")
 @Filter(name = "deletedFilter")
 public class Professional extends User {
@@ -36,7 +35,7 @@ public class Professional extends User {
     private Boolean isFirstLogin = false;
 
     @OneToMany(mappedBy = "professional")
-    private List<Appointment> professionalAppointments;
+    private List<Appointment> professionalAppointments = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "professionals")
     private Set<SalonService> salonServices = new LinkedHashSet<>();
@@ -50,34 +49,71 @@ public class Professional extends User {
     @OneToOne(mappedBy = "owner", orphanRemoval = true)
     private SalonProfile salonProfile;
 
+    private Professional(String name, String email, UserRole role) {
+        super(name, email, null, UserStatus.ACTIVE, role);
+        this.isActive = true;
+        this.isFirstLogin = true;
+        this.externalId = UUID.randomUUID();
+    }
+
     @Override
     public void prePersist() {
-        this.isActive = Boolean.TRUE;
-        isFirstLogin = isFirstLogin == null;
-        this.externalId = UUID.randomUUID();
+        super.prePersist();
+        if (this.isActive == null) this.isActive = Boolean.TRUE;
+        if (this.isFirstLogin == null) this.isFirstLogin = true;
+        if (this.externalId == null) this.externalId = UUID.randomUUID();
     }
 
     public static Professional createAdminProfessional(
             String name,
             String email
     ) {
-        Professional professional = Professional.builder()
-                .fullName(name)
-                .email(email)
-                .professionalPicture(null)
-                .isActive(true)
-                .isFirstLogin(true)
-                .salonServices(new LinkedHashSet<>())
-                .workSchedules(new HashSet<>())
-                .scheduleBlocks(new LinkedHashSet<>())
-                .professionalAppointments(new ArrayList<>())
-                .userRole(UserRole.ADMIN)
-                .status(UserStatus.ACTIVE)
-                .build();
+        return new Professional(name, email, UserRole.ADMIN);
+    }
 
-        professional.setExternalId(UUID.randomUUID());
+    public void updatePicture(String picturePath) {
+        this.professionalPicture = picturePath;
+    }
 
-        return professional;
+    public void deactivate() {
+        this.isActive = false;
+    }
+
+    public void activate() {
+        this.isActive = true;
+    }
+
+    public void markFirstLoginDone() {
+        this.isFirstLogin = false;
+    }
+
+    public void forceFirstLoginStatus(boolean status) {
+        this.isFirstLogin = status;
+    }
+
+    public void assignSalonProfile(SalonProfile salonProfile) {
+        this.salonProfile = salonProfile;
+    }
+
+    public void assignWorkSchedules(Set<WorkSchedule> schedules) {
+        this.workSchedules.clear();
+        if (schedules != null) {
+            this.workSchedules.addAll(schedules);
+        }
+    }
+
+    public void assignSalonServices(Set<SalonService> services) {
+        this.salonServices.clear();
+        if (services != null) {
+            this.salonServices.addAll(services);
+        }
+    }
+
+    public void assignScheduleBlocks(Set<ScheduleBlock> blocks) {
+        this.scheduleBlocks.clear();
+        if (blocks != null) {
+            this.scheduleBlocks.addAll(blocks);
+        }
     }
 
     public Set<WorkSchedule> registerNewSchedules(List<WorkScheduleRecordDTO> dtos) {
@@ -119,15 +155,15 @@ public class Professional extends User {
     }
 
     private WorkSchedule mapToEntity(WorkScheduleRecordDTO dto) {
-        return WorkSchedule.builder()
-                .dayOfWeek(dto.dayOfWeek())
-                .workStart(dto.startTime())
-                .workEnd(dto.endTime())
-                .lunchBreakStartTime(dto.lunchBreakStartTime())
-                .lunchBreakEndTime(dto.lunchBreakEndTime())
-                .isActive(dto.isActive() != null ? dto.isActive() : true)
-                .professional(this)
-                .build();
+        return new WorkSchedule(
+                dto.dayOfWeek(),
+                dto.startTime(),
+                dto.endTime(),
+                dto.lunchBreakStartTime(),
+                dto.lunchBreakEndTime(),
+                dto.isActive() != null ? dto.isActive() : true,
+                this
+        );
     }
 
     private Set<DayOfWeek> getExistingScheduleDays() {

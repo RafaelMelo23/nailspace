@@ -79,12 +79,12 @@ public class DemoAuthenticationService {
                 name,
                 email);
 
-        adminProfessional.setPassword(hashedPassword);
-        adminProfessional.setTenantId(demoTenant);
-        adminProfessional.setIsFirstLogin(false);
-        adminProfessional.setWorkSchedules(WorkSchedule.createDefaultWeek(adminProfessional));
+        adminProfessional.changePassword(hashedPassword);
+        adminProfessional.assignTenant(demoTenant);
+        adminProfessional.markFirstLoginDone();
+        adminProfessional.assignWorkSchedules(WorkSchedule.createDefaultWeek(adminProfessional));
         if (services != null) {
-            adminProfessional.setSalonServices(services);
+            adminProfessional.assignSalonServices(services);
             services.forEach(service -> service.getProfessionals().add(adminProfessional));
         }
         return adminProfessional;
@@ -98,7 +98,7 @@ public class DemoAuthenticationService {
         String hashedPassword = passwordEncoder.encode("123456");
 
         Client demoClient = Client.createDefault(name, email, hashedPassword);
-        demoClient.setTenantId(demoTenant);
+        demoClient.assignTenant(demoTenant);
         return demoClient;
     }
 

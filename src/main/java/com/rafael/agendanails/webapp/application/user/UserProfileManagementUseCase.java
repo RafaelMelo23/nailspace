@@ -89,7 +89,7 @@ public class UserProfileManagementUseCase {
                 throw new BusinessException("Email já em uso.");
             }
 
-            user.setEmail(request.newEmail());
+            user.updateEmail(request.newEmail());
             userRepository.save(user);
 
         } catch (Exception e) {
@@ -112,7 +112,7 @@ public class UserProfileManagementUseCase {
             throw new BusinessException("Este telefone já está vinculado a outra conta.");
         }
 
-        client.setPhoneNumber(cleanPhone);
+        client.updatePhoneNumber(cleanPhone);
         clientRepository.save(client);
     }
 
@@ -125,10 +125,10 @@ public class UserProfileManagementUseCase {
             throw new LoginException("O e-mail informado não é igual ao do cadastro do usuário");
         }
 
-        user.setPassword(passwordEncoder.encode(newPassword));
+        user.changePassword(passwordEncoder.encode(newPassword));
         
         if (user instanceof Professional prof) {
-            prof.setIsFirstLogin(false);
+            prof.markFirstLoginDone();
         }
         
         userRepository.save(user);

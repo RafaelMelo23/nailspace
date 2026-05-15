@@ -9,16 +9,24 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Filter;
 
 
-@NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PUBLIC)
+@Getter
 @SuperBuilder
-@Getter @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @MappedSuperclass
 @Filter(name = "tenantFilter")
 public class BaseEntity {
 
     @Column(name = "tenant_id", nullable = false, updatable = false)
     private String tenantId;
+
+    public void assignTenant(String tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    protected void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
 
     @PrePersist
     public void prePersist() {

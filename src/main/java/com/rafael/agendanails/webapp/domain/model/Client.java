@@ -13,11 +13,10 @@ import lombok.experimental.SuperBuilder;
 import java.util.List;
 
 @Entity
-@SuperBuilder
-@Setter
 @Getter
-@NoArgsConstructor
+@SuperBuilder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Client extends User {
 
     @Column(name = "missed_appointments")
@@ -35,6 +34,13 @@ public class Client extends User {
     @OneToOne(mappedBy = "client", orphanRemoval = true)
     private ClientAuditMetrics clientAuditMetrics;
 
+    private Client(String fullName, String email, String password, String phoneNumber) {
+        super(fullName, email, password, UserStatus.ACTIVE, UserRole.CLIENT);
+        this.phoneNumber = phoneNumber;
+        this.missedAppointments = 0;
+        this.canceledAppointments = 0;
+    }
+
     @Override
     public void prePersist() {
         super.prePersist();
@@ -44,7 +50,7 @@ public class Client extends User {
         }
 
         if (this.missedAppointments == null) this.missedAppointments = 0;
-        if (this.canceledAppointments == null) this.setCanceledAppointments(0);
+        if (this.canceledAppointments == null) this.canceledAppointments = 0;
     }
 
     public static String extractFirstName(String fullName) {
@@ -57,6 +63,10 @@ public class Client extends User {
         this.canceledAppointments++;
     }
 
+    public void updatePhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
     public void validateCanBook() {
         if (!this.getUserRole().equals(UserRole.CLIENT)) {
             throw new BusinessException("Apenas clientes podem agendar");
@@ -64,15 +74,6 @@ public class Client extends User {
     }
 
     public static Client createDefault(String fullName, String email, String password) {
-        return Client.builder()
-                .fullName(fullName)
-                .email(email)
-                .password(password)
-                .userRole(UserRole.CLIENT)
-                .status(UserStatus.ACTIVE)
-                .missedAppointments(0)
-                .canceledAppointments(0)
-                .phoneNumber(null)
-                .build();
+        return new Client(fullName, email, password, null);
     }
 }

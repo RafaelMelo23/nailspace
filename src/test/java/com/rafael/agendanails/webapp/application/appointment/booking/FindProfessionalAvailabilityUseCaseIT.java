@@ -55,20 +55,35 @@ class FindProfessionalAvailabilityUseCaseIT extends BaseIntegrationTest {
     }
 
     private SetupData setup(String tenantId, SalonProfile salonProfile, List<WorkSchedule> customSchedules) {
-        Professional professional = professionalRepository.save(TestProfessionalFactory.standardForIt(tenantId));
+        Professional professional = professionalRepository.save(
+                TestProfessionalFactory.standardForIt(tenantId)
+        );
+
         salonProfile.setOwner(professional);
-        salonProfile.setTenantId(tenantId);
+        salonProfile.assignTenant(tenantId);
+
         SalonProfile savedSalonProfile = salonProfileRepository.save(salonProfile);
 
-        List<WorkSchedule> schedules = customSchedules != null ? customSchedules : TestWorkScheduleFactory.fullWeekForIt(professional);
-        schedules.forEach(s -> {
-            s.setProfessional(professional);
-            s.setTenantId(tenantId);
-        });
-        workScheduleRepository.saveAll(schedules);
-        professional.setWorkSchedules(new HashSet<>(schedules));
+        List<WorkSchedule> schedules = customSchedules != null
+                ? customSchedules
+                : TestWorkScheduleFactory.fullWeekForIt(professional);
 
-        Client client = clientRepository.save(TestClientFactory.standardForIt(tenantId));
+        schedules.forEach(schedule -> {
+            schedule.assignTenant(tenantId);
+
+            if (schedule.getProfessional() == null && professional != null) {
+                schedule.assignProfessional(professional);
+            }
+        });
+
+        workScheduleRepository.saveAll(schedules);
+
+        professional.assignWorkSchedules(new HashSet<>(schedules));
+
+        Client client = clientRepository.save(
+                TestClientFactory.standardForIt(tenantId)
+        );
+
         UserPrincipal principal = UserPrincipal.builder()
                 .id(client.getId())
                 .tenantId(tenantId)
@@ -76,7 +91,13 @@ class FindProfessionalAvailabilityUseCaseIT extends BaseIntegrationTest {
                 .email(client.getEmail())
                 .build();
 
-        return new SetupData(professional, savedSalonProfile, client, principal, tenantId);
+        return new SetupData(
+                professional,
+                savedSalonProfile,
+                client,
+                principal,
+                tenantId
+        );
     }
 
     @Test
@@ -301,7 +322,7 @@ class FindProfessionalAvailabilityUseCaseIT extends BaseIntegrationTest {
                 professional,
                 service,
                 AppointmentStatus.FINISHED);
-        previousAppointment.setTenantId(tenantId);
+        previousAppointment.assignTenant(tenantId);
         appointmentRepository.save(previousAppointment);
 
         FindProfessionalAvailabilityDTO dto = FindProfessionalAvailabilityDTO.builder()
@@ -343,7 +364,7 @@ class FindProfessionalAvailabilityUseCaseIT extends BaseIntegrationTest {
                 professional,
                 service,
                 AppointmentStatus.FINISHED);
-        previousAppointment.setTenantId(tenantId);
+        previousAppointment.assignTenant(tenantId);
         appointmentRepository.save(previousAppointment);
 
         FindProfessionalAvailabilityDTO dto = FindProfessionalAvailabilityDTO.builder()

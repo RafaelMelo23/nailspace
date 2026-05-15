@@ -69,13 +69,13 @@ class BookingAppointmentUseCaseIT extends BaseIntegrationTest {
                 .map(duration -> {
                     SalonService addOn = TestSalonServiceFactory.addOnWithoutMaintenanceInterval();
                     addOn.setId(null);
-                    addOn.setTenantId(tenantId);
+                    addOn.assignTenant(tenantId);
                     addOn.setDurationInSeconds(duration);
                     return addOn;
                 }).collect(Collectors.toList());
         allServices.add(mainService);
 
-        professional.setSalonServices(new HashSet<>(allServices));
+        professional.assignSalonServices(new HashSet<>(allServices));
         Professional finalProfessional = professional;
         allServices.forEach(service -> service.setProfessionals(Set.of(finalProfessional)));
 

@@ -12,10 +12,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
-@Getter @Setter
+@Getter
 @SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
         name = "work_schedule",
         uniqueConstraints = {
@@ -54,6 +54,14 @@ public class WorkSchedule extends BaseEntity {
     @JoinColumn(name = "professional_id", nullable = false)
     private Professional professional;
 
+    public void assignProfessional(Professional professional) {
+        this.professional = professional;
+    }
+
+    public void assignId(Long id) {
+        this.id = id;
+    }
+
     @Override
     public void prePersist() {
         setTenantId(this.professional.getTenantId());
@@ -68,7 +76,6 @@ public class WorkSchedule extends BaseEntity {
         if (dto.isActive() != null) this.isActive = dto.isActive();
     }
 
-    @Builder
     public WorkSchedule(DayOfWeek dayOfWeek,
                         LocalTime workStart,
                         LocalTime workEnd,
@@ -105,16 +112,15 @@ public class WorkSchedule extends BaseEntity {
         );
 
         return days.stream()
-                .map(day -> WorkSchedule.builder()
-                        .professional(professional)
-                        .dayOfWeek(day)
-                        .workStart(LocalTime.of(9, 0))
-                        .workEnd(LocalTime.of(18, 0))
-                        .lunchBreakStartTime(LocalTime.of(12, 0))
-                        .lunchBreakEndTime(LocalTime.of(13, 0))
-                        .isActive(true)
-                        .build()
-                )
+                .map(day -> new WorkSchedule(
+                        day,
+                        LocalTime.of(9, 0),
+                        LocalTime.of(18, 0),
+                        LocalTime.of(12, 0),
+                        LocalTime.of(13, 0),
+                        true,
+                        professional
+                ))
                 .collect(Collectors.toSet());
     }
 }

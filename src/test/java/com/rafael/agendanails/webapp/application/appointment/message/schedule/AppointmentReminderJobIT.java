@@ -93,7 +93,7 @@ class AppointmentReminderJobIT extends BaseIntegrationTest {
         Instant startA = Instant.now().plus(2, ChronoUnit.HOURS).truncatedTo(ChronoUnit.SECONDS);
         var apA = TestAppointmentFactory.atSpecificTimeForIt(
                 startA, startA.plus(1, ChronoUnit.HOURS), clientA, profA, serviceA, AppointmentStatus.CONFIRMED);
-        apA.setTenantId("tenant-a");
+        apA.assignTenant("tenant-a");
         appointmentRepository.save(apA);
 
         TenantContext.setTenant("tenant-b");
@@ -105,7 +105,7 @@ class AppointmentReminderJobIT extends BaseIntegrationTest {
         Instant startB = Instant.now().plus(3, ChronoUnit.HOURS).truncatedTo(ChronoUnit.SECONDS);
         var apB = TestAppointmentFactory.atSpecificTimeForIt(
                 startB, startB.plus(1, ChronoUnit.HOURS), clientB, profB, serviceB, AppointmentStatus.CONFIRMED);
-        apB.setTenantId("tenant-b");
+        apB.assignTenant("tenant-b");
         appointmentRepository.save(apB);
 
         Instant now = Instant.now();

@@ -46,12 +46,7 @@ public class RefreshTokenService {
     @IgnoreTenantFilter
     private RefreshToken saveRefreshToken(User user, Instant expiryDate) {
         return repository.save(
-                RefreshToken.builder()
-                        .user(user)
-                        .token(UUID.randomUUID().toString())
-                        .expiryDate(expiryDate)
-                        .isRevoked(false)
-                        .build()
+                new RefreshToken(user, UUID.randomUUID().toString(), expiryDate)
         );
     }
 
@@ -77,7 +72,7 @@ public class RefreshTokenService {
         }
 
         repository.findByToken(token).ifPresent(rt -> {
-            rt.setRevoked(true);
+            rt.revoke();
             repository.save(rt);
         });
     }
@@ -93,7 +88,7 @@ public class RefreshTokenService {
         validateNotExpired(oldToken);
 
         User user = oldToken.getUser();
-        oldToken.setRevoked(true);
+        oldToken.revoke();
 
         return saveRefreshToken(user, oldToken.getExpiryDate());
     }

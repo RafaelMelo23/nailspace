@@ -38,7 +38,7 @@ class ProfessionalMapperTest {
     void toScheduleDTO_ShouldMapComplexFields() {
         ZoneId zoneId = ZoneId.of("America/Sao_Paulo");
         Professional professional = TestProfessionalFactory.standard();
-        professional.setSalonProfile(SalonProfile.builder().zoneId(zoneId).build());
+        professional.assignSalonProfile(SalonProfile.builder().zoneId(zoneId).build());
 
         Appointment appointment = TestAppointmentFactory.standard(
                 TestClientFactory.standard(),

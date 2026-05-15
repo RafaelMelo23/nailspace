@@ -47,7 +47,7 @@ class RefreshJwtTokenServiceTest {
     @Test
     void createRefreshToken_successfullyCreatesToken() {
         Client user = TestClientFactory.standard();
-        user.setId(1L);
+        user.assignId(1L);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(repository.save(any(RefreshToken.class)))
@@ -75,7 +75,7 @@ class RefreshJwtTokenServiceTest {
     @Test
     void rotateAndGetRefreshToken_returnTokenIfNotExpired() {
         Client user = TestClientFactory.standard();
-        user.setId(1L);
+        user.assignId(1L);
         RefreshToken token = RefreshToken.builder()
                 .user(user)
                 .expiryDate(Instant.now().plusMillis(tokenDurationMs))
@@ -111,7 +111,7 @@ class RefreshJwtTokenServiceTest {
     @Test
     void rotateAndGetRefreshToken_throwsExceptionIfReused() {
         Client user = TestClientFactory.standard();
-        user.setId(1L);
+        user.assignId(1L);
         RefreshToken token = RefreshToken.builder()
                 .user(user)
                 .isRevoked(true)

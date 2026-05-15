@@ -20,7 +20,7 @@ class ClientRepositoryIT extends BaseIntegrationTest {
         String phoneNumber = "5511999999999";
         TenantContext.setTenant("tenant-a");
         Client clientA = TestClientFactory.standardForIt("tenant-a");
-        clientA.setPhoneNumber(phoneNumber);
+        clientA.updatePhoneNumber(phoneNumber);
         clientRepository.save(clientA);
 
         TenantContext.setTenant("tenant-b");
@@ -61,12 +61,12 @@ class ClientRepositoryIT extends BaseIntegrationTest {
         
         TenantContext.setTenant("tenant-a");
         Client clientA = TestClientFactory.standardForIt("tenant-a");
-        clientA.setFullName("Maria Silva");
+        clientA.updateFullName("Maria Silva");
         clientRepository.save(clientA);
 
         TenantContext.setTenant("tenant-b");
         Client clientB = TestClientFactory.standardForIt("tenant-b");
-        clientB.setFullName("Maria Oliveira");
+        clientB.updateFullName("Maria Oliveira");
         clientRepository.save(clientB);
 
         TenantContext.setTenant("tenant-a");

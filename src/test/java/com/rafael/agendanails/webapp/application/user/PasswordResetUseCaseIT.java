@@ -37,7 +37,7 @@ class PasswordResetUseCaseIT extends BaseIntegrationTest {
     @Test
     void shouldUpdatePasswordInDatabaseWhenResetFlowIsCompleted() {
         Client client = TestClientFactory.standardForIt();
-        client.setPassword(passwordEncoder.encode("oldPassword123"));
+        client.changePassword(passwordEncoder.encode("oldPassword123"));
         userRepository.save(client);
 
         String resetToken = jwtTokenService.generateResetPasswordToken(client.getId());

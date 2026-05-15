@@ -66,7 +66,7 @@ class AuthenticationServiceIT extends BaseIntegrationTest {
     @Test
     void shouldThrowExceptionWhenLoginPasswordIsIncorrect() throws Exception {
         Client client = TestClientFactory.standardForIt();
-        client.setPassword(passwordEncoder.encode("correct-password"));
+        client.changePassword(passwordEncoder.encode("correct-password"));
         userRepository.save(client);
 
         mockMvc.perform(post("/api/v1/auth/login")
@@ -78,7 +78,7 @@ class AuthenticationServiceIT extends BaseIntegrationTest {
     @Test
     void shouldGenerateAndPersistTokensWhenLoginIsSuccessful() throws Exception {
         Client client = TestClientFactory.standardForIt();
-        client.setPassword(passwordEncoder.encode("password123"));
+        client.changePassword(passwordEncoder.encode("password123"));
         userRepository.save(client);
 
         mockMvc.perform(post("/api/v1/auth/login")
@@ -104,7 +104,7 @@ class AuthenticationServiceIT extends BaseIntegrationTest {
     @Test
     void shouldThrowExceptionWhenUserBelongsToDifferentTenant() throws Exception {
         Client client = TestClientFactory.standardForIt("other-tenant");
-        client.setPassword(passwordEncoder.encode("password123"));
+        client.changePassword(passwordEncoder.encode("password123"));
         userRepository.save(client);
 
         mockMvc.perform(post("/api/v1/auth/login")
@@ -156,8 +156,8 @@ class AuthenticationServiceIT extends BaseIntegrationTest {
         var professional = professionalRepository.save(TestProfessionalFactory.standardForIt());
         salonProfileRepository.save(TestSalonProfileFactory.standardForIT(professional, "tenant-test"));
         Client client = TestClientFactory.standardForIt();
-        client.setPassword(passwordEncoder.encode("whatever"));
-        client.setStatus(UserStatus.BANNED);
+        client.changePassword(passwordEncoder.encode("whatever"));
+        client.updateStatus(UserStatus.BANNED);
         userRepository.save(client);
 
         mockMvc.perform(post("/api/v1/auth/login")

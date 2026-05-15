@@ -1,20 +1,16 @@
 package com.rafael.agendanails.webapp.domain.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.Instant;
 
 @Entity
-@Setter
 @Getter
 @SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "refresh_token",
         uniqueConstraints = {
                 @UniqueConstraint(
@@ -39,4 +35,18 @@ public class RefreshToken extends BaseEntity {
 
     @Column(name = "is_revoked")
     private boolean isRevoked;
+
+    public RefreshToken(User user, String token, Instant expiryDate) {
+        this.user = user;
+        this.token = token;
+        this.expiryDate = expiryDate;
+        this.isRevoked = false;
+        if (user != null) {
+            this.setTenantId(user.getTenantId());
+        }
+    }
+
+    public void revoke() {
+        this.isRevoked = true;
+    }
 }

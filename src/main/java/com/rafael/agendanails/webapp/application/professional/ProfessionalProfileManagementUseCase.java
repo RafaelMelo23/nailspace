@@ -31,7 +31,7 @@ public class ProfessionalProfileManagementUseCase {
         String oldPic = professional.getProfessionalPicture();
         String newPic = fileUploadService.uploadBase64Image(pictureBase64);
 
-        professional.setProfessionalPicture(newPic);
+        professional.updatePicture(newPic);
 
         if (oldPic != null && !oldPic.isEmpty()) {
             fileUploadService.delete(oldPic);

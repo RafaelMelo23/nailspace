@@ -60,15 +60,15 @@ public class TestProfessionalFactory {
 
     public static Professional withSchedules(Set<WorkSchedule> schedules) {
         Professional professional = standard();
-        professional.setWorkSchedules(schedules);
-        schedules.forEach(schedule -> schedule.setProfessional(professional));
+        professional.assignWorkSchedules(schedules);
+        schedules.forEach(schedule -> schedule.assignProfessional(professional));
         return professional;
     }
 
     public static Professional withBlocks(Set<ScheduleBlock> blocks) {
         Professional professional = standard();
-        professional.setScheduleBlocks(blocks);
-        blocks.forEach(block -> block.setProfessional(professional));
+        professional.assignScheduleBlocks(blocks);
+        blocks.forEach(block -> block.assignProfessional(professional));
         return professional;
     }
 

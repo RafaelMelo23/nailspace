@@ -66,7 +66,7 @@ public class TestWorkScheduleFactory {
                 .lunchBreakEndTime(lunchEnd)
                 .build();
 
-        builtWs.setTenantId("tenant-test");
+        builtWs.assignTenant("tenant-test");
 
         return builtWs;
     }
@@ -139,8 +139,8 @@ public class TestWorkScheduleFactory {
     }
 
     private static WorkSchedule finalizeSchedule(WorkSchedule schedule) {
-        schedule.setId(nextId());
-        schedule.setTenantId("tenant-test");
+        schedule.assignId(nextId());
+        schedule.assignTenant("tenant-test");
         return schedule;
     }
 

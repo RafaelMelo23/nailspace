@@ -45,7 +45,7 @@ class AppointmentRepositoryITest extends BaseIntegrationTest {
         SalonService serviceA = salonServiceRepository.save(TestSalonServiceFactory.standardForIt("tenant-a"));
         
         Appointment appointmentA = TestAppointmentFactory.standardForIt(clientA, proA, serviceA);
-        appointmentA.setTenantId("tenant-a");
+        appointmentA.assignTenant("tenant-a");
         appointmentA = appointmentRepository.save(appointmentA);
         Long appointmentId = appointmentA.getId();
 
@@ -106,7 +106,7 @@ class AppointmentRepositoryITest extends BaseIntegrationTest {
                 now.plus(1, ChronoUnit.HOURS),
                 now.plus(2, ChronoUnit.HOURS),
                 clientA, proA, serviceA, AppointmentStatus.CONFIRMED);
-        appA.setTenantId("tenant-a");
+        appA.assignTenant("tenant-a");
         appointmentRepository.save(appA);
 
         TenantContext.setTenant("tenant-b");
@@ -118,7 +118,7 @@ class AppointmentRepositoryITest extends BaseIntegrationTest {
                 now.plus(1, ChronoUnit.HOURS),
                 now.plus(2, ChronoUnit.HOURS),
                 clientB, proB, serviceB, AppointmentStatus.CONFIRMED);
-        appB.setTenantId("tenant-b");
+        appB.assignTenant("tenant-b");
         appointmentRepository.save(appB);
 
         TenantContext.setTenant("tenant-test");

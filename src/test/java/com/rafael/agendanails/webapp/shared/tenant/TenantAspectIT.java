@@ -35,12 +35,12 @@ class TenantAspectIT extends BaseIntegrationTest {
     void invokeWithTenantFilter_shouldFilterResults_whenTenantIsSet() {
         TenantContext.setTenant("TENANT_A");
         Client clientA = TestClientFactory.standardForIt();
-        clientA.setTenantId("TENANT_A");
+        clientA.assignTenant("TENANT_A");
         clientRepository.save(clientA);
 
         TenantContext.setTenant("TENANT_B");
         Client clientB = TestClientFactory.standardForIt();
-        clientB.setTenantId("TENANT_B");
+        clientB.assignTenant("TENANT_B");
         clientRepository.save(clientB);
 
         TenantContext.setTenant("TENANT_A");
@@ -55,12 +55,12 @@ class TenantAspectIT extends BaseIntegrationTest {
     void invokeWithTenantFilter_shouldNotFilterResults_whenIgnoreAnnotationIsPresentInService() {
         TenantContext.setTenant("TENANT_A");
         Client clientA = TestClientFactory.standardForIt();
-        clientA.setTenantId("TENANT_A");
+        clientA.assignTenant("TENANT_A");
         clientRepository.save(clientA);
 
         TenantContext.setTenant("TENANT_B");
         Client clientB = TestClientFactory.standardForIt();
-        clientB.setTenantId("TENANT_B");
+        clientB.assignTenant("TENANT_B");
         clientRepository.save(clientB);
 
         TenantContext.clear();
@@ -77,12 +77,12 @@ class TenantAspectIT extends BaseIntegrationTest {
     void invokeWithTenantFilter_shouldFilterResults_whenIgnoreAnnotationIsNOTPresentInServiceOrRepo() {
         TenantContext.setTenant("TENANT_A");
         Client clientA = TestClientFactory.standardForIt();
-        clientA.setTenantId("TENANT_A");
+        clientA.assignTenant("TENANT_A");
         clientRepository.save(clientA);
 
         TenantContext.setTenant("TENANT_B");
         Client clientB = TestClientFactory.standardForIt();
-        clientB.setTenantId("TENANT_B");
+        clientB.assignTenant("TENANT_B");
         clientRepository.save(clientB);
 
         TenantContext.setTenant("TENANT_A");
@@ -98,12 +98,12 @@ class TenantAspectIT extends BaseIntegrationTest {
     void invokeWithTenantFilter_shouldIgnoreFilter_whenMethodIsFindByEmailIgnoreCaseInUserRepository() {
         TenantContext.setTenant("TENANT_A");
         Client clientA = TestClientFactory.standardForIt();
-        clientA.setTenantId("TENANT_A");
+        clientA.assignTenant("TENANT_A");
         clientRepository.save(clientA);
 
         TenantContext.setTenant("TENANT_B");
         Client clientB = TestClientFactory.standardForIt();
-        clientB.setTenantId("TENANT_B");
+        clientB.assignTenant("TENANT_B");
         clientRepository.save(clientB);
 
         TenantContext.setTenant("TENANT_A");

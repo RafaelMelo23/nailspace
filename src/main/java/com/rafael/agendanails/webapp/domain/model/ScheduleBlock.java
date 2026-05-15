@@ -40,6 +40,10 @@ public class ScheduleBlock extends BaseEntity {
     @JoinColumn(name = "professional_id", nullable = false)
     private Professional professional;
 
+    public void assignProfessional(Professional professional) {
+        this.professional = professional;
+    }
+
     public static ScheduleBlock createBlock(ScheduleBlockDTO blockDTO, Professional professional) {
 
         ScheduleBlock block = ScheduleBlock.builder()

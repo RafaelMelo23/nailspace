@@ -80,10 +80,10 @@ public class TestSalonProfileFactory {
                 .build();
     }
 
-    private static SalonProfile.SalonProfileBuilder<?, ?> baseBuilder() {
+    private static SalonProfile.SalonProfileBuilder baseBuilder() {
         String unique = uniqueSuffix();
 
-        return SalonProfile.builder()
+        return SalonProfile.testBuilder()
                 .id(nextId())
                 .tradeName("Test Salon " + unique)
                 .tenantId("tenant-test")
@@ -101,10 +101,10 @@ public class TestSalonProfileFactory {
                 .autoConfirmationAppointment(false);
     }
 
-    private static SalonProfile.SalonProfileBuilder<?, ?> integrationBuilder() {
+    private static SalonProfile.SalonProfileBuilder integrationBuilder() {
         String unique = UUID.randomUUID().toString();
 
-        return SalonProfile.builder()
+        return SalonProfile.testBuilder()
                 .id(null)
                 .tradeName("IT Salon " + unique)
                 .tenantId("tenant-test")

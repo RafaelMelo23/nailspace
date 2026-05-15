@@ -10,7 +10,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class TestScheduleBlockFactory {
 
     public static ScheduleBlock atSpecificTime(Instant start, Instant end, Professional professional) {
-        return ScheduleBlock.builder()
+        return ScheduleBlock.testBuilder()
                 .id(nextId())
                 .startTime(start)
                 .endTime(end)
@@ -22,7 +22,7 @@ public class TestScheduleBlockFactory {
     }
 
     public static ScheduleBlock wholeDay(Instant startOfDay, Professional professional) {
-        return ScheduleBlock.builder()
+        return ScheduleBlock.testBuilder()
                 .id(nextId())
                 .startTime(startOfDay)
                 .endTime(startOfDay.plus(24, ChronoUnit.HOURS))

@@ -3,10 +3,7 @@ package com.rafael.agendanails.webapp.domain.model;
 import com.rafael.agendanails.webapp.domain.enums.whatsapp.WhatsappMessageStatus;
 import com.rafael.agendanails.webapp.domain.enums.whatsapp.WhatsappMessageType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.Instant;
@@ -47,6 +44,7 @@ public class WhatsappMessage extends BaseEntity {
     @Column(name = "destination_number")
     private String destinationNumber;
 
+    @Builder.Default
     @Column(nullable = false)
     private Integer attempts = 0;
 

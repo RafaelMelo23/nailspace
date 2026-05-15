@@ -61,23 +61,27 @@ class BookingAppointmentUseCaseIT extends BaseIntegrationTest {
     ) {
         Professional professional = TestProfessionalFactory.standardForIt();
 
-        SalonService mainService = TestSalonServiceFactory.standardForIt(tenantId);
-        mainService.setDurationInSeconds(mainServiceDurationSeconds);
-        mainService.setId(null);
+        SalonService mainService = TestSalonServiceFactory.builder()
+                .tenantId(tenantId)
+                .durationInSeconds(mainServiceDurationSeconds)
+                .build();
 
         List<SalonService> allServices = addOnDurationsSeconds.stream()
                 .map(duration -> {
-                    SalonService addOn = TestSalonServiceFactory.addOnWithoutMaintenanceInterval();
-                    addOn.setId(null);
-                    addOn.assignTenant(tenantId);
-                    addOn.setDurationInSeconds(duration);
-                    return addOn;
+                    return TestSalonServiceFactory.builder()
+                            .isAddOn(true)
+                            .nailCount(1)
+                            .durationInSeconds(duration)
+                            .value(15)
+                            .maintenanceIntervalDays(null)
+                            .tenantId(tenantId)
+                            .build();
                 }).collect(Collectors.toList());
         allServices.add(mainService);
 
         professional.assignSalonServices(new HashSet<>(allServices));
         Professional finalProfessional = professional;
-        allServices.forEach(service -> service.setProfessionals(Set.of(finalProfessional)));
+        allServices.forEach(service -> service.assignProfessionals(Set.of(finalProfessional)));
 
         professional = professionalRepository.save(professional);
 
@@ -262,7 +266,7 @@ class BookingAppointmentUseCaseIT extends BaseIntegrationTest {
     @Test
     void bookAppointment_shouldAutoConfirm_whenSalonProfileHasAutoConfirmationEnabled() {
         PreparationData data = prepareData(15, 3600, List.of());
-        data.salonProfile().setAutoConfirmationAppointment(true);
+        data.salonProfile().configureScheduling(null, null, true);
         salonProfileRepository.save(data.salonProfile());
 
         ZonedDateTime appointmentTime = ZonedDateTime.now(ZoneId.of("America/Sao_Paulo"))

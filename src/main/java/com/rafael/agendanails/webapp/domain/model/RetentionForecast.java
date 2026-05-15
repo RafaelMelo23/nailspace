@@ -2,10 +2,7 @@ package com.rafael.agendanails.webapp.domain.model;
 
 import com.rafael.agendanails.webapp.domain.enums.appointment.RetentionStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.Instant;
@@ -49,6 +46,7 @@ public class RetentionForecast extends BaseEntity{
     @JoinColumn(name = "origin_appointment_id")
     private Appointment originAppointment;
 
+    @Builder.Default
     @ManyToMany
     @JoinTable(name = "retention_forecast_salonServices",
             joinColumns = @JoinColumn(name = "retentionForecast_id"),

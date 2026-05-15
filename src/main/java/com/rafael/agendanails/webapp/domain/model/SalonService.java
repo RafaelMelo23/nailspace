@@ -12,17 +12,14 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Entity
-@SuperBuilder
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "service")
 @SQLDelete(sql = "UPDATE service SET deleted = true WHERE id = ?")
 @Filter(name = "deletedFilter")
 public class SalonService extends BaseEntity {
 
-    @Builder.Default
     @Column(name = "deleted", nullable = false)
     private boolean deleted = false;
 
@@ -55,36 +52,70 @@ public class SalonService extends BaseEntity {
     @Column(name = "is_add_on")
     private boolean isAddOn;
 
-    @Setter(AccessLevel.PRIVATE)
     @ManyToMany
     @JoinTable(name = "service_professionals",
             joinColumns = @JoinColumn(name = "salonService_id"),
             inverseJoinColumns = @JoinColumn(name = "professionals_id"))
     private Set<Professional> professionals = new LinkedHashSet<>();
 
+    @Builder(builderMethodName = "testBuilder")
+    public SalonService(Long id, String name, String description, Integer nailCount, Integer durationInSeconds, Integer value, Boolean active, Integer maintenanceIntervalDays, boolean isAddOn, Set<Professional> professionals, String tenantId) {
+        super(tenantId);
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.nailCount = nailCount;
+        this.durationInSeconds = durationInSeconds;
+        this.value = value;
+        this.active = active;
+        this.maintenanceIntervalDays = maintenanceIntervalDays;
+        this.isAddOn = isAddOn;
+        this.professionals = professionals != null ? professionals : new LinkedHashSet<>();
+    }
+
     @Override
     public void prePersist() {
         super.prePersist();
-        this.active = true;
+        if (this.active == null) this.active = true;
     }
 
     public static SalonService create(SalonServiceDTO dto,
                                       Set<Professional> professionals) {
 
-        return SalonService.builder()
-                .name(dto.name())
-                .description(dto.description())
-                .value(dto.value())
-                .durationInSeconds(dto.durationInSeconds())
-                .maintenanceIntervalDays(dto.maintenanceIntervalDays())
-                .isAddOn(dto.isAddOn() != null ? dto.isAddOn() : false)
-                .professionals(professionals)
-                .nailCount(0)
-                .build();
+        SalonService service = new SalonService();
+        service.name = dto.name();
+        service.description = dto.description();
+        service.value = dto.value();
+        service.durationInSeconds = dto.durationInSeconds();
+        service.maintenanceIntervalDays = dto.maintenanceIntervalDays();
+        service.isAddOn = dto.isAddOn() != null ? dto.isAddOn() : false;
+        service.professionals = professionals;
+        service.nailCount = 0;
+        service.active = true;
+        return service;
     }
 
-    public void setProfessionals(Set<Professional> newProfessionals) {
-        if (newProfessionals.isEmpty()) return;
+    public void updateInfo(String name, String description, Integer maintenanceIntervalDays) {
+        if (name != null) this.name = name;
+        if (description != null) this.description = description;
+        if (maintenanceIntervalDays != null) this.maintenanceIntervalDays = maintenanceIntervalDays;
+    }
+
+    public void updatePricingAndDuration(Integer value, Integer durationInSeconds) {
+        if (value != null) this.value = value;
+        if (durationInSeconds != null) this.durationInSeconds = durationInSeconds;
+    }
+
+    public void updateStatus(boolean active) {
+        this.active = active;
+    }
+
+    public void toggleAddOn(boolean isAddOn) {
+        this.isAddOn = isAddOn;
+    }
+
+    public void assignProfessionals(Set<Professional> newProfessionals) {
+        if (newProfessionals == null) return;
 
         this.getProfessionals().clear();
         this.professionals.addAll(newProfessionals);

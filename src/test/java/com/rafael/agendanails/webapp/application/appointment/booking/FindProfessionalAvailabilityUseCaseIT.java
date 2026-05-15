@@ -59,7 +59,7 @@ class FindProfessionalAvailabilityUseCaseIT extends BaseIntegrationTest {
                 TestProfessionalFactory.standardForIt(tenantId)
         );
 
-        salonProfile.setOwner(professional);
+        salonProfile.assignOwner(professional);
         salonProfile.assignTenant(tenantId);
 
         SalonProfile savedSalonProfile = salonProfileRepository.save(salonProfile);
@@ -277,7 +277,7 @@ class FindProfessionalAvailabilityUseCaseIT extends BaseIntegrationTest {
         Instant blockStart = frozenDate.atTime(LocalTime.of(14, 0)).atZone(salonProfile.getZoneId()).toInstant();
         Instant blockEnd = frozenDate.atTime(LocalTime.of(17, 0)).atZone(salonProfile.getZoneId()).toInstant();
 
-        scheduleBlockRepository.save(ScheduleBlock.builder()
+        scheduleBlockRepository.save(ScheduleBlock.testBuilder()
                 .professional(professional)
                 .startTime(blockStart)
                 .endTime(blockEnd)

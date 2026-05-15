@@ -12,8 +12,8 @@ public class TestSalonServiceFactory {
 
     private TestSalonServiceFactory() {}
 
-    public static SalonService.SalonServiceBuilder<?, ?> builder() {
-        return SalonService.builder()
+    public static SalonService.SalonServiceBuilder builder() {
+        return SalonService.testBuilder()
                 .name("Service-" + UUID.randomUUID())
                 .description("Desc-" + UUID.randomUUID())
                 .durationInSeconds(3600)

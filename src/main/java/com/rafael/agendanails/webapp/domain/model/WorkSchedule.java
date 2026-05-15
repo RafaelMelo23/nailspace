@@ -13,9 +13,8 @@ import java.util.stream.Collectors;
 
 @Entity
 @Getter
-@SuperBuilder
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
         name = "work_schedule",
         uniqueConstraints = {
@@ -54,6 +53,19 @@ public class WorkSchedule extends BaseEntity {
     @JoinColumn(name = "professional_id", nullable = false)
     private Professional professional;
 
+    @Builder(builderMethodName = "testBuilder")
+    public WorkSchedule(Long id, DayOfWeek dayOfWeek, LocalTime workStart, LocalTime workEnd, LocalTime lunchBreakStartTime, LocalTime lunchBreakEndTime, Boolean isActive, Professional professional, String tenantId) {
+        super(tenantId);
+        this.id = id;
+        this.dayOfWeek = dayOfWeek;
+        this.workStart = workStart;
+        this.workEnd = workEnd;
+        this.lunchBreakStartTime = lunchBreakStartTime;
+        this.lunchBreakEndTime = lunchBreakEndTime;
+        this.isActive = isActive;
+        this.professional = professional;
+    }
+
     public void assignProfessional(Professional professional) {
         this.professional = professional;
     }
@@ -64,13 +76,29 @@ public class WorkSchedule extends BaseEntity {
 
     @Override
     public void prePersist() {
-        setTenantId(this.professional.getTenantId());
+        if (this.professional != null && getTenantId() == null) {
+            setTenantId(this.professional.getTenantId());
+        }
+    }
+
+    public void updateSchedule(LocalTime workStart, LocalTime workEnd, LocalTime lunchBreakStartTime, LocalTime lunchBreakEndTime, Boolean isActive) {
+        if (workStart != null) this.workStart = workStart;
+        if (workEnd != null) {
+            validateTimes(this.workStart, workEnd, this.dayOfWeek);
+            this.workEnd = workEnd;
+        }
+        if (lunchBreakStartTime != null) this.lunchBreakStartTime = lunchBreakStartTime;
+        if (lunchBreakEndTime != null) this.lunchBreakEndTime = lunchBreakEndTime;
+        if (isActive != null) this.isActive = isActive;
     }
 
     public void updateFromDto(WorkScheduleRecordDTO dto) {
         if (dto.dayOfWeek() != null) this.dayOfWeek = dto.dayOfWeek();
         if (dto.startTime() != null) this.workStart = dto.startTime();
-        if (dto.endTime() != null) this.workEnd = dto.endTime();
+        if (dto.endTime() != null) {
+            validateTimes(this.workStart, dto.endTime(), this.dayOfWeek);
+            this.workEnd = dto.endTime();
+        }
         if (dto.lunchBreakStartTime() != null) this.lunchBreakStartTime = dto.lunchBreakStartTime();
         if (dto.lunchBreakEndTime() != null) this.lunchBreakEndTime = dto.lunchBreakEndTime();
         if (dto.isActive() != null) this.isActive = dto.isActive();

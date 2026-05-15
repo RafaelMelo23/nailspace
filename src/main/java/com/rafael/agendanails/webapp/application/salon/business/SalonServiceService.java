@@ -87,25 +87,16 @@ public class SalonServiceService {
     public void updateSalonService(Long serviceId, SalonServiceDTO dto) {
         SalonService service = findById(serviceId);
 
-        if (dto.name() != null) {
-            service.setName(dto.name());
-        }
+        service.updateInfo(dto.name(), dto.description(), dto.maintenanceIntervalDays());
+        service.updatePricingAndDuration(dto.value(), dto.durationInSeconds());
 
-        if (dto.description() != null) {
-            service.setDescription(dto.description());
-        }
-
-        if (dto.durationInSeconds() != null) {
-            service.setDurationInSeconds(dto.durationInSeconds());
-        }
-
-        if (dto.value() != null) {
-            service.setValue(dto.value());
+        if (dto.isAddOn() != null) {
+            service.toggleAddOn(dto.isAddOn());
         }
 
         if (dto.professionalsIds() != null) {
             Set<Professional> professionals = new HashSet<>(professionalRepository.findAllById(dto.professionalsIds()));
-            service.setProfessionals(professionals);
+            service.assignProfessionals(professionals);
         }
     }
 

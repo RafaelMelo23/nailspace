@@ -19,9 +19,11 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Client extends User {
 
+    @Builder.Default
     @Column(name = "missed_appointments")
     private Integer missedAppointments = 0;
 
+    @Builder.Default
     @Column(name = "cancelled_appointments")
     private Integer canceledAppointments = 0;
 

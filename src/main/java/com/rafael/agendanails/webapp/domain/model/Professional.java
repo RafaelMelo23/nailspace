@@ -23,26 +23,34 @@ import java.util.stream.Collectors;
 @Filter(name = "deletedFilter")
 public class Professional extends User {
 
-    private String professionalPicture;
+    @Builder.Default
+    private String professionalPicture = null;
 
+    @Builder.Default
     @Column
     private UUID externalId = UUID.randomUUID();
 
+    @Builder.Default
     @Column(name = "is_active")
     private Boolean isActive = false;
 
+    @Builder.Default
     @Column(name = "is_first_login")
     private Boolean isFirstLogin = false;
 
+    @Builder.Default
     @OneToMany(mappedBy = "professional")
     private List<Appointment> professionalAppointments = new ArrayList<>();
 
+    @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "professionals")
     private Set<SalonService> salonServices = new LinkedHashSet<>();
 
+    @Builder.Default
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "professional", orphanRemoval = true, cascade = CascadeType.ALL)
     private Set<WorkSchedule> workSchedules = new HashSet<>();
 
+    @Builder.Default
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "professional", orphanRemoval = true, cascade = CascadeType.ALL)
     private Set<ScheduleBlock> scheduleBlocks = new LinkedHashSet<>();
 
@@ -54,6 +62,10 @@ public class Professional extends User {
         this.isActive = true;
         this.isFirstLogin = true;
         this.externalId = UUID.randomUUID();
+        this.workSchedules = new HashSet<>();
+        this.scheduleBlocks = new LinkedHashSet<>();
+        this.salonServices = new LinkedHashSet<>();
+        this.professionalAppointments = new ArrayList<>();
     }
 
     @Override

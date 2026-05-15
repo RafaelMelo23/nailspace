@@ -26,6 +26,7 @@ public class ProfessionalAppointmentStatusUseCase {
     public void confirm(Long appointmentId, Long professionalId) {
         Appointment appointment = getAppointmentAndProfessionalOwnership(appointmentId, professionalId);
         appointment.confirm();
+        appointmentRepository.save(appointment);
         evictCache(appointment);
     }
 
@@ -34,17 +35,8 @@ public class ProfessionalAppointmentStatusUseCase {
         Appointment appointment = getAppointmentAndProfessionalOwnership(appointmentId, professionalId);
 
         appointment.finish();
+        appointmentRepository.save(appointment);
         evictCache(appointment);
-
-        eventPublisher.publishEvent(
-                new AppointmentFinishedEvent(
-                        appointment.getId(),
-                        appointment.getClient().getId(),
-                        appointment.getTenantId(),
-                        appointment.getTotalValue(),
-                        appointment.getEndDate().atZone(appointment.getSalonZoneId())
-                )
-        );
     }
 
     @Transactional
@@ -52,6 +44,7 @@ public class ProfessionalAppointmentStatusUseCase {
         Appointment appointment = getAppointmentAndProfessionalOwnership(appointmentId, professionalId);
 
         appointment.cancel();
+        appointmentRepository.save(appointment);
         evictCache(appointment);
 
         eventPublisher.publishEvent(
@@ -68,6 +61,7 @@ public class ProfessionalAppointmentStatusUseCase {
         Appointment appointment = getAppointmentAndProfessionalOwnership(appointmentId, professionalId);
 
         appointment.miss();
+        appointmentRepository.save(appointment);
         evictCache(appointment);
 
         eventPublisher.publishEvent(

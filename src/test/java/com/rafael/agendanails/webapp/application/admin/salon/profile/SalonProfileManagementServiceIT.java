@@ -68,7 +68,7 @@ class SalonProfileManagementServiceIT extends BaseIntegrationTest {
     void shouldUpdateAutoConfirmationAppointment() {
         Professional owner = professionalRepository.save(TestProfessionalFactory.builder().build());
         SalonProfile profile = salonProfileRepository.save(TestSalonProfileFactory.standardForIT(owner));
-        profile.setAutoConfirmationAppointment(false);
+        profile.configureScheduling(null, null, false);
         salonProfileRepository.save(profile);
 
         SalonProfileDTO updateDto = SalonProfileDTO.builder()

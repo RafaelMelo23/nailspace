@@ -34,6 +34,7 @@ public abstract class User extends BaseEntity {
         this.id = id;
     }
 
+    @Builder.Default
     @Column(name = "deleted", nullable = false)
     private boolean deleted = false;
 

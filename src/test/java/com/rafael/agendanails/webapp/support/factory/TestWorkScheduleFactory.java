@@ -132,15 +132,17 @@ public class TestWorkScheduleFactory {
             DayOfWeek dayOfWeek,
             Professional professional
     ) {
-        return WorkSchedule.builder()
+        return WorkSchedule.testBuilder()
                 .dayOfWeek(dayOfWeek)
                 .isActive(true)
-                .professional(professional);
+                .professional(professional)
+                .tenantId("tenant-test");
     }
 
     private static WorkSchedule finalizeSchedule(WorkSchedule schedule) {
-        schedule.assignId(nextId());
-        schedule.assignTenant("tenant-test");
+        if (schedule.getId() == null) {
+            schedule.assignId(nextId());
+        }
         return schedule;
     }
 

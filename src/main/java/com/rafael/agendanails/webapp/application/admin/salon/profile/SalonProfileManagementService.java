@@ -10,8 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.function.Consumer;
-
 @Service
 @RequiredArgsConstructor
 public class SalonProfileManagementService {
@@ -48,36 +46,39 @@ public class SalonProfileManagementService {
         SalonProfile salonProfile = repository.findByTenantId(tenantId)
                 .orElseThrow(() -> new BusinessException("O perfil do salão não foi encontrado."));
 
-        setIfNotNull(profileDTO.tradeName(), salonProfile::setTradeName);
-        setIfNotNull(profileDTO.slogan(), salonProfile::setSlogan);
-        setIfNotNull(profileDTO.primaryColor(), salonProfile::setPrimaryColor);
-        setIfNotNull(profileDTO.comercialPhone(), salonProfile::setComercialPhone);
-        setIfNotNull(profileDTO.fullAddress(), salonProfile::setFullAddress);
-        setIfNotNull(profileDTO.socialMediaLink(), salonProfile::setSocialMediaLink);
-        setIfNotNull(profileDTO.warningMessage(), salonProfile::setWarningMessage);
-        setIfNotNull(profileDTO.appointmentBufferMinutes(), salonProfile::setAppointmentBufferMinutes);
-        setIfNotNull(profileDTO.zoneId(), salonProfile::setZoneId);
-        setIfNotNull(profileDTO.isLoyalClientelePrioritized(), salonProfile::setLoyalClientelePrioritized);
-        setIfNotNull(profileDTO.loyalClientBookingWindowDays(), salonProfile::setLoyalClientBookingWindowDays);
-        setIfNotNull(profileDTO.standardBookingWindow(), salonProfile::setStandardBookingWindow);
-        setIfNotNull(profileDTO.autoConfirmationAppointment(), salonProfile::setAutoConfirmationAppointment);
-        setIfNotNull(profileDTO.status(), salonProfile::setOperationalStatus);
+        salonProfile.updateBasicInfo(
+                profileDTO.tradeName(),
+                profileDTO.slogan(),
+                profileDTO.comercialPhone(),
+                profileDTO.fullAddress(),
+                profileDTO.socialMediaLink()
+        );
 
-        removeWarningMessageIfSalonIsOpen(profileDTO, salonProfile);
+        salonProfile.updateAppearance(
+                profileDTO.primaryColor(),
+                null // logoPath update not implemented in DTO
+        );
+
+        salonProfile.updateOperationalStatus(
+                profileDTO.status(),
+                profileDTO.warningMessage()
+        );
+
+        salonProfile.configureScheduling(
+                profileDTO.appointmentBufferMinutes(),
+                profileDTO.zoneId(),
+                profileDTO.autoConfirmationAppointment()
+        );
+
+        salonProfile.configureLoyaltyPriority(
+                profileDTO.isLoyalClientelePrioritized(),
+                profileDTO.loyalClientBookingWindowDays(),
+                profileDTO.standardBookingWindow()
+        );
 
         validateLoyalClientFeature(profileDTO);
 
         salonProfileService.save(salonProfile);
-    }
-
-    private static void removeWarningMessageIfSalonIsOpen(SalonProfileDTO profileDTO, SalonProfile salonProfile) {
-        if (profileDTO.status() != OperationalStatus.OPEN) {
-            return;
-        }
-
-        if (salonProfile.getWarningMessage() != null) {
-            salonProfile.setWarningMessage(null);
-        }
     }
 
     private static void validateLoyalClientFeature(SalonProfileDTO profile) {
@@ -89,9 +90,5 @@ public class SalonProfileManagementService {
                     para clientes fiéis deve ser informado
                     quando a priorização de clientes fiéis estiver ativada.""");
         }
-    }
-
-    public <T> void setIfNotNull(T value, Consumer<T> setter) {
-        if (value != null) setter.accept(value);
     }
 }

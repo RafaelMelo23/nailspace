@@ -3,6 +3,7 @@ package com.rafael.agendanails.webapp.domain.model;
 import com.rafael.agendanails.webapp.domain.enums.appointment.AppointmentStatus;
 import com.rafael.agendanails.webapp.infrastructure.dto.appointment.AppointmentCreateDTO;
 import com.rafael.agendanails.webapp.infrastructure.dto.appointment.booking.event.AppointmentConfirmedEvent;
+import com.rafael.agendanails.webapp.infrastructure.dto.appointment.booking.event.AppointmentFinishedEvent;
 import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
 import jakarta.persistence.*;
 import lombok.*;
@@ -66,10 +67,12 @@ public class Appointment extends BaseEntity {
     @Column(name = "salon_zone_id")
     private ZoneId salonZoneId;
 
+    @Builder.Default
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "appointment_addon_id")
     private List<AppointmentAddOn> addOns = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "appointment", orphanRemoval = true)
     private List<WhatsappMessage> whatsappMessages = new ArrayList<>();
 
@@ -124,6 +127,16 @@ public class Appointment extends BaseEntity {
             throw new BusinessException("O agendamento ainda não terminou.");
         }
         this.setAppointmentStatus(AppointmentStatus.FINISHED);
+
+        registerEvent(
+                new AppointmentFinishedEvent(
+                        id,
+                        client.getId(),
+                        getTenantId(),
+                        totalValue,
+                        endDate.atZone(salonZoneId)
+                )
+        );
     }
 
     public void confirm() {

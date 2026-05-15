@@ -59,7 +59,7 @@ class ProfessionalScheduleBlockUseCaseIT extends BaseIntegrationTest {
     @Test
     void shouldDeleteBlock() {
         ZonedDateTime now = ZonedDateTime.now();
-        ScheduleBlock block = scheduleBlockRepository.save(ScheduleBlock.builder()
+        ScheduleBlock block = scheduleBlockRepository.save(ScheduleBlock.testBuilder()
                 .professional(professional)
                 .startTime(now.toInstant())
                 .endTime(now.plusHours(1).toInstant())
@@ -76,7 +76,7 @@ class ProfessionalScheduleBlockUseCaseIT extends BaseIntegrationTest {
     @Test
     void shouldGetBlocksWithTenantIsolation() {
         ZonedDateTime now = ZonedDateTime.now();
-        scheduleBlockRepository.save(ScheduleBlock.builder()
+        scheduleBlockRepository.save(ScheduleBlock.testBuilder()
                 .professional(professional)
                 .startTime(now.toInstant())
                 .endTime(now.plusHours(1).toInstant())
@@ -90,7 +90,7 @@ class ProfessionalScheduleBlockUseCaseIT extends BaseIntegrationTest {
         Professional proB = professionalRepository.save(TestProfessionalFactory.builder().tenantId(tenantB).build());
         salonProfileRepository.save(TestSalonProfileFactory.standardForIT(proB, tenantB));
 
-        scheduleBlockRepository.save(ScheduleBlock.builder()
+        scheduleBlockRepository.save(ScheduleBlock.testBuilder()
                 .professional(proB)
                 .startTime(now.toInstant())
                 .endTime(now.plusHours(1).toInstant())

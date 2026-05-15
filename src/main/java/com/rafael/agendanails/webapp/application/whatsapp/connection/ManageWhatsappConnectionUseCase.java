@@ -81,7 +81,7 @@ public class ManageWhatsappConnectionUseCase {
 
     private void updateConnectionInfo(String tenantId, SalonProfile salon) {
         log.debug("Updating connection info for tenantId={}", tenantId);
-        salon.setWhatsappLastResetAt(LocalDateTime.now());
+        salon.updateWhatsAppConnection(null, LocalDateTime.now(), null);
         salonService.save(salon);
     }
 

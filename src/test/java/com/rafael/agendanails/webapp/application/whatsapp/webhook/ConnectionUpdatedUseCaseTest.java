@@ -45,7 +45,7 @@ class ConnectionUpdatedUseCaseTest {
     @BeforeEach
     void setUp() {
         owner = Professional.builder().id(1L).build();
-        salon = SalonProfile.builder()
+        salon = SalonProfile.testBuilder()
                 .tenantId(tenantId)
                 .owner(owner)
                 .build();
@@ -89,7 +89,7 @@ class ConnectionUpdatedUseCaseTest {
 
     @Test
     void shouldProcessOpenEventEvenUnderCooldown() {
-        salon.setWhatsappLastResetAt(LocalDateTime.now().minusSeconds(10));
+        salon.updateWhatsAppConnection(null, LocalDateTime.now().minusSeconds(10), null);
         ConnectionDataDTO data = new ConnectionDataDTO(EvolutionConnectionState.OPEN);
         
         EvolutionWebhookResponseDTO<ConnectionDataDTO> response = EvolutionWebhookResponseDTO.<ConnectionDataDTO>builder()
@@ -108,8 +108,7 @@ class ConnectionUpdatedUseCaseTest {
 
     @Test
     void shouldIgnoreDuplicateCloseUnderCooldown() {
-        salon.setWhatsappLastResetAt(LocalDateTime.now().minusMinutes(1));
-        salon.setEvolutionConnectionState(EvolutionConnectionState.CLOSE);
+        salon.updateWhatsAppConnection(EvolutionConnectionState.CLOSE, LocalDateTime.now().minusMinutes(1), null);
         ConnectionDataDTO data = new ConnectionDataDTO(EvolutionConnectionState.CLOSE);
         EvolutionWebhookResponseDTO<ConnectionDataDTO> response = EvolutionWebhookResponseDTO.<ConnectionDataDTO>builder()
                 .instance(tenantId)
@@ -126,8 +125,7 @@ class ConnectionUpdatedUseCaseTest {
 
     @Test
     void shouldProcessCloseEvenUnderCooldownIfPreviouslyOpen() {
-        salon.setWhatsappLastResetAt(LocalDateTime.now().minusMinutes(1));
-        salon.setEvolutionConnectionState(EvolutionConnectionState.OPEN);
+        salon.updateWhatsAppConnection(EvolutionConnectionState.OPEN, LocalDateTime.now().minusMinutes(1), null);
         ConnectionDataDTO data = new ConnectionDataDTO(EvolutionConnectionState.CLOSE);
         EvolutionWebhookResponseDTO<ConnectionDataDTO> response = EvolutionWebhookResponseDTO.<ConnectionDataDTO>builder()
                 .instance(tenantId)

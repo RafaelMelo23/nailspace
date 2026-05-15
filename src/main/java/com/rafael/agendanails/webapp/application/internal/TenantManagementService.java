@@ -21,7 +21,7 @@ public class TenantManagementService {
     public boolean updateTenantStatus(String tenantId, TenantStatus status) {
         return salonProfileRepository.findByTenantId(tenantId)
                 .map(salon -> {
-                    salon.setTenantStatus(status);
+                    salon.updateTenantStatus(status);
                     salonProfileService.save(salon);
                     return true;
                 })

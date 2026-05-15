@@ -3,20 +3,17 @@ package com.rafael.agendanails.webapp.domain.model;
 import com.rafael.agendanails.webapp.infrastructure.dto.professional.schedule.block.ScheduleBlockDTO;
 import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import java.time.Instant;
 
 @Entity
-@SuperBuilder
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "schedule_block")
 public class ScheduleBlock extends BaseEntity {
     @Id
@@ -40,27 +37,46 @@ public class ScheduleBlock extends BaseEntity {
     @JoinColumn(name = "professional_id", nullable = false)
     private Professional professional;
 
+    @lombok.Builder(builderMethodName = "testBuilder")
+    public ScheduleBlock(Long id, Instant startTime, Instant endTime, Boolean isWholeDayBlocked, String reason, Professional professional, String tenantId) {
+        super(tenantId);
+        this.id = id;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.isWholeDayBlocked = isWholeDayBlocked;
+        this.reason = reason;
+        this.professional = professional;
+    }
+
     public void assignProfessional(Professional professional) {
         this.professional = professional;
     }
 
+    public void updateDetails(Instant startTime, Instant endTime, Boolean isWholeDayBlocked, String reason) {
+        if (isWholeDayBlocked != null && !isWholeDayBlocked && startTime == null) {
+            throw new BusinessException("Data e hora de início são obrigatórias para bloqueios parciais.");
+        }
+        
+        if (startTime != null) this.startTime = startTime;
+        if (endTime != null) this.endTime = endTime;
+        if (isWholeDayBlocked != null) this.isWholeDayBlocked = isWholeDayBlocked;
+        if (reason != null) this.reason = reason;
+    }
+
     public static ScheduleBlock createBlock(ScheduleBlockDTO blockDTO, Professional professional) {
 
-        ScheduleBlock block = ScheduleBlock.builder()
-                .reason(blockDTO.reason())
-                .professional(professional)
-                .isWholeDayBlocked(blockDTO.isWholeDayBlocked())
-                .startTime(blockDTO.startTime().toInstant())
-                .endTime(blockDTO.endTime().toInstant())
-                .build();
-
-        if (!block.getIsWholeDayBlocked() && block.getStartTime() == null) {
-            throw new BusinessException("Data e hora de início são obrigatórias para bloqueios totais.");
+        if (!blockDTO.isWholeDayBlocked() && blockDTO.startTime() == null) {
+            throw new BusinessException("Data e hora de início são obrigatórias para bloqueios parciais.");
         }
+
+        ScheduleBlock block = new ScheduleBlock();
+        block.reason = blockDTO.reason();
+        block.professional = professional;
+        block.isWholeDayBlocked = blockDTO.isWholeDayBlocked();
+        block.startTime = blockDTO.startTime() != null ? blockDTO.startTime().toInstant() : null;
+        block.endTime = blockDTO.endTime() != null ? blockDTO.endTime().toInstant() : null;
+        block.assignTenant(professional.getTenantId());
 
         return block;
     }
-
-
-
 }

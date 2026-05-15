@@ -48,11 +48,7 @@ public class OnboardingService {
     }
 
     private SalonProfile createSalonProfile(Professional owner, String tenantId) {
-        SalonProfile profile = SalonProfile.builder()
-                .owner(owner)
-                .tenantId(tenantId)
-                .appointmentBufferMinutes(0)
-                .build();
+        SalonProfile profile = new SalonProfile(owner, tenantId);
 
         return salonProfileRepository.save(profile);
     }

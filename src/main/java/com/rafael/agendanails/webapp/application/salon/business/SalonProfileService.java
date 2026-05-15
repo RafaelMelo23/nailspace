@@ -40,8 +40,7 @@ public class SalonProfileService {
         SalonProfile salon = repository.findByTenantId(tenantId)
                 .orElseThrow(() -> new TenantNotFoundException("Salão não encontrado"));
 
-        salon.setWhatsappLastResetAt(LocalDateTime.now());
-        salon.setEvolutionConnectionState(EvolutionConnectionState.CLOSE);
+        salon.updateWhatsAppConnection(EvolutionConnectionState.CLOSE, LocalDateTime.now(), null);
         self.save(salon);
     }
 

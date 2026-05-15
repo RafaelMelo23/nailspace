@@ -79,7 +79,7 @@ public class ConnectionUpdatedUseCase implements WebhookStrategy {
         String tenantId = salon.getTenantId();
         Long ownerId = salon.getOwner().getId();
 
-        salon.setEvolutionConnectionState(OPEN);
+        salon.updateWhatsAppConnection(OPEN, null, null);
         salonProfileService.save(salon);
 
         try {
@@ -96,8 +96,7 @@ public class ConnectionUpdatedUseCase implements WebhookStrategy {
         String tenantId = salon.getTenantId();
         Long ownerId = salon.getOwner().getId();
 
-        salon.setEvolutionConnectionState(CLOSE);
-        salon.setWhatsappLastResetAt(LocalDateTime.now());
+        salon.updateWhatsAppConnection(CLOSE, LocalDateTime.now(), null);
         salonProfileService.save(salon);
 
         try {

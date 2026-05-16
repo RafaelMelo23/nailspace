@@ -5,15 +5,17 @@
 [![PostgreSQL 15](https://img.shields.io/badge/PostgreSQL-15-blue?style=for-the-badge&logo=postgresql)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)](https://www.docker.com/)
 
-Plataforma SaaS multi-tenant para gestão de agendamentos 
-e automação de retenção, desenvolvida especificamente 
-para estúdios de unhas.
-O sistema integra um motor de disponibilidade 
-de alta performance com automação via WhatsApp 
-para otimizar a operação e a fidelização de clientes.
-O sistema foi desenvolvido como um MVP, a escolha de abordagens e tecnologias foi feita
-com esse propósito em mente, dimensionando as escolhas para um produto mínimo, mas também
-levando em mente futuras incrementações e mudanças de paradigma (como tornar a aplicação distribuída).
+Plataforma de agendamento multi-tenant para estúdios de unhas com integração de mensagens via WhatsApp e acompanhamento de retorno de clientes.
+
+---
+
+## 🎯 Destaques Técnicos
+
+Este projeto demonstra a aplicação de padrões de engenharia de software em um cenário real de SaaS:
+- **Arquitetura:** Uso de Domain-Driven Design (DDD), eventos e isolamento de dados (Multi-tenancy).
+- **Confiabilidade:** Rotinas de manutenção, retentativa de mensagens e monitoramento via Sentry.
+- **Performance:** Uso de cache e execução assíncrona para garantir baixa latência.
+- **Qualidade:** Testes de integração com Testcontainers, documentação com Swagger e containerização com Docker para maior paridade entre prod/dev.
 
 ---
 
@@ -49,67 +51,79 @@ levando em mente futuras incrementações e mudanças de paradigma (como tornar 
 
 ---
 
-## 🛠️ Diferenciais do Sistema
+## 🚀 Funcionalidades
 
-*   **Interface SPA Progressiva:** Arquitetura baseada em módulos Vanilla JS e fragmentos Thymeleaf, proporcionando transições de página rápidas sem a complexidade de frameworks pesados.
-*   **Sincronização WhatsApp em Tempo Real:** Conexão nativa via Evolution API com monitoramento de status e pareamento via QR Code atualizado via **Server-Sent Events (SSE)**.
-*   **Retenção Preditiva:** Algoritmo que calcula janelas de manutenção com base no histórico de serviços e automatiza o contato para novos agendamentos.
+### Para Clientes
+- **Sistema de Agendamento:** Reserva de horários baseada na disponibilidade e tempo total do serviço (incluindo serviços adicionais).
+- **Lembretes via WhatsApp:** Notificações enviadas automaticamente em horários definidos antes do atendimento.
+- **Perfil do Usuário:** Histórico de visitas, status de fidelidade e dados de cadastro.
+- **Regras de Reserva:** Configuração de janelas de agendamento que podem variar conforme o perfil do cliente.
+
+### Para Profissionais
+- **Agenda em Tempo Real:** Visualização da agenda diária e semanal.
+- **Controle de Atendimento:** Gestão de status do agendamento (Confirmado, Finalizado, Cancelado ou Falta).
+- **Bloqueios de Horário:** Opção para bloquear horários/dias na agenda para pausas ou compromissos.
+- **Horário de Trabalho:** Definição de jornadas e intervalos de almoço.
+
+### Para Gestão do Salão
+- **Cadastro de Unidades (Multi-tenant):** Fluxo para registro de novos salões no sistema.
+- **Gestão de Serviços:** Configuração de preços, durações e prazos sugeridos para retorno (manutenção).
+- **Relatórios:** Dashboards de receita, ticket e agendamentos.
+- **Customização Básica:** Configuração do nome e identidade visual da interface de agendamento.
 
 ---
 
-## 💼 Proposta de Valor
+## 🏗️ Arquitetura
 
-### Gestão Estratégica
-- **Redução de Faltas:** Confirmações e lembretes automatizados via WhatsApp para garantir a ocupação da agenda.
-- **Ciclo de Recorrência:** Previsão automática de retorno, notificando clientes no momento ideal para manutenção.
-- **Identidade Visual (White-Label):** Personalização de cores e marca por salão, aplicada instantaneamente na interface do cliente.
-- **Painéis Operacionais:** Dashboards com métricas de receita estimada, ticket médio e produtividade por profissional.
+O projeto utiliza princípios de **Domain-Driven Design (DDD)** para organizar a lógica de negócio e garantir um código manutenível.
 
-### Fluxo de Trabalho do Profissional
-- **Agenda Dinâmica:** Visualização clara de compromissos diários com atualização de status (pendente, confirmado, finalizado).
-- **Gestão de Jornada:** Configuração individualizada de horários de trabalho, pausas e bloqueios manuais.
+### Decisões de Projeto
+- **Isolamento de Dados (Multi-tenancy):** Implementado via AOP e filtros do Hibernate. Cada requisição aplica o `tenantId` automaticamente em todas as consultas SQL, garantindo a separação de dados entre salões.
+- **Processamento Baseado em Eventos:** Uso de `DomainEvents` para desacoplar tarefas. Ações como envio de mensagens e atualização de métricas são processadas de forma assíncrona após o commit da transação.
+- **Cálculo de Disponibilidade:** Algoritmo para busca de horários livres baseado em horários ocupados e cache via Caffeine para garantir respostas rápidas.
+- **Frontend Modular:** Uso de ES Modules (Vanilla JS) e fragmentos Thymeleaf (para telas de erro) para uma navegação rápida sem a necessidade de frameworks complexos.
 
 ---
 
-## 🏗️ Arquitetura e Engenharia
+## ⚙️ Rotinas Automáticas
 
-### Padrões de Design e Implementação
-- **Multi-Tenancy Nativa:** Isolamento rigoroso de dados em nível de repositório utilizando filtros Hibernate e Spring AOP (`TenantAspect`). A resolução de contexto suporta claims de JWT e roteamento por subdomínios.
-- **Motor de Disponibilidade:** Cálculo de slots em janelas de 30 minutos com suporte a múltiplos serviços (add-ons) e trava pessimista para evitar conflitos de reserva.
-- **Comunicação Orientada a Eventos:** Uso de `@TransactionalEventListener` e processamento assíncrono para pipelines de mensageria, garantindo que a experiência do usuário não seja afetada pelo tempo de resposta de APIs externas.
-- **Caffeine Cache:** Implementação de cache de segundo nível para a API, reduzindo a latência e o consumo de recursos ao servir configurações do salão e horários disponíveis através de caching.
-- **Strategy Pattern para Webhooks:** Processamento modular de eventos da Evolution API, permitindo fácil extensão para novos tipos de mensagens e notificações.
+O sistema executa diversas tarefas em segundo plano para manter a operação:
 
-### Stack
-| Camada | Tecnologias |
-| --- | --- |
-| **Backend** | Java 21, Spring Boot 3.5, Caffeine Cache, Spring Security (JWT) |
-| **Frontend** | Vanilla JavaScript (ESM), CSS, Thymeleaf Fragments |
-| **Banco de Dados** | PostgreSQL 15, Flyway |
-| **Integrações** | Evolution API (WhatsApp), Resend (E-mail), Sentry (Observabilidade) |
+### Automações de Processo
+- **API de Retorno de Clientes:** Rotina diária que analisa o histórico de serviços e sugere datas para novos agendamentos, enviando convites automáticos via WhatsApp.
+- **Lembretes de Agendamento:** Monitoramento constante de horários próximos para envio de alertas aos clientes, ajudando a reduzir faltas.
+- **Retentativa de Mensagens:** Mecanismo que identifica falhas no envio de notificações e tenta reenviá-las automaticamente.
+
+### Manutenção do Sistema
+- **Limpeza de Dados:** Rotinas para remover tokens expirados e logs de mensagens antigos (mais de 30 dias).
+- **Reset de Demonstração:** O ambiente de demo é restaurado diariamente para garantir que novos usuários sempre encontrem o sistema em um estado limpo.
+
+---
+
+## 🛡️ Segurança
+- **Controle de Acesso (RBAC):** Níveis de permissão distintos para `SUPER_ADMIN`, `ADMIN`, `PROFESSIONAL` e `CLIENT`.
+- **Autenticação JWT:** Implementação stateless com suporte a refresh tokens e cookies seguros.
+- **Proteção de Dados:** Isolamento de inquilinos (tenants) validado em cada transação de banco de dados.
+
+---
+
+## 🛠️ Tech Stack
+| Camada | Tecnologias                                                   |
+| --- |---------------------------------------------------------------|
+| **Backend** | Java 21, Spring Boot 3.5 (Web, Data, Security), Caffeine Cache |
+| **Frontend** | Vanilla JavaScript (ESM), CSS, Thymeleaf                      |
+| **Banco de Dados** | PostgreSQL 15, Flyway                                         |
+| **Integrações** | Evolution API (WhatsApp), Sentry (Observabilidade)            |
 | **Infraestrutura** | Docker Compose, Spring Boot Actuator, Logback (JSON Encoding) |
-| **Testes** | JUnit 5, Testcontainers (PostgreSQL Real), Mockito |
+| **Testes** | JUnit 5, Testcontainers, Mockito                              |
 
 * A Resend API foi removida da versão de produção atual.
----
-
-## 📊 Arquitetura de Fluxo
-
-| Origem             | Destino           | Meio / Protocolo | Finalidade |
-|:-------------------|:------------------| :--- | :--- |
-| Navegador          | Backend           | REST / SSE | Operações de interface e notificações live |
-| Backend            | PostgreSQL        | Hibernate Filter | Persistência com isolamento multi-tenant |
-| Backend            | Evolution API     | Webhooks / HTTP | Sincronização e disparos via WhatsApp |
-| Backend            | Sentry / Actuator | Logs Estruturados | Observabilidade e métricas de saúde |
-| Agendador          | Motor de Retenção | Spring Scheduling | Cálculo preditivo e gatilhos de mensagens |
-
 ---
 
 ## 🚦 Execução Local
 
 ### 1. Pré-requisitos
 - Docker e Docker Compose
-- Java 21+ (para desenvolvimento local)
 
 ### 2. Configuração de Ambiente
 Crie o arquivo `.env` com base no exemplo:
@@ -123,14 +137,3 @@ cp .env.example .env
 
 docker compose up -d --build
 ```
-
-- **Acesso à Aplicação:** `http://localhost:8080`
-- **Documentação da API:** `http://localhost:8080/swagger-ui/index.html`
-
----
-
-## 🛡️ Segurança
-- **Controle de Acesso (RBAC):** Níveis de permissão distintos para `SUPER_ADMIN`, `ADMIN`, `PROFESSIONAL` e `CLIENT`.
-- **Autenticação JWT:** Implementação stateless com suporte a refresh tokens e cookies seguros.
-- **Proteção de Dados:** Isolamento de inquilinos (tenants) validado em cada transação de banco de dados.
----
